@@ -1,5 +1,6 @@
 .DS_Store
 *.dmg
+!releases/*.dmg
 *.zip
 *.pkg
 

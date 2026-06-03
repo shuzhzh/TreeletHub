@@ -61,13 +61,16 @@
 
 ### Mac DMG 直装
 
-从 [最新 Release](https://github.com/shuzhzh/TreeletHub/releases/latest) 下载 DMG（文件名以 Release 说明为准，建议为 `TreeletHub.dmg`）。
+| | |
+|---|---|
+| **推荐** | [**下载 TreeletHub.dmg（最新 Release）**](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg) |
+| 指定版本 v1.2.3 | [Releases 页面](https://github.com/shuzhzh/TreeletHub/releases/tag/v1.2.3) · [直接下载](https://github.com/shuzhzh/TreeletHub/releases/download/v1.2.3/TreeletHub.dmg) |
 
 1. 打开 `.dmg`，将 **TreeletHub** 拖入「应用程序」。
 2. 首次启动若被 Gatekeeper 拦截：在「系统设置 → 隐私与安全性」中允许打开，或右键 App → **打开**。
 3. 与 iPhone 端一样，需允许 **本地网络** 权限以便局域网配对。
 
-上传 DMG 的步骤见 [docs/RELEASES.md](docs/RELEASES.md)。
+也可从 [Mac App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) 安装（支持自动更新）。
 
 ---
 

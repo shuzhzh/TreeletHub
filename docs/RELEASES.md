@@ -1,16 +1,22 @@
 # 发布 Mac DMG 到 GitHub Releases
 
-本仓库通过 **GitHub Releases** 分发 Mac 直装包，不提交 DMG 到 git 历史。
+本仓库通过 **GitHub Releases** 分发 Mac 直装包。DMG 放在 `releases/TreeletHub.dmg`，推送 **版本 tag** 后由 [GitHub Actions](https://github.com/shuzhzh/TreeletHub/actions/workflows/release-dmg.yml) 自动创建 Release 并上传附件。
 
 ## 维护者步骤
 
-1. 在 Xcode 中 Archive **TreeletHub_Mac**，导出 **Developer ID** 或分发用 **DMG**。
-2. 打开 [Releases](https://github.com/shuzhzh/TreeletHub/releases) → **Draft a new release**。
-3. **Tag**：建议语义化版本，例如 `v1.0.0`。
-4. **Title**：例如 `TreeletHub 1.0.0 for macOS (DMG)`。
-5. 将 DMG 拖到 **Attach binaries**，建议文件名：`TreeletHub.dmg`（或 `TreeletHub-<version>.dmg`，并同步更新 README 中的下载说明）。
-6. 在 Release notes 中写明：最低 macOS 版本、是否需允许本地网络、与 App Store 版的差异。
-7. 发布 **Publish release**。
+1. 在 Xcode 中 Archive **TreeletHub_Mac**，导出 **DMG**。
+2. 复制到本仓库：`cp ~/Downloads/Treelethub.dmg releases/TreeletHub.dmg`
+3. 编写 `docs/release-notes-vX.Y.Z.md`（与 tag 同名，如 `v1.2.3` → `release-notes-v1.2.3.md`）。
+4. 更新 `README.md` 中的版本号与下载链接（如需要）。
+5. 提交并推送 `main`，再打 tag 并推送：
+   ```bash
+   git add releases/TreeletHub.dmg docs/release-notes-v1.2.3.md README.md
+   git commit -m "Release macOS v1.2.3 DMG"
+   git push origin main
+   git tag v1.2.3
+   git push origin v1.2.3
+   ```
+6. 在 [Actions](https://github.com/shuzhzh/TreeletHub/actions) 确认 workflow 成功；Release 出现在 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
 
 ## README 直链（可选）
 
