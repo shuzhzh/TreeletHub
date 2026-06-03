@@ -1,0 +1,7 @@
+.DS_Store
+*.dmg
+*.zip
+*.pkg
+
+# 本地草稿，不提交
+assets/ios-app-qr.png.bak
