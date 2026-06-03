@@ -48,12 +48,16 @@
 
 ### iOS — App Store 二维码
 
-将 App Store 链接生成二维码后，保存为 **`assets/ios-app-qr.png`** 并提交，README 将自动显示：
+<p align="center">
+  <a href="https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247">
+    <img src="assets/ios-app-qr.png" alt="扫码在 iPhone / iPad 上下载 TreeletHub" width="220" height="220" />
+  </a>
+</p>
 
-<!-- 维护者：生成二维码后取消下一行注释 -->
-<!-- ![Scan to download TreeletHub on iPhone](assets/ios-app-qr.png) -->
-
-当前请使用链接安装：**[App Store（iPhone / iPad）](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247)**
+<p align="center">
+  用 iPhone / iPad 相机或扫码 App 扫描上图，或点击二维码打开 App Store。<br/>
+  <a href="https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247"><strong>App Store — TreeletHub 效率控制台</strong></a>
+</p>
 
 ### Mac DMG 直装
 

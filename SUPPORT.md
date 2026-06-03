@@ -12,7 +12,7 @@
 
 ## 下载
 
-- iOS：[App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247)
+- iOS：[App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247)（README 含扫码图 `assets/ios-app-qr.png`）
 - Mac App Store：[链接](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258)
 - Mac DMG：[Releases](https://github.com/shuzhzh/TreeletHub/releases)
 

@@ -22,11 +22,7 @@
 
 ## iOS 二维码
 
-1. 使用 App Store 链接生成二维码：  
-   `https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247`
-2. 保存为 `assets/ios-app-qr.png`。
-3. 在 `README.md` 中取消 iOS 二维码图片的 HTML 注释。
-4. 提交并 push。
+已包含在 `assets/ios-app-qr.png`，并在 `README.md` 中展示。更新二维码时替换该文件并 push 即可。
 
 ## 截图（可选）
 
