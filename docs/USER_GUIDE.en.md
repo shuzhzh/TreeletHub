@@ -1,82 +1,96 @@
-# TreeletHub User Guide (English)
+# TreeletHub User Guide
 
 [← Back to README](../README.md) · [简体中文](USER_GUIDE.zh-CN.md)
 
-## What is TreeletHub?
+## Overview
 
-TreeletHub lets you arrange favorite Mac apps in a grid on the Mac, then open TreeletHub on your iPhone—on the same Wi‑Fi—to launch those apps remotely. Reorder slots with drag and drop on either side.
+TreeletHub arranges Mac apps in a grid on your Mac. Pair an iPhone, iPad, or Android phone on the same Wi‑Fi to launch those apps remotely. Reorder slots with drag and drop on either side.
 
-**Typical use:** Keep TreeletHub running on the desk Mac. From the couch or another room, use your iPhone as a remote launcher for apps you already placed in the hub.
+Typical setup: leave TreeletHub running on the Mac; use your phone from another room as a remote launcher.
 
 ### Demo videos
 
-- [Demo 1 (YouTube Shorts)](https://youtube.com/shorts/koVxMkCqO6Q)
-- [Demo 2 (YouTube Shorts)](https://youtube.com/shorts/Z-G5ocFpQhQ)
+- [Demo 1](https://youtube.com/shorts/koVxMkCqO6Q)
+- [Demo 2](https://youtube.com/shorts/Z-G5ocFpQhQ)
 
 ---
 
-## Connect from iPhone
+## Download
 
-1. On the Mac, open TreeletHub and read the **six-digit pairing code**.
-2. On iPhone, open **Connect to Mac**, type the code, then tap **Connect**.
-3. The first time, allow **Local Network** access when iOS prompts you—without it, the phone cannot discover the Mac.
-
-> If you **regenerate the pairing code** on the Mac, each paired iPhone must reconnect with the **new code**.
-
----
-
-## Set up the Mac hub
-
-1. Tap any cell and choose a Mac app (`.app`) to assign.
-2. Drag tiles to swap or move apps between cells.
-3. Extra tabs (Apps, Apps1, …) add more pages; **some tabs require an active subscription**.
-4. After regenerating the pairing code on the Mac, reconnect every paired iPhone.
-
-The Mac hub may also support web shortcuts and system actions depending on your app version.
+| Platform | Link |
+|----------|------|
+| iPhone / iPad | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
+| Android | [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
+| Mac | [App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) or [DMG](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg) |
 
 ---
 
-## After you are paired (iPhone)
+## Connect from iPhone / iPad
 
-- Use the **Apps** tab for the live grid; tap to launch on the Mac.
-- In **Settings**, rename how your iPhone appears on the Mac, change the backdrop, or swap your one saved photo background.
-- **Drag and drop** to reorder slots; layout syncs with the Mac.
+1. Open TreeletHub on the Mac and read the **six-digit pairing code**.
+2. On iPhone, open **Connect to Mac**, enter the code, tap **Connect**.
+3. Allow **Local Network** when iOS asks.
 
----
-
-## Show desktop (iPhone gesture)
-
-On the **Apps** grid while paired: **swipe down with two fingers** to hide every open Mac app—including TreeletHub—and show the desktop.
+If the Mac **regenerates the pairing code**, reconnect with the **new code**.
 
 ---
 
-## Dynamic Island mode on Mac (subscription)
+## Connect from Android
 
-With an active subscription, turn on **Dynamic Island mode** on the Mac for a floating strip along the top of the desktop.
+1. Open TreeletHub on the Mac and read the **six-digit pairing code**.
+2. On Android, open **Connect to Mac**, enter the code, tap **Connect**.
+3. Stay on the **same Wi‑Fi** as the Mac; allow network discovery on first use. Turn off VPN if discovery fails.
 
-May include (version and permissions apply): media controls, home strip (pairing code, file staging, AirDrop), clipboard history, synced grid, clock, and location-based weather via WeatherKit.
+If the Mac **regenerates the pairing code**, reconnect with the **new code**.
+
+---
+
+## Set up the Mac grid
+
+1. Tap a cell and pick a `.app` to assign.
+2. Drag tiles to move or swap apps between cells.
+3. Extra tabs (Apps, Apps1, …) add pages; **some require a subscription**.
+4. Web shortcuts and system actions may be available depending on your Mac build.
+
+---
+
+## After pairing (phone)
+
+- **Apps** shows the live grid synced from the Mac; tap to launch.
+- **Settings**: rename the device, change presets, or replace your one custom photo background.
+- Drag to reorder; layout syncs with the Mac.
+
+### Show desktop (iPhone only)
+
+On the **Apps** grid while paired: **two-finger swipe down** hides all open Mac apps (including TreeletHub) and shows the desktop.
+
+---
+
+## Dynamic Island on Mac (subscription)
+
+With an active subscription, enable the top floating strip on Mac for media, pairing code, clipboard, synced grid, clock, and weather (WeatherKit; location + network required)—see your Mac build and permissions.
 
 ---
 
 ## Subscription
 
-- The first **Apps** page is available without a subscription.
-- Subscription unlocks **extra hub pages**, **Dynamic Island mode** on Mac, and reflects status on paired iPhones.
-- Purchases are handled by the **Apple App Store** on each platform.
+- The first **Apps** page is free.
+- Subscription unlocks **extra pages** and Mac **Dynamic Island**.
+- iOS / Mac: **App Store**; Android extra pages: **Google Play Pro** or an active Mac subscription when available in your region.
 
 ---
 
-## Permissions & network
+## Permissions
 
-| Permission | Why |
-|------------|-----|
-| Local Network | Discover the Mac, sync layout, send launch commands |
-| Accessibility / Automation (Mac) | Launch apps and some shortcuts when prompted |
-| Location (optional) | Weather in Dynamic Island mode |
+| Permission | Purpose |
+|------------|---------|
+| Local Network | Discover Mac, sync layout, send launch commands |
+| Accessibility / Automation (Mac) | Launch apps and shortcuts |
+| Location (optional) | Weather in Dynamic Island |
 
 ---
 
-## More
+## Links
 
 - [FAQ (中文)](FAQ.zh-CN.md)
 - [Website](https://treelet.us/treelethub/en/)

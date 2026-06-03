@@ -1,90 +1,98 @@
-# TreeletHub 使用说明（中文）
+# TreeletHub 使用说明
 
 [← 返回 README](../README.md) · [English](USER_GUIDE.en.md)
 
-## TreeletHub 是什么？
+## 简介
 
-TreeletHub 让你在 Mac 上把常用应用摆成九宫格，再在同一个 Wi‑Fi 下的 iPhone 上远程点按启动；两端都支持拖拽调整格子顺序。
+TreeletHub 在 Mac 上配置应用九宫格，同一 Wi‑Fi 下的 iPhone、iPad 或 Android 手机配对后，可远程启动 Mac 应用。两端均可拖拽调整格子。
 
-典型场景：Mac 上常驻 TreeletHub；你在客厅或别的房间，用 iPhone 快速唤起已放进九宫格的 Mac 应用。
+常见用法：Mac 上保持 TreeletHub 运行，在客厅或别的房间用手机唤起已放进九宫格的应用。
 
 ### 演示视频
 
-- [演示 1（YouTube Shorts）](https://youtube.com/shorts/koVxMkCqO6Q)
-- [演示 2（YouTube Shorts）](https://youtube.com/shorts/Z-G5ocFpQhQ)
+- [演示 1](https://youtube.com/shorts/koVxMkCqO6Q)
+- [演示 2](https://youtube.com/shorts/Z-G5ocFpQhQ)
 
 ---
 
-## 如何从 iPhone 连接 Mac
+## 下载
 
-1. 在 Mac 上打开 TreeletHub，记下界面上的 **6 位配对码**。
-2. 在 iPhone 的「**连接 Mac**」中输入配对码并点击连接。
-3. 首次连接请在系统提示中允许「**本地网络**」，否则无法发现 Mac。
-
-> **注意**：在 Mac 上重新生成配对码后，已配对的 iPhone 需用 **新码** 重新连接。
-
----
-
-## 设置 Mac 端九宫格
-
-1. 点按任意格子，选择要绑定的应用程序（`.app`）。
-2. 拖拽已配置的应用在格子间交换或移动。
-3. 多页 Tab（Apps、Apps1…）可扩展更多页面；**部分页面需要有效订阅**。
-4. 在 Mac 上重新生成配对码后，已配对的 iPhone 需用新码重新连接。
-
-Mac 端还可绑定网页快捷方式、系统级快捷操作等（以当前 Mac 版本界面为准）。
+| 端 | 链接 |
+|----|------|
+| iPhone / iPad | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
+| Android | [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
+| Mac | [App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) 或 [DMG](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg) |
 
 ---
 
-## 连接成功后（iPhone）
+## 从 iPhone / iPad 连接 Mac
 
-- 在「**Apps**」使用实时九宫格，轻点启动 Mac 应用。
-- 在「**设置**」里可修改在 Mac 上显示的设备名、更换界面背景，或替换仅保留一张的相册背景。
-- 支持 **拖拽** 调整格子顺序（与 Mac 同步）。
+1. Mac 上打开 TreeletHub，记下 **6 位配对码**。
+2. iPhone 打开「**连接 Mac**」，输入配对码并连接。
+3. 首次连接允许「**本地网络**」。
 
----
-
-## 显示桌面（iPhone 手势）
-
-已配对时在 **Apps** 九宫格上：**双指下滑** 会隐藏 Mac 上全部已打开应用（含 TreeletHub 自身）以显示桌面。
+Mac 上重新生成配对码后，手机需用 **新码** 重连。
 
 ---
 
-## Mac 灵动岛模式（订阅）
+## 从 Android 连接 Mac
 
-在有效订阅内，Mac 端可开启「灵动岛模式」：屏幕顶部有一条可收起 / 展开的浮层。
+1. Mac 上打开 TreeletHub，记下 **6 位配对码**。
+2. Android 打开「**Connect to Mac**」，输入配对码并连接。
+3. 与 Mac 保持 **同一 Wi‑Fi**；首次使用允许网络发现。若搜不到 Mac，可关闭 VPN 后重试。
 
-能力概览（以 Mac 版本与权限为准）：
-
-- 媒体播放与快捷控制
-- 主页：配对码、文件暂存、隔空投送等
-- 剪贴板历史
-- 与 iPhone 同步的九宫格
-- 时间与基于定位的实况天气（WeatherKit，需定位与网络）
+Mac 上重新生成配对码后，手机需用 **新码** 重连。
 
 ---
 
-## 订阅说明
+## Mac 端九宫格设置
 
-- 免费版可使用 **首页 Apps** 九宫格。
-- 订阅可解锁 **多页九宫格**、Mac **灵动岛模式**，并在已配对的 iPhone 上反映订阅状态。
-- 购买与续费由 **Apple App Store** 处理；Mac 与 iOS 可能需分别在对应端购买（以 App Store 展示为准）。
+1. 点按格子，选择要绑定的 `.app`。
+2. 拖拽已绑定的应用在格子间移动或交换。
+3. 多页 Tab（Apps、Apps1…）可扩展页面；**部分页面需订阅**。
+4. 可绑定网页快捷方式、系统快捷操作等（以 Mac 版界面为准）。
 
 ---
 
-## 权限与网络
+## 配对成功后（手机端）
+
+- **Apps** 页显示与 Mac 同步的九宫格，点按启动应用。
+- **设置** 中可改设备名、换背景或替换相册背景（各端保留一张自定义图）。
+- 支持拖拽排序，与 Mac 同步。
+
+### 显示桌面（仅 iPhone）
+
+已配对时在 Apps 页 **双指下滑**，可隐藏 Mac 上全部已打开应用（含 TreeletHub）并显示桌面。
+
+---
+
+## Mac 灵动岛（订阅）
+
+有效订阅下，Mac 可开启顶部浮层，包含媒体控制、配对码、剪贴板、同步九宫格、时间与天气（WeatherKit，需定位与网络）等，以 Mac 版与权限为准。
+
+---
+
+## 订阅
+
+- 免费可用 **首页 Apps** 九宫格。
+- 订阅解锁 **多页** 与 Mac **灵动岛**。
+- iOS / Mac：通过 **App Store** 购买；Android 多页可通过 **Google Play Pro** 或 Mac 端有效订阅解锁（以各端设置页为准）。
+
+---
+
+## 权限
 
 | 权限 | 用途 |
 |------|------|
 | 本地网络 | 发现 Mac、同步布局、发送启动指令 |
-| 辅助功能 / 自动化等（Mac） | 启动应用、部分快捷操作（按系统提示授权） |
+| 辅助功能 / 自动化（Mac） | 启动应用与部分快捷操作 |
 | 定位（可选） | Mac 灵动岛天气 |
 
 ---
 
-## 更多资源
+## 相关链接
 
-- [常见问题](FAQ.zh-CN.md)
+- [FAQ](FAQ.zh-CN.md)
 - [官网](https://treelet.us/treelethub/)
 - [隐私政策](https://treelet.us/treelethub/treelet-hub-privacy.html)
 - [用户协议](https://treelet.us/treelethub/treelet-hub-terms.html)
