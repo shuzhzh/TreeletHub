@@ -6,6 +6,10 @@
 - [User guide (English)](docs/USER_GUIDE.en.md)
 - [常见问题](docs/FAQ.zh-CN.md)
 
+## 演示视频
+
+- [演示 1](https://youtube.com/shorts/koVxMkCqO6Q) · [演示 2](https://youtube.com/shorts/Z-G5ocFpQhQ)
+
 ## 下载
 
 - iOS：[App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247)

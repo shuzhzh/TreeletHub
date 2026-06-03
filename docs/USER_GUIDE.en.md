@@ -8,6 +8,11 @@ TreeletHub lets you arrange favorite Mac apps in a grid on the Mac, then open Tr
 
 **Typical use:** Keep TreeletHub running on the desk Mac. From the couch or another room, use your iPhone as a remote launcher for apps you already placed in the hub.
 
+### Demo videos
+
+- [Demo 1 (YouTube Shorts)](https://youtube.com/shorts/koVxMkCqO6Q)
+- [Demo 2 (YouTube Shorts)](https://youtube.com/shorts/Z-G5ocFpQhQ)
+
 ---
 
 ## Connect from iPhone

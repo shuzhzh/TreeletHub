@@ -22,6 +22,22 @@
 > 此 GitHub 仓库用于 **产品介绍、下载与使用说明**，不存放应用源代码。  
 > 源码在本地 Xcode 工程中维护；Mac 安装包通过 [Releases](https://github.com/shuzhzh/TreeletHub/releases) 分发。
 
+## 演示视频 Demo videos
+
+在 YouTube Shorts 上观看 TreeletHub 的实际操作演示（点击缩略图或标题打开）：
+
+| | |
+|:---:|:---:|
+| [![演示 1](https://img.youtube.com/vi/koVxMkCqO6Q/hqdefault.jpg)](https://youtube.com/shorts/koVxMkCqO6Q) | [![演示 2](https://img.youtube.com/vi/Z-G5ocFpQhQ/hqdefault.jpg)](https://youtube.com/shorts/Z-G5ocFpQhQ) |
+| [**演示 1**](https://youtube.com/shorts/koVxMkCqO6Q) | [**演示 2**](https://youtube.com/shorts/Z-G5ocFpQhQ) |
+
+- 演示 1：https://youtube.com/shorts/koVxMkCqO6Q  
+- 演示 2：https://youtube.com/shorts/Z-G5ocFpQhQ  
+
+*Demo 1:* [YouTube Shorts](https://youtube.com/shorts/koVxMkCqO6Q) · *Demo 2:* [YouTube Shorts](https://youtube.com/shorts/Z-G5ocFpQhQ)
+
+---
+
 ## 下载 Download
 
 | 平台 | 获取方式 |
