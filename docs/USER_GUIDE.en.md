@@ -72,10 +72,23 @@ With an active subscription, enable the top floating strip on Mac for media, pai
 
 ---
 
+## Keyboard Launcher (Mac · subscription)
+
+With an active subscription, turn on **Keyboard Launcher** in the Mac main window:
+
+1. When prompted, allow TreeletHub under **System Settings → Privacy & Security → Input Monitoring**.
+2. **Release Control** to show the on-screen keyboard overlay; press a mapped key to launch an app, or press **Esc** / click outside to dismiss.
+3. Use **Control + key** anytime to show or hide a mapped app globally—no overlay required.
+4. On first enable, apps in `/Applications` are auto-mapped by **first letter**; click empty keys to add, mapped keys to replace, and **drag** to swap assignments.
+
+Ideal for binding Chrome, WeChat, Terminal, and other daily apps to muscle-memory keys instead of the Dock.
+
+---
+
 ## Subscription
 
 - The first **Apps** page is free.
-- Subscription unlocks **extra pages** and Mac **Dynamic Island**.
+- Subscription unlocks **extra pages**, Mac **Dynamic Island**, and Mac **Keyboard Launcher**.
 - iOS / Mac: **App Store**; Android extra pages: **Google Play Pro** or an active Mac subscription when available in your region.
 
 ---
@@ -86,6 +99,7 @@ With an active subscription, enable the top floating strip on Mac for media, pai
 |------------|---------|
 | Local Network | Discover Mac, sync layout, send launch commands |
 | Accessibility / Automation (Mac) | Launch apps and shortcuts |
+| Input Monitoring (Mac, Keyboard Launcher) | Listen for Control and shortcuts to show the overlay and launch mapped apps |
 | Location (optional) | Weather in Dynamic Island |
 
 ---
