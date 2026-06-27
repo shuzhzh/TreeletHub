@@ -1,0 +1,2 @@
+• Metadata and stability updates
+• Improved pairing and grid sync on local network

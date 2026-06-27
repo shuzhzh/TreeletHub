@@ -1,0 +1,86 @@
+<resources>
+    <string name="app_name">TreeletHub</string>
+
+    <string name="tab_settings">设置</string>
+    <string name="alert_disconnect_title">连接已断开</string>
+    <string name="common_ok">确定</string>
+    <string name="common_cancel">取消</string>
+    <string name="disconnect_server_message">Mac 端已关闭连接。</string>
+
+    <string name="connect_title">连接 Mac</string>
+    <string name="connect_intro">输入 Mac 上 TreeletHub 显示的 6 位配对码；在同一 Wi‑Fi 下会自动发现并匹配连接。</string>
+    <string name="connect_pairing_label">配对码</string>
+    <string name="connect_pin_placeholder">6 位数字</string>
+    <string name="connect_cached_hint">已载入上次配对码，正在尝试自动连接…</string>
+    <string name="connect_button_connect">连接</string>
+    <string name="connect_button_connecting">连接中…</string>
+    <string name="connect_connecting">正在连接…</string>
+    <string name="connect_find_mac">正在查找 Mac…</string>
+    <string name="connect_wifi_hint">请与 Mac 处于同一 Wi‑Fi；首次使用请允许网络发现。</string>
+
+    <string name="settings_title">设置</string>
+    <string name="settings_section_device">设备</string>
+    <string name="settings_device_name_placeholder">设备名称（留空则使用系统名称）</string>
+    <string name="settings_device_footer">此名称会显示在 Mac 的已连接设备列表中；修改后建议重新连接以立即生效。</string>
+    <string name="settings_guide_link">使用说明与连接</string>
+    <string name="guide_nav_title">使用说明</string>
+    <string name="common_back">返回</string>
+    <string name="settings_section_subscription">订阅与多页</string>
+    <string name="settings_subscribed_local">Pro：本机已解锁多页九宫格（Apps1–Apps4）。</string>
+    <string name="settings_subscribed_mac">Pro：已由 Mac 端订阅解锁多页九宫格。</string>
+    <string name="settings_subscription_paywall">多页 Tab（Apps1–Apps4）需要 Mac 端订阅有效，或在当地商店提供时购买 Google Play Pro。</string>
+    <string name="settings_restore">恢复购买</string>
+    <string name="settings_subscribe">订阅</string>
+    <string name="settings_section_background">背景</string>
+    <string name="settings_background_footer">相册仅保留一张：用「+」选取或覆盖；点缩略图启用相册背景。</string>
+    <string name="settings_disconnect">断开与 Mac 的连接</string>
+    <string name="settings_disconnect_footer">断开后下次连接需要重新输入配对码。</string>
+    <string name="settings_delete_photo_bg">删除相册背景图</string>
+    <string name="a11y_add_custom_bg">相册背景</string>
+    <string name="a11y_pick_photo">选取相册</string>
+
+    <string name="slot_empty">空</string>
+    <string name="slot_app">应用</string>
+    <string name="shortcut_other">快捷</string>
+
+    <string name="error_pin_format">请输入 Mac 上 TreeletHub 显示的 6 位数字配对码。</string>
+    <string name="error_parse_message">无法解析来自 Mac 的消息，请稍后重试连接。</string>
+    <string name="error_wrong_pin">配对码不正确，请核对 Mac 上的显示后重试。</string>
+    <string name="error_unknown">发生未知错误。</string>
+    <string name="error_discovery_failed">发现 Mac 失败（%1$d）。</string>
+    <string name="error_resolve_mac_failed">解析 Mac 地址失败（%1$d）。</string>
+    <string name="error_resolve_failed">解析服务失败。</string>
+    <string name="error_invalid_port">无效的服务端口。</string>
+    <string name="error_connect_failed">连接失败。</string>
+
+    <string name="shortcut_volume">音量</string>
+    <string name="shortcut_brightness">亮度</string>
+    <string name="shortcut_media">媒体控制</string>
+    <string name="shortcut_screenshot_full">全屏截图</string>
+    <string name="shortcut_screenshot_region">区域截图</string>
+    <string name="shortcut_select_all">全选</string>
+    <string name="shortcut_copy">复制</string>
+    <string name="shortcut_paste">粘贴</string>
+    <string name="shortcut_open_url">打开链接</string>
+
+    <string name="bg_preset_system">跟随系统</string>
+    <string name="bg_preset_porcelain_light">瓷白</string>
+    <string name="bg_preset_dawn_blush">晨曦</string>
+    <string name="bg_preset_sage_mist">雾绿</string>
+    <string name="bg_preset_deep_azure">深海</string>
+    <string name="bg_preset_royal_plum">御紫</string>
+    <string name="bg_preset_charcoal_silk">炭灰</string>
+
+    <string name="guide_title_what">TreeletHub 是什么？</string>
+    <string name="guide_body_what">TreeletHub 让你在 Mac 上把常用应用摆成九宫格，再在同一个 Wi‑Fi 下的手机上远程点按启动；两端都支持拖拽调整格子顺序。</string>
+    <string name="guide_title_scenarios">典型使用场景</string>
+    <string name="guide_body_scenarios">Mac 上常驻 TreeletHub；你在客厅或别的房间，用手机快速唤起已放进九宫格的 Mac 应用。</string>
+    <string name="guide_title_connect_android">如何从 Android 连接</string>
+    <string name="guide_body_connect_android">1）在 Mac 上打开 TreeletHub，记下界面上的 6 位配对码。\n2）在本应用的「连接 Mac」中输入配对码并点击连接。\n3）若无法发现 Mac，请检查 Wi‑Fi、关闭 VPN，并确保与 Mac 在同一局域网。</string>
+    <string name="guide_title_setup_mac">如何在 Mac 上配置</string>
+    <string name="guide_body_setup_mac">1）点按格子并选择要绑定的应用程序（.app）。\n2）拖拽已配置的应用在格子间交换或移动。\n3）多页 Tab（Apps、Apps1…）可扩展更多页面；部分页面可能需要订阅。\n4）在 Mac 上重新生成配对码后，已配对的手机需用新码重新连接。</string>
+    <string name="guide_title_setup_phone">连接成功后</string>
+    <string name="guide_body_setup_phone">在「Apps」使用实时九宫格；在「设置」里可修改在 Mac 上显示的设备名、更换界面背景，或替换仅保留一张的相册背景。</string>
+
+    <string name="lang_menu_a11y">语言</string>
+</resources>

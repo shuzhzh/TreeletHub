@@ -1,0 +1,17 @@
+# 团队与 Bundle ID 建议通过环境指定（配合 fastlane ios beta --env <名称>）
+# 变量名与 fastlane 约定一致，便于与 Appfile 工具链兼容
+
+def resolved_team_id
+  ENV["FASTLANE_TEAM_ID"] || ENV["APPLE_TEAM_ID"] || "MRD7RUVQBS"
+end
+
+def resolved_app_id
+  ENV["FASTLANE_APP_IDENTIFIER"] || "com.treelet.TreeletHub"
+end
+
+team_id(resolved_team_id)
+app_identifier(resolved_app_id)
+
+if ENV["FASTLANE_USER"] && !ENV["FASTLANE_USER"].empty?
+  apple_id(ENV["FASTLANE_USER"])
+end

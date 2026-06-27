@@ -1,0 +1,1068 @@
+{
+  "guide": {
+    "guide.title.what": {
+      "en": "What is TreeletHub?",
+      "zh-Hans": "TreeletHub 是什么？"
+    },
+    "guide.body.what": {
+      "en": "TreeletHub lets you arrange favorite Mac apps in a grid on the Mac, then open TreeletHub on your iPhone—on the same Wi‑Fi—to launch those apps remotely. Reorder slots with drag and drop on either side.",
+      "zh-Hans": "TreeletHub 让你在 Mac 上把常用应用摆成九宫格，再在同一个 Wi‑Fi 下的 iPhone 上远程点按启动；两端都支持拖拽调整格子顺序。"
+    },
+    "guide.title.scenarios": {
+      "en": "When it helps",
+      "zh-Hans": "典型使用场景"
+    },
+    "guide.body.scenarios": {
+      "en": "Keep TreeletHub running on the desk Mac. From the couch or another room, use your iPhone as a remote launcher for apps you already placed in the hub.",
+      "zh-Hans": "Mac 上常驻 TreeletHub；你在客厅或别的房间，用 iPhone 快速唤起已放进九宫格的 Mac 应用。"
+    },
+    "guide.title.connect_ios": {
+      "en": "Connect from iPhone",
+      "zh-Hans": "如何从 iPhone 连接"
+    },
+    "guide.body.connect_ios": {
+      "en": "1) On the Mac, open TreeletHub and read the six-digit pairing code.\n2) On iPhone, open Connect to Mac, type the code, then tap Connect.\n3) The first time, allow Local Network access when iOS prompts you—without it, the phone cannot discover the Mac.",
+      "zh-Hans": "1）在 Mac 上打开 TreeletHub，记下界面上的 6 位配对码。\n2）在 iPhone 的「连接 Mac」中输入配对码并点击连接。\n3）首次连接请在系统提示中允许「本地网络」，否则无法发现 Mac。"
+    },
+    "guide.title.setup_mac": {
+      "en": "Set up the Mac hub",
+      "zh-Hans": "如何在 Mac 上配置"
+    },
+    "guide.body.setup_mac": {
+      "en": "1) Tap any cell and choose a Mac app (.app) to assign.\n2) Drag tiles to swap or move apps between cells.\n3) Extra tabs (Apps1, …) add more pages; some tabs require an active subscription.\n4) If you regenerate the pairing code on the Mac, each iPhone must reconnect with the new code.",
+      "zh-Hans": "1）点按格子并选择要绑定的应用程序（.app）。\n2）拖拽已配置的应用在格子间交换或移动。\n3）多页 Tab（Apps、Apps1…）可扩展更多页面；部分页面可能需要订阅。\n4）在 Mac 上重新生成配对码后，已配对的 iPhone 需用新码重新连接。"
+    },
+    "guide.title.setup_ios": {
+      "en": "After you are paired",
+      "zh-Hans": "连接成功后（iPhone）"
+    },
+    "guide.body.setup_ios": {
+      "en": "Use the Apps tab for the live grid. In Settings, rename how your iPhone appears on the Mac, change the backdrop, or swap your one saved photo background.",
+      "zh-Hans": "在「Apps」使用实时九宫格；在「设置」里可修改在 Mac 上显示的设备名、更换界面背景，或替换仅保留一张的相册背景。"
+    },
+    "guide.title.gestures_ios": {
+      "en": "Show desktop (iPhone)",
+      "zh-Hans": "显示桌面（iPhone）"
+    },
+    "guide.body.gestures_ios": {
+      "en": "On the Apps grid while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop.",
+      "zh-Hans": "已配对时在 Apps 九宫格上：双指下滑会隐藏 Mac 上全部已打开应用（含 TreeletHub 自身）以显示桌面。"
+    },
+    "guide.nav_title": {
+      "en": "User guide",
+      "zh-Hans": "使用说明"
+    }
+  },
+  "ios": {
+    "ios.tab.settings": {
+      "en": "Settings",
+      "zh-Hans": "设置"
+    },
+    "ios.alert.disconnect_title": {
+      "en": "Disconnected",
+      "zh-Hans": "连接已断开"
+    },
+    "ios.common.ok": {
+      "en": "OK",
+      "zh-Hans": "确定"
+    },
+    "ios.common.cancel": {
+      "en": "Cancel",
+      "zh-Hans": "取消"
+    },
+    "ios.common.done": {
+      "en": "Done",
+      "zh-Hans": "完成"
+    },
+    "ios.disconnect.server_message": {
+      "en": "The connection from your Mac was closed.",
+      "zh-Hans": "Mac 端已关闭连接。"
+    },
+    "ios.settings.title": {
+      "en": "Settings",
+      "zh-Hans": "设置"
+    },
+    "ios.settings.section_device": {
+      "en": "Device",
+      "zh-Hans": "设备"
+    },
+    "ios.settings.device_name_placeholder": {
+      "en": "Custom name (leave blank to use the device name)",
+      "zh-Hans": "设备名称（留空则使用系统名称）"
+    },
+    "ios.settings.device_footer": {
+      "en": "This label is what paired Macs show in their device list. Disconnect and connect again if you change it.",
+      "zh-Hans": "此名称会显示在 Mac 的已连接设备列表中；修改后建议重新连接以立即生效。"
+    },
+    "ios.settings.guide_link": {
+      "en": "User guide",
+      "zh-Hans": "使用说明与连接"
+    },
+    "ios.settings.section_subscription": {
+      "en": "Subscription & extra pages",
+      "zh-Hans": "订阅与多页"
+    },
+    "ios.settings.subscribed_local": {
+      "en": "Pro: Extra hub pages are unlocked on this iPhone.",
+      "zh-Hans": "Pro：本机已解锁多页九宫格（Apps1–Apps4）。"
+    },
+    "ios.settings.subscribed_mac": {
+      "en": "Pro: Extra hub pages are included with your Mac subscription.",
+      "zh-Hans": "Pro：已由 Mac 端订阅解锁多页九宫格。"
+    },
+    "ios.settings.subscription_paywall": {
+      "en": "Extra hub tabs (Apps1–Apps4) require either an active TreeletHub subscription on the Mac or an iOS Pro purchase when it is available in your region.",
+      "zh-Hans": "多页 Tab（Apps1–Apps4）需要 Mac 端订阅有效，或在当地商店提供时购买 iOS Pro。"
+    },
+    "ios.settings.restore": {
+      "en": "Restore purchases",
+      "zh-Hans": "恢复购买"
+    },
+    "ios.settings.section_background": {
+      "en": "Appearance",
+      "zh-Hans": "背景"
+    },
+    "ios.settings.background_footer": {
+      "en": "One custom photo is kept at a time—use “+” to pick or replace it. Tap the thumbnail to use it as the background; press and hold to delete. Dark presets (Deep Azure, Royal Plum, Charcoal Silk) follow dark appearance.",
+      "zh-Hans": "相册仅保留一张：用「+」选取或覆盖；点缩略图启用相册背景，长按删除。深海、御紫、炭灰等深色预设会跟随深色界面。"
+    },
+    "ios.settings.disconnect": {
+      "en": "Disconnect from Mac",
+      "zh-Hans": "断开与 Mac 的连接"
+    },
+    "ios.settings.disconnect_footer": {
+      "en": "You will need to enter the pairing code again the next time you connect.",
+      "zh-Hans": "断开后下次连接需要重新输入配对码。"
+    },
+    "ios.settings.a11y.add_custom_bg": {
+      "en": "Photo background",
+      "zh-Hans": "相册背景"
+    },
+    "ios.settings.a11y.add_photo": {
+      "en": "Add photo background",
+      "zh-Hans": "添加相册背景图"
+    },
+    "ios.settings.a11y.replace_photo": {
+      "en": "Replace photo background",
+      "zh-Hans": "更换相册背景图"
+    },
+    "ios.settings.a11y.custom_bg_hint": {
+      "en": "Tap to use this photo as the app background.",
+      "zh-Hans": "点按以使用此照片作为应用背景。"
+    },
+    "ios.settings.delete_photo_bg": {
+      "en": "Remove photo background",
+      "zh-Hans": "删除相册背景图"
+    },
+    "ios.connect.title": {
+      "en": "Connect to Mac",
+      "zh-Hans": "连接 Mac"
+    },
+    "ios.connect.intro": {
+      "en": "Enter the six-digit code shown in TreeletHub on your Mac. On the same Wi‑Fi, we discover the Mac and connect when the code matches.",
+      "zh-Hans": "输入 Mac 上 TreeletHub 显示的 6 位配对码；在同一 Wi‑Fi 下会自动发现并匹配连接。"
+    },
+    "ios.connect.pairing_label": {
+      "en": "Pairing code",
+      "zh-Hans": "配对码"
+    },
+    "ios.connect.pin_placeholder": {
+      "en": "Six-digit code",
+      "zh-Hans": "6 位数字"
+    },
+    "ios.connect.cached_hint": {
+      "en": "Loaded your last pairing code and trying to connect…",
+      "zh-Hans": "已载入上次配对码，正在尝试自动连接…"
+    },
+    "ios.connect.find_mac": {
+      "en": "Looking for your Mac…",
+      "zh-Hans": "正在查找 Mac…"
+    },
+    "ios.connect.connecting": {
+      "en": "Connecting…",
+      "zh-Hans": "正在连接…"
+    },
+    "ios.connect.wifi_hint": {
+      "en": "Stay on the same Wi‑Fi as your Mac. Allow Local Network the first time so discovery can work.",
+      "zh-Hans": "请与 Mac 处于同一 Wi‑Fi；首次使用请在系统提示中允许「本地网络」。"
+    },
+    "ios.connect.button.connect": {
+      "en": "Connect",
+      "zh-Hans": "连接"
+    },
+    "ios.connect.button.connecting": {
+      "en": "Connecting…",
+      "zh-Hans": "连接中…"
+    },
+    "ios.slot.empty": {
+      "en": "Empty",
+      "zh-Hans": "空"
+    },
+    "ios.slot.app": {
+      "en": "App",
+      "zh-Hans": "应用"
+    },
+    "ios.lang.section": {
+      "en": "Language",
+      "zh-Hans": "语言"
+    },
+    "ios.lang.menu": {
+      "en": "Display language",
+      "zh-Hans": "界面语言"
+    },
+    "ios.lang.english": {
+      "en": "English",
+      "zh-Hans": "English"
+    },
+    "ios.lang.chinese": {
+      "en": "Simplified Chinese",
+      "zh-Hans": "简体中文"
+    },
+    "ios.lang.current_en": {
+      "en": "English",
+      "zh-Hans": "英语"
+    },
+    "ios.lang.current_zh": {
+      "en": "简体中文",
+      "zh-Hans": "简体中文"
+    },
+    "ios.lang.menu_a11y": {
+      "en": "Choose TreeletHub display language",
+      "zh-Hans": "选择 TreeletHub 界面语言"
+    },
+    "ios.error.pin_format": {
+      "en": "Enter exactly six digits—the pairing code from TreeletHub on your Mac.",
+      "zh-Hans": "请输入 Mac 上 TreeletHub 显示的 6 位数字配对码。"
+    },
+    "ios.error.parse_message": {
+      "en": "We could not read a message from the Mac. Try connecting again.",
+      "zh-Hans": "无法解析来自 Mac 的消息，请稍后重试连接。"
+    },
+    "ios.error.wrong_pin": {
+      "en": "That code did not match. Check the code on your Mac and try again.",
+      "zh-Hans": "配对码不正确，请核对 Mac 上的显示后重试。"
+    },
+    "ios.error.unknown": {
+      "en": "Something went wrong.",
+      "zh-Hans": "发生未知错误。"
+    },
+    "ios.shortcut.volume": {
+      "en": "Volume",
+      "zh-Hans": "音量"
+    },
+    "ios.shortcut.brightness": {
+      "en": "Brightness",
+      "zh-Hans": "亮度"
+    },
+    "ios.shortcut.media": {
+      "en": "Media",
+      "zh-Hans": "媒体控制"
+    },
+    "ios.shortcut.screenshot_full": {
+      "en": "Screenshot — full screen",
+      "zh-Hans": "全屏截图"
+    },
+    "ios.shortcut.screenshot_region": {
+      "en": "Screenshot — selection",
+      "zh-Hans": "区域截图"
+    },
+    "ios.shortcut.select_all": {
+      "en": "Select all",
+      "zh-Hans": "全选"
+    },
+    "ios.shortcut.copy": {
+      "en": "Copy",
+      "zh-Hans": "复制"
+    },
+    "ios.shortcut.paste": {
+      "en": "Paste",
+      "zh-Hans": "粘贴"
+    },
+    "ios.shortcut.open_url": {
+      "en": "Open link",
+      "zh-Hans": "打开链接"
+    },
+    "ios.bg.preset.system": {
+      "en": "Match system",
+      "zh-Hans": "跟随系统"
+    },
+    "ios.bg.preset.porcelainLight": {
+      "en": "Porcelain",
+      "zh-Hans": "瓷白"
+    },
+    "ios.bg.preset.dawnBlush": {
+      "en": "Dawn blush",
+      "zh-Hans": "晨曦"
+    },
+    "ios.bg.preset.sageMist": {
+      "en": "Sage mist",
+      "zh-Hans": "雾绿"
+    },
+    "ios.bg.preset.deepAzure": {
+      "en": "Deep azure",
+      "zh-Hans": "深海"
+    },
+    "ios.bg.preset.royalPlum": {
+      "en": "Royal plum",
+      "zh-Hans": "御紫"
+    },
+    "ios.bg.preset.charcoalSilk": {
+      "en": "Charcoal",
+      "zh-Hans": "炭灰"
+    }
+  },
+  "mac": {
+    "mac.pairing.wifi_hint": {
+      "en": "Keep iPhone and Mac on the same Wi‑Fi. On iPhone, allow Local Network when prompted.",
+      "zh-Hans": "请确保 iPhone 与 Mac 处于同一 Wi‑Fi；在 iPhone 上按提示允许「本地网络」。"
+    },
+    "mac.island.paywall": {
+      "en": "Dynamic Island mode is part of your subscription. Turn the switch on below to review or purchase plans.",
+      "zh-Hans": "灵动岛模式为订阅功能；打开下方开关可前往订阅管理。"
+    },
+    "mac.island.permission.message": {
+      "en": "Screenshot shortcuts need Screen Recording permission. If the prompt never appeared or access is still off, open Permissions & Privacy here, then enable Screen Recording for TreeletHub in System Settings.",
+      "zh-Hans": "截图类快捷方式需要「屏幕录制」权限。若未弹出授权或仍被拒绝，请在本应用内查看「权限与隐私」，并在系统设置中为 TreeletHub 开启屏幕录制。"
+    },
+    "mac.island.playback.empty": {
+      "en": "No audio-holding apps detected yet. The list fills in as macOS reports processes that keep the output device busy (macOS 14.2+).",
+      "zh-Hans": "暂未检测到占用音频输出的应用。列表会在系统上报相关进程后出现（macOS 14.2+）。"
+    },
+    "mac.island.playback.footnote": {
+      "en": "Processes shown here are the ones macOS associates with the current audio output (macOS 14.2+). Track titles and artwork appear when the system exposes Now Playing metadata. This surface does not send hardware media keys.",
+      "zh-Hans": "列表来自系统对当前音频输出相关进程的汇总（macOS 14.2+）。曲目信息在系统提供「正在播放」元数据时显示；此处不提供硬件媒体键控制。"
+    },
+    "mac.island.clipboard.desc": {
+      "en": "Keeps the ten most recent items on this Mac—plain text plus archived file copies. Restore any item to the clipboard even if the original was deleted. Use the list buttons to paste back or reveal the archive in Finder.",
+      "zh-Hans": "本地保留最近 10 条内容（文本与归档文件副本），即使原文件已删除也可恢复到剪贴板。列表按钮可粘贴回剪贴板或在访达中打开归档。"
+    },
+    "mac.island.staging.hint": {
+      "en": "Drop files to copy them into staging. When the island is collapsed, use the dashed “Staging” strip on the capsule. From there, drag into Finder or other apps, or right-click for export and reveal actions.",
+      "zh-Hans": "拖入文件即可复制到暂存区；收起时可用胶囊上的虚线「暂存」条操作。随后可拖入访达或其他应用，或右键导出与在访达中显示。"
+    },
+    "mac.server.listening": {
+      "en": "Listening on the network for paired phones",
+      "zh-Hans": "正在网络上等待已配对的手机连接"
+    },
+    "mac.empty.no_page_title": {
+      "en": "No page selected",
+      "zh-Hans": "暂无页面"
+    },
+    "mac.empty.no_page_desc": {
+      "en": "Pick a page tab or add slots before binding apps.",
+      "zh-Hans": "请先选择页面标签或添加格子后再绑定应用。"
+    },
+    "mac.devices.count": {
+      "en": "Connected devices: %lld",
+      "zh-Hans": "已连接设备：%lld"
+    },
+    "mac.devices.none": {
+      "en": "No iPhones connected yet",
+      "zh-Hans": "暂无已连接的 iPhone"
+    },
+    "mac.subscription.benefit_grid_p1": {
+      "en": "Up to %lld pages of apps and shortcuts (Apps, Apps1, …). Without a subscription, only the first page is available.",
+      "zh-Hans": "最多 %lld 页应用与快捷方式（Apps、Apps1…）。未订阅时仅可使用第一页。"
+    },
+    "mac.subscription.benefit_island_p1": {
+      "en": "With an active subscription, turn on Dynamic Island mode in the main window for the floating strip along the top of the desktop.",
+      "zh-Hans": "订阅有效时，可在主窗口开启灵动岛模式，在桌面顶部使用悬浮控制条。"
+    },
+    "mac.subscription.benefit_island_p2": {
+      "en": "Includes media shortcuts, clock, location-aware weather (Apple Weather / WeatherKit), clipboard history, staging, AirDrop hand-off, and the same hub grid you see on iPhone.",
+      "zh-Hans": "包含媒体快捷、时钟、基于定位的天气（Apple Weather / WeatherKit）、剪贴板历史、暂存与隔空投送接力，以及与 iPhone 同步的九宫格等。"
+    },
+    "mac.shortcut.picker_hint": {
+      "en": "This picker supports volume, screenshots, and opening URLs. Other shortcut types are not available here.",
+      "zh-Hans": "此处支持音量、截图与打开网址；其他快捷方式类型不可用。"
+    },
+    "mac.shortcut.unsupported_message": {
+      "en": "This build does not ship brightness, media-transport, or editing shortcuts (select all / copy / paste) in the picker.",
+      "zh-Hans": "本构建未在选取器中提供亮度、媒体控制及编辑类（全选/复制/粘贴）快捷方式。"
+    },
+    "mac.slot.help_drag": {
+      "en": "Drag a filled tile onto another to swap, or onto an empty slot to move it.",
+      "zh-Hans": "将已配置格子拖到另一格可交换；拖到空格可移动。"
+    },
+    "mac.permissions.intro": {
+      "en": "Screenshot shortcuts rely on Apple’s capture UI and need Screen Recording. Weather uses Apple Weather and needs Location when you want nearby conditions.",
+      "zh-Hans": "截图类快捷方式使用系统截图界面，需要屏幕录制权限；天气小组件通过 Apple Weather 读取数据，若需附近天气需定位权限。"
+    },
+    "mac.island.bullet1": {
+      "en": "A floating strip along the top of the desktop for music, weather, and the clock.",
+      "zh-Hans": "在桌面顶部悬浮展示音乐、天气与时间等信息。"
+    },
+    "mac.island.bullet2": {
+      "en": "Pair an iPhone, stage files, and send them with AirDrop from one compact surface.",
+      "zh-Hans": "配对 iPhone、暂存文件，并可在同一处通过隔空投送发送。"
+    },
+    "mac.island.bullet3": {
+      "en": "Clipboard history, the hub grid, and shortcuts stay in sync with TreeletHub on your phone.",
+      "zh-Hans": "剪贴板历史、九宫格与快捷方式可与手机端 TreeletHub 同步。"
+    },
+    "mac.island.bullet4": {
+      "en": "Collapse to a slim capsule when you want a quieter desktop.",
+      "zh-Hans": "可收起到细长胶囊形态，减少桌面占用。"
+    },
+    "mac.island.grid.title": {
+      "en": "Hub pages (synced with iPhone)",
+      "zh-Hans": "九宫格页面（与 iPhone 同步）"
+    },
+    "mac.island.clock.hint": {
+      "en": "The collapsed capsule always shows the time. When location and weather are enabled, it also shows the current condition.",
+      "zh-Hans": "收起态胶囊始终显示时间；在开启定位与天气时也会显示当前天气概况。"
+    },
+    "mac.lang.footer": {
+      "en": "Display language",
+      "zh-Hans": "界面语言"
+    },
+    "mac.lang.menu_a11y": {
+      "en": "Choose TreeletHub display language",
+      "zh-Hans": "选择 TreeletHub 界面语言"
+    },
+    "mac.launch_at_login.title": {
+      "en": "Open at login",
+      "zh-Hans": "开机自启动"
+    },
+    "mac.settings.menu_a11y": {
+      "en": "TreeletHub settings",
+      "zh-Hans": "TreeletHub 设置"
+    },
+    "mac.error.app_not_found": {
+      "en": "We could not find that app. Pick it again from the grid on your Mac.",
+      "zh-Hans": "未找到该应用，请在 Mac 上重新从九宫格选择。"
+    },
+    "mac.error.screenshot_tool": {
+      "en": "Could not open the system screenshot UI. Enable Screen Recording for TreeletHub under Privacy & Security.",
+      "zh-Hans": "无法启动系统截图界面。请在「隐私与安全性 → 屏幕录制」中为 TreeletHub 开启权限。"
+    },
+    "mac.server.err.disconnect": {
+      "en": "The Mac ended this session",
+      "zh-Hans": "Mac 已结束此会话"
+    },
+    "mac.add_sheet.title": {
+      "en": "Add to hub",
+      "zh-Hans": "添加内容"
+    },
+    "mac.add_sheet.add_app": {
+      "en": "Add application",
+      "zh-Hans": "添加 App"
+    },
+    "mac.add_sheet.add_shortcut": {
+      "en": "Add shortcut",
+      "zh-Hans": "添加快捷操作"
+    },
+    "mac.common.close": {
+      "en": "Close",
+      "zh-Hans": "关闭"
+    },
+    "mac.devices.disconnect": {
+      "en": "Disconnect",
+      "zh-Hans": "断开连接"
+    },
+    "mac.open_panel.prompt": {
+      "en": "Choose an application",
+      "zh-Hans": "选择应用"
+    },
+    "mac.open_panel.title": {
+      "en": "Pick an app for this slot",
+      "zh-Hans": "选择要添加的应用"
+    },
+    "mac.pairing.title": {
+      "en": "Pairing code (enter on iPhone)",
+      "zh-Hans": "配对码（在 iPhone 上输入）"
+    },
+    "mac.pairing.user_guide": {
+      "en": "User guide",
+      "zh-Hans": "使用说明"
+    },
+    "mac.pairing.regenerate": {
+      "en": "Regenerate code",
+      "zh-Hans": "重新生成"
+    },
+    "mac.pairing.regenerate_cancel": {
+      "en": "Cancel",
+      "zh-Hans": "取消"
+    },
+    "mac.pairing.regenerate_confirm_title": {
+      "en": "Regenerate pairing code?",
+      "zh-Hans": "重新生成配对码？"
+    },
+    "mac.pairing.regenerate_confirm_msg": {
+      "en": "This disconnects every paired iPhone until they enter the new code.",
+      "zh-Hans": "重新生成后，当前所有已连接的 iOS 设备都会断开，需要使用新配对码重新连接。"
+    },
+    "mac.slot.add": {
+      "en": "Add",
+      "zh-Hans": "添加"
+    },
+    "mac.slot.app": {
+      "en": "App",
+      "zh-Hans": "应用"
+    },
+    "mac.slot.clear": {
+      "en": "Clear slot",
+      "zh-Hans": "清除"
+    },
+    "mac.island.title": {
+      "en": "Dynamic Island",
+      "zh-Hans": "灵动岛模式"
+    },
+    "mac.island.permission.title": {
+      "en": "Permission needed",
+      "zh-Hans": "需要隐私授权"
+    },
+    "mac.island.permission.ok": {
+      "en": "OK",
+      "zh-Hans": "知道了"
+    },
+    "mac.island.permission.view": {
+      "en": "Open permission details…",
+      "zh-Hans": "查看权限说明…"
+    },
+    "mac.island.menu.permissions": {
+      "en": "Permissions & privacy…",
+      "zh-Hans": "权限与隐私…"
+    },
+    "mac.island.menu.guide": {
+      "en": "User guide…",
+      "zh-Hans": "使用说明…"
+    },
+    "mac.island.menu.subscription": {
+      "en": "Subscription…",
+      "zh-Hans": "订阅管理…"
+    },
+    "mac.island.menu.disable": {
+      "en": "Turn off Dynamic Island",
+      "zh-Hans": "关闭灵动岛模式"
+    },
+    "mac.island.expand_help": {
+      "en": "Click to expand the island; it collapses about a second after the pointer leaves.",
+      "zh-Hans": "点击展开灵动岛；展开后指针离开约 1 秒自动收起"
+    },
+    "mac.island.collapse_help": {
+      "en": "Collapse",
+      "zh-Hans": "收起"
+    },
+    "mac.island.clear": {
+      "en": "Clear all",
+      "zh-Hans": "清空"
+    },
+    "mac.island.drop_files_here": {
+      "en": "Drop files here",
+      "zh-Hans": "拖放文件到这里"
+    },
+    "mac.island.file_staging": {
+      "en": "Staging",
+      "zh-Hans": "文件暂存"
+    },
+    "mac.island.staging_short": {
+      "en": "Staging",
+      "zh-Hans": "暂存"
+    },
+    "mac.island.staging_drop_help": {
+      "en": "Drop files to copy them into staging—you do not need to expand first. Click to expand and open Home.",
+      "zh-Hans": "拖放文件到此处复制到暂存（无需先展开）；点击展开并跳到主页"
+    },
+    "mac.island.reveal_in_finder": {
+      "en": "Reveal in Finder",
+      "zh-Hans": "在 Finder 中显示"
+    },
+    "mac.island.export_copy": {
+      "en": "Export copy…",
+      "zh-Hans": "导出副本…"
+    },
+    "mac.island.remove_staging": {
+      "en": "Remove from staging",
+      "zh-Hans": "从暂存移除"
+    },
+    "mac.island.airdrop": {
+      "en": "AirDrop",
+      "zh-Hans": "隔空投送"
+    },
+    "mac.island.airdrop_a11y": {
+      "en": "AirDrop",
+      "zh-Hans": "隔空投送"
+    },
+    "mac.island.airdrop_tooltip": {
+      "en": "AirDrop staged files",
+      "zh-Hans": "隔空投送暂存区中的文件"
+    },
+    "mac.island.pairing_code": {
+      "en": "Pairing code",
+      "zh-Hans": "配对码"
+    },
+    "mac.island.waiting_phone": {
+      "en": "Waiting for iPhone (%lld connected)",
+      "zh-Hans": "等待 iPhone 连接（%lld 台已连）"
+    },
+    "mac.island.not_listening": {
+      "en": "Not accepting connections",
+      "zh-Hans": "未在监听"
+    },
+    "mac.island.weather": {
+      "en": "Weather",
+      "zh-Hans": "天气"
+    },
+    "mac.island.weather.refresh": {
+      "en": "Refresh",
+      "zh-Hans": "刷新"
+    },
+    "mac.island.weather.location_first": {
+      "en": "Location access is required for nearby weather.",
+      "zh-Hans": "首次使用需授权定位，以获取当地天气。"
+    },
+    "mac.island.weather.request_location": {
+      "en": "Request location access",
+      "zh-Hans": "请求定位授权"
+    },
+    "mac.island.weather.location_off": {
+      "en": "Location is off. Turn it on under System Settings → Privacy & Security → Location Services for TreeletHub.",
+      "zh-Hans": "定位已关闭。请在系统设置 → 隐私与安全性 → 定位服务 中为 TreeletHub 开启权限。"
+    },
+    "mac.island.weather.open_location_settings": {
+      "en": "Open Location settings",
+      "zh-Hans": "打开定位设置"
+    },
+    "mac.island.forecast": {
+      "en": "Upcoming days",
+      "zh-Hans": "未来数日预报"
+    },
+    "mac.island.clipboard.title": {
+      "en": "Clipboard history",
+      "zh-Hans": "剪贴板历史"
+    },
+    "mac.island.clipboard.empty": {
+      "en": "Nothing here yet—copy text or files in Finder to populate the list.",
+      "zh-Hans": "暂无记录。复制文字或在访达中复制文件后即可出现。"
+    },
+    "mac.island.clipboard.delete_help": {
+      "en": "Delete this entry",
+      "zh-Hans": "删除此条记录"
+    },
+    "mac.island.clipboard.reveal_help": {
+      "en": "Show archived copy in Finder",
+      "zh-Hans": "在访达中显示归档副本"
+    },
+    "mac.island.playback.title": {
+      "en": "Apps using audio",
+      "zh-Hans": "占用音频的 App"
+    },
+    "mac.island.playback.no_media_keys": {
+      "en": "Media keys are not available in TreeletHub.",
+      "zh-Hans": "本应用不提供媒体键控制。"
+    },
+    "mac.island.audio.outputting": {
+      "en": "Playing audio",
+      "zh-Hans": "正在输出音频"
+    },
+    "mac.island.audio.holding": {
+      "en": "Holding the audio device (silent)",
+      "zh-Hans": "占用音频会话（当前未输出）"
+    },
+    "mac.island.clock.title": {
+      "en": "Clock & chimes",
+      "zh-Hans": "时间与报时"
+    },
+    "mac.island.clock.hourly_chime": {
+      "en": "Hourly chime",
+      "zh-Hans": "整点铃声"
+    },
+    "mac.island.clock.hourly_voice": {
+      "en": "Hourly spoken time",
+      "zh-Hans": "整点语音报时"
+    },
+    "mac.island.clock.speak_now": {
+      "en": "Speak the time",
+      "zh-Hans": "朗读当前时间"
+    },
+    "mac.island.subtitle.clipboard": {
+      "en": "Clipboard · %@",
+      "zh-Hans": "剪贴 %@"
+    },
+    "mac.island.subtitle.staging": {
+      "en": "Staging · %lld items",
+      "zh-Hans": "暂存 %lld 项"
+    },
+    "mac.island.switch.on": {
+      "en": "On",
+      "zh-Hans": "已开启"
+    },
+    "mac.island.switch.off": {
+      "en": "Off",
+      "zh-Hans": "已关闭"
+    },
+    "mac.toolbar.subscription": {
+      "en": "Subscription",
+      "zh-Hans": "订阅管理"
+    },
+    "mac.subscription.title": {
+      "en": "Subscription",
+      "zh-Hans": "订阅管理"
+    },
+    "mac.subscription.subscribe_now": {
+      "en": "Subscribe",
+      "zh-Hans": "立即订阅"
+    },
+    "mac.subscription.restore": {
+      "en": "Restore purchases",
+      "zh-Hans": "恢复购买"
+    },
+    "mac.subscription.refresh": {
+      "en": "Refresh",
+      "zh-Hans": "刷新"
+    },
+    "mac.subscription.not_subscribed": {
+      "en": "Not subscribed",
+      "zh-Hans": "未订阅"
+    },
+    "mac.subscription.subscribed": {
+      "en": "Subscribed",
+      "zh-Hans": "已订阅"
+    },
+    "mac.subscription.loading": {
+      "en": "Loading subscription information…",
+      "zh-Hans": "正在从 App Store 拉取订阅信息…"
+    },
+    "mac.subscription.fetching": {
+      "en": "Contacting the App Store…",
+      "zh-Hans": "正在从 App Store 拉取订阅信息…"
+    },
+    "mac.subscription.price_loading": {
+      "en": "Fetching price…",
+      "zh-Hans": "价格加载中…"
+    },
+    "mac.subscription.includes_title": {
+      "en": "Included while subscribed",
+      "zh-Hans": "本期订阅有效期内包含"
+    },
+    "mac.subscription.includes_desc": {
+      "en": "Everything below stays available for the paid period at the App Store price in your region.",
+      "zh-Hans": "以下功能在付费周期内全部可用；与 App Store 订阅价格对应。"
+    },
+    "mac.subscription.benefit_sync_title": {
+      "en": "Pair with iPhone",
+      "zh-Hans": "与 iPhone 配对同步"
+    },
+    "mac.subscription.benefit_sync_p1": {
+      "en": "Sync the hub layout to paired iPhones on the same LAN (companion app required) and reflect subscription status on the phone.",
+      "zh-Hans": "通过局域网将布局同步到已配对的 iPhone（若安装配套客户端），并在下发数据中同步订阅解锁状态；移动端具体能力以 iOS 端说明为准。"
+    },
+    "mac.subscription.benefit_island_title": {
+      "en": "Dynamic Island & desktop tools",
+      "zh-Hans": "灵动岛与桌面控制中心"
+    },
+    "mac.subscription.auto_renew_legal": {
+      "en": "Subscriptions renew automatically until cancelled in System Settings → Apple Account → Subscriptions. Legal links open in your default browser.",
+      "zh-Hans": "自动续订须遵守相关条款；以下链接将在默认浏览器中打开。"
+    },
+    "mac.subscription.renewal": {
+      "en": "Plans renew automatically until you cancel them under System Settings → Apple Account → Subscriptions.",
+      "zh-Hans": "订阅将按期自动续费，直至您在系统「设置 › Apple 账户 › 订阅」或 Mac App Store 账户管理中取消为本 App 安排的自动续订。"
+    },
+    "mac.subscription.privacy": {
+      "en": "Privacy policy",
+      "zh-Hans": "隐私政策"
+    },
+    "mac.subscription.eula": {
+      "en": "Terms of use (EULA)",
+      "zh-Hans": "使用条款（EULA）"
+    },
+    "mac.subscription.store_desc": {
+      "en": "App Store description",
+      "zh-Hans": "App Store 商品说明"
+    },
+    "mac.subscription.expires": {
+      "en": "Renews or expires: %@",
+      "zh-Hans": "到期时间：%@"
+    },
+    "mac.subscription.expires_unknown": {
+      "en": "Subscription is active. Tap Refresh if the renewal date is missing.",
+      "zh-Hans": "订阅已生效。若未显示到期时间，请点击「刷新」同步 App Store。"
+    },
+    "mac.subscription.err.no_products": {
+      "en": "Products are unavailable right now. Try again later.",
+      "zh-Hans": "暂未拉取到订阅商品，请稍后重试。"
+    },
+    "mac.subscription.err.pending": {
+      "en": "Purchase submitted—waiting for Apple to confirm.",
+      "zh-Hans": "订阅请求已提交，等待系统确认。"
+    },
+    "mac.subscription.err.verify_failed": {
+      "en": "We could not verify the subscription. Try again.",
+      "zh-Hans": "订阅校验失败，请重试。"
+    },
+    "mac.subscription.err.unknown": {
+      "en": "Unexpected purchase state. Try again later.",
+      "zh-Hans": "未知购买状态，请稍后重试。"
+    },
+    "mac.permissions.title": {
+      "en": "Permissions & privacy",
+      "zh-Hans": "权限与隐私"
+    },
+    "mac.permissions.screen": {
+      "en": "Screen recording",
+      "zh-Hans": "屏幕录制"
+    },
+    "mac.permissions.screen_path": {
+      "en": "System Settings → Privacy & Security → Screen Recording",
+      "zh-Hans": "系统设置 → 隐私与安全性 → 屏幕录制"
+    },
+    "mac.permissions.location": {
+      "en": "Location (weather)",
+      "zh-Hans": "定位服务（天气）"
+    },
+    "mac.permissions.location_path": {
+      "en": "System Settings → Privacy & Security → Location Services → TreeletHub",
+      "zh-Hans": "系统设置 → 隐私与安全性 → 定位服务 → TreeletHub"
+    },
+    "mac.permissions.request_prompt": {
+      "en": "Show permission prompt",
+      "zh-Hans": "请求授权提示"
+    },
+    "mac.permissions.refresh": {
+      "en": "Refresh status",
+      "zh-Hans": "刷新状态"
+    },
+    "mac.permissions.open_settings": {
+      "en": "Open System Settings",
+      "zh-Hans": "打开系统设置"
+    },
+    "mac.permissions.authorized": {
+      "en": "Allowed",
+      "zh-Hans": "已授权"
+    },
+    "mac.permissions.denied": {
+      "en": "Not allowed",
+      "zh-Hans": "未授权"
+    },
+    "mac.shortcut.picker_title": {
+      "en": "Choose a shortcut",
+      "zh-Hans": "选择快捷操作"
+    },
+    "mac.shortcut.url_field": {
+      "en": "Full URL (for example https://www.apple.com)",
+      "zh-Hans": "完整网址（例如 https://www.apple.com）"
+    },
+    "mac.shortcut.volume": {
+      "en": "Volume",
+      "zh-Hans": "音量大小"
+    },
+    "mac.shortcut.brightness": {
+      "en": "Brightness",
+      "zh-Hans": "屏幕亮度"
+    },
+    "mac.shortcut.media": {
+      "en": "Media controls",
+      "zh-Hans": "媒体控制"
+    },
+    "mac.shortcut.screenshot_full": {
+      "en": "Screenshot — full screen",
+      "zh-Hans": "一键截图（全屏）"
+    },
+    "mac.shortcut.screenshot_region": {
+      "en": "Screenshot — selection",
+      "zh-Hans": "一键截图（区域）"
+    },
+    "mac.shortcut.select_all": {
+      "en": "Select all",
+      "zh-Hans": "全选"
+    },
+    "mac.shortcut.copy": {
+      "en": "Copy",
+      "zh-Hans": "复制"
+    },
+    "mac.shortcut.paste": {
+      "en": "Paste",
+      "zh-Hans": "粘贴"
+    },
+    "mac.shortcut.open_url": {
+      "en": "Open link",
+      "zh-Hans": "打开网址"
+    },
+    "mac.shortcut.open_url_named": {
+      "en": "Open link %@",
+      "zh-Hans": "打开网址 %@"
+    },
+    "mac.error.invalid_url": {
+      "en": "That URL is not valid.",
+      "zh-Hans": "网址无效"
+    },
+    "mac.error.script_failed": {
+      "en": "Automation script failed: %@",
+      "zh-Hans": "系统脚本执行失败：%@"
+    },
+    "mac.error.gesture_hide_failed": {
+      "en": "Could not hide the frontmost app.",
+      "zh-Hans": "无法隐藏当前前台应用。"
+    },
+    "mac.error.gesture_no_front_app": {
+      "en": "No frontmost app window to minimize.",
+      "zh-Hans": "没有可最小化的前台应用窗口。"
+    },
+    "mac.error.gesture_no_front_window": {
+      "en": "Could not access the frontmost app window.",
+      "zh-Hans": "无法访问当前前台应用窗口。"
+    },
+    "mac.error.gesture_minimize_failed": {
+      "en": "Could not minimize the frontmost window.",
+      "zh-Hans": "无法最小化当前前台窗口。"
+    },
+    "mac.error.gesture_accessibility_required": {
+      "en": "Two-finger minimize needs Accessibility for TreeletHub. Open System Settings → Privacy & Security → Accessibility and enable TreeletHub.",
+      "zh-Hans": "双指最小化需要辅助功能权限。请在「系统设置 → 隐私与安全性 → 辅助功能」中允许 TreeletHub。"
+    },
+    "mac.error.gesture_desktop_failed": {
+      "en": "Could not reveal the desktop (no visible apps to hide).",
+      "zh-Hans": "无法显示桌面（没有可隐藏的应用）。"
+    },
+    "mac.server.err.bad_format": {
+      "en": "Malformed message",
+      "zh-Hans": "无效的消息格式"
+    },
+    "mac.server.err.bad_page": {
+      "en": "Unknown page",
+      "zh-Hans": "无效的页面"
+    },
+    "mac.server.err.bad_shortcut": {
+      "en": "Shortcut configuration is invalid",
+      "zh-Hans": "该快捷操作配置无效"
+    },
+    "mac.server.err.bad_slot": {
+      "en": "Invalid slot",
+      "zh-Hans": "无效的格子"
+    },
+    "mac.server.err.bad_swap": {
+      "en": "Cannot swap those slots",
+      "zh-Hans": "无效的交换参数"
+    },
+    "mac.server.err.bad_target": {
+      "en": "Unsupported control target",
+      "zh-Hans": "无效的控制目标"
+    },
+    "mac.server.err.missing_pin": {
+      "en": "Pairing code missing",
+      "zh-Hans": "缺少 PIN"
+    },
+    "mac.server.err.no_app": {
+      "en": "No app is assigned to that slot",
+      "zh-Hans": "该格未配置应用"
+    },
+    "mac.server.err.not_paired": {
+      "en": "Not paired",
+      "zh-Hans": "未配对"
+    },
+    "mac.server.err.not_shortcut": {
+      "en": "That slot is not a shortcut",
+      "zh-Hans": "该格不是快捷操作"
+    },
+    "mac.playback.now_playing_title": {
+      "en": "Now playing",
+      "zh-Hans": "正在播放"
+    },
+    "mac.playback.artist_idle": {
+      "en": "Silent",
+      "zh-Hans": "当前未输出音频"
+    },
+    "mac.playback.artist_output": {
+      "en": "Playing audio",
+      "zh-Hans": "正在输出音频"
+    },
+    "mac.weather.err.needs_location": {
+      "en": "Turn on location access to load local weather.",
+      "zh-Hans": "需要定位权限才能获取当地天气。"
+    },
+    "mac.island.weather.attribution": {
+      "en": "Weather data comes from Apple. See Apple’s developer documentation for models, radar, and alerts.",
+      "zh-Hans": "天气数据由 Apple 提供。气象模型、雷达与预警等数据来源说明见 Apple 开发者文档页面。"
+    },
+    "mac.island.weather.data_sources": {
+      "en": "Data sources & legal",
+      "zh-Hans": "数据来源及其他法律信息"
+    },
+    "mac.clock.speak.hourly": {
+      "en": "It is %d o’clock.",
+      "zh-Hans": "现在 %d 点整"
+    },
+    "mac.clock.speak.prefix": {
+      "en": "The time is ",
+      "zh-Hans": "现在时间"
+    },
+    "mac.clock.style.analog": {
+      "en": "Analog",
+      "zh-Hans": "指针"
+    },
+    "mac.clock.style.compact": {
+      "en": "Digital (compact)",
+      "zh-Hans": "数字（简洁）"
+    },
+    "mac.clock.style.seconds": {
+      "en": "Digital (with seconds)",
+      "zh-Hans": "数字（秒）"
+    },
+    "mac.clipboard.files_fallback": {
+      "en": "Files",
+      "zh-Hans": "文件"
+    },
+    "mac.clipboard.multi_files_head": {
+      "en": "%lld files: %@",
+      "zh-Hans": "%lld 个文件：%@"
+    },
+    "mac.island.files.count": {
+      "en": "%lld files",
+      "zh-Hans": "%lld 个文件"
+    },
+    "mac.island.a11y.weather": {
+      "en": "Apple Weather",
+      "zh-Hans": "Apple Weather"
+    },
+    "mac.premium.badge_a11y": {
+      "en": "VIP page",
+      "zh-Hans": "会员页"
+    },
+    "mac.lang.english": {
+      "en": "English",
+      "zh-Hans": "English"
+    },
+    "mac.lang.chinese": {
+      "en": "Simplified Chinese",
+      "zh-Hans": "简体中文"
+    },
+    "mac.lang.badge_en": {
+      "en": "EN",
+      "zh-Hans": "EN"
+    },
+    "mac.lang.badge_zh": {
+      "en": "ZH",
+      "zh-Hans": "简中"
+    },
+    "mac.app.name": {
+      "en": "TreeletHub",
+      "zh-Hans": "TreeletHub"
+    },
+    "mac.playback.audible_suffix": {
+      "en": "%@ · playing",
+      "zh-Hans": "%@·出声"
+    },
+    "mac.playback.audio_generic": {
+      "en": "Audio",
+      "zh-Hans": "音频播放"
+    },
+    "mac.playback.music_fallback": {
+      "en": "Music",
+      "zh-Hans": "音乐"
+    },
+    "mac.playback.now_playing_with_app": {
+      "en": "%@ · now playing",
+      "zh-Hans": "%@ · 正在播放"
+    },
+    "mac.playback.process_fallback": {
+      "en": "Process %lld",
+      "zh-Hans": "进程 %lld"
+    },
+    "mac.subscription.benefit_grid_title": {
+      "en": "Multi-page hub",
+      "zh-Hans": "多页应用网格"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+# 本地账号配置与密钥（勿提交）
+.env
+.env.*
+!.env.*.example
+keys/
+*.p8
+report.xml
+Preview.html
+screenshots/

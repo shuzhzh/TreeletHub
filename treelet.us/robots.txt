@@ -1,0 +1,6 @@
+# https://treelet.us/ — 允许搜索引擎抓取全站（静态页 + 各产品子路径）
+User-agent: *
+Allow: /
+
+# 站点地图（请在各搜索引擎站长工具中也可手动提交同一地址）
+Sitemap: https://treelet.us/sitemap.xml

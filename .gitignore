@@ -1,0 +1,54 @@
+.DS_Store
+*.dmg
+!releases/*.dmg
+*.zip
+*.pkg
+
+# 本地草稿，不提交
+assets/ios-app-qr.png.bak
+
+# Xcode
+DerivedData/
+*.xcuserstate
+**/xcuserdata/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Build outputs
+build/
+dist/
+**/app/build/
+**/app/release/
+
+# Android / Gradle
+.gradle/
+local.properties
+*.iml
+.externalNativeBuild/
+.cxx/
+/captures
+
+# IDE
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# Fastlane secrets
+fastlane/.env
+fastlane/.env.*
+!fastlane/.env.*.example
+fastlane/keys/
+fastlane/*.p8
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/

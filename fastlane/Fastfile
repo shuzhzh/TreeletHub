@@ -1,0 +1,232 @@
+# frozen_string_literal: true
+
+default_platform(:ios)
+
+def repo_root
+  File.expand_path("..", __dir__)
+end
+
+def connect_api_key
+  key_id = ENV["APP_STORE_CONNECT_KEY_ID"]
+  issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
+  key_path = ENV["APP_STORE_CONNECT_KEY_PATH"]
+
+  return nil if key_id.to_s.empty? || issuer_id.to_s.empty? || key_path.to_s.empty?
+
+  app_store_connect_api_key(
+    key_id: key_id,
+    issuer_id: issuer_id,
+    key_filepath: File.expand_path(key_path, repo_root),
+    duration: 1200,
+    in_house: false
+  )
+end
+
+def ios_scheme
+  ENV["FASTLANE_SCHEME"] || "TreeletHub"
+end
+
+def mac_scheme
+  ENV["FASTLANE_MAC_SCHEME"] || "TreeletHub_Mac"
+end
+
+def ios_app_identifier
+  ENV["FASTLANE_APP_IDENTIFIER"] || "com.treelet.TreeletHub"
+end
+
+def mac_app_identifier
+  ENV["FASTLANE_MAC_APP_IDENTIFIER"] || "com.treelet.TreeletHub-Mac"
+end
+
+def ios_metadata_path
+  File.join(__dir__, "metadata", "ios")
+end
+
+def mac_metadata_path
+  File.join(__dir__, "metadata", "mac")
+end
+
+def development_team_xcargs
+  team = ENV["FASTLANE_TEAM_ID"] || ENV["APPLE_TEAM_ID"]
+  base = "CODE_SIGN_STYLE=Automatic"
+  team.to_s.empty? ? base : "#{base} DEVELOPMENT_TEAM=#{team}"
+end
+
+def portal_team_id
+  tid = ENV["FASTLANE_TEAM_ID"] || ENV["APPLE_TEAM_ID"]
+  tid.to_s.empty? ? nil : tid
+end
+
+def api_key_or_raise!
+  connect_api_key || UI.user_error!(
+    "缺少 App Store Connect API Key。请设置 APP_STORE_CONNECT_KEY_ID、APP_STORE_CONNECT_ISSUER_ID、APP_STORE_CONNECT_KEY_PATH（见 fastlane/README.md）"
+  )
+end
+
+def metadata_common_options(app_identifier:, metadata_path:)
+  opts = {
+    api_key: api_key_or_raise!,
+    app_identifier: app_identifier,
+    metadata_path: metadata_path
+  }
+  opts[:team_id] = portal_team_id if portal_team_id
+  opts[:itc_team_id] = ENV["FASTLANE_ITC_TEAM_ID"] if ENV["FASTLANE_ITC_TEAM_ID"] && !ENV["FASTLANE_ITC_TEAM_ID"].empty?
+  opts
+end
+
+def upload_store_options(app_identifier:, metadata_path: nil)
+  opts = {
+    api_key: api_key_or_raise!,
+    app_identifier: app_identifier,
+    force: true,
+    skip_metadata: metadata_path.nil?,
+    skip_screenshots: true,
+    precheck_include_in_app_purchases: false
+  }
+  opts[:metadata_path] = metadata_path if metadata_path
+  opts[:team_id] = portal_team_id if portal_team_id
+  opts[:itc_team_id] = ENV["FASTLANE_ITC_TEAM_ID"] if ENV["FASTLANE_ITC_TEAM_ID"] && !ENV["FASTLANE_ITC_TEAM_ID"].empty?
+  opts
+end
+
+platform :ios do
+  desc "归档并上传到 TestFlight。示例：fastlane ios beta --env treelet"
+  lane :beta do |options|
+    api_key = connect_api_key
+
+    unless options[:skip_build]
+      build_app(
+        project: "TreeletHub.xcodeproj",
+        scheme: ios_scheme,
+        configuration: "Release",
+        export_method: "app-store",
+        clean: true,
+        xcargs: development_team_xcargs
+      )
+    end
+
+    upload_to_testflight(
+      {
+        api_key: api_key,
+        skip_waiting_for_build_processing: true
+      }.merge(portal_team_id ? { team_id: portal_team_id } : {})
+    )
+  end
+
+  desc "归档并上传到 App Store Connect（默认不上传文案）"
+  lane :release do
+    build_app(
+      project: "TreeletHub.xcodeproj",
+      scheme: ios_scheme,
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      xcargs: development_team_xcargs
+    )
+
+    upload_to_app_store(upload_store_options(app_identifier: ios_app_identifier))
+  end
+
+  desc "仅本地 Release 归档（不上传）"
+  lane :build do
+    build_app(
+      project: "TreeletHub.xcodeproj",
+      scheme: ios_scheme,
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      skip_package_ipa: true,
+      skip_archive: false,
+      xcargs: development_team_xcargs
+    )
+  end
+
+  desc "从 App Store Connect 下载 iOS 商店文案到 fastlane/metadata/ios"
+  lane :metadata_pull do
+    download_metadata(metadata_common_options(app_identifier: ios_app_identifier, metadata_path: ios_metadata_path))
+  end
+
+  desc "将 fastlane/metadata/ios 推送到 App Store Connect（仅文案，无二进制）"
+  lane :metadata_push do
+    upload_to_app_store(
+      metadata_common_options(app_identifier: ios_app_identifier, metadata_path: ios_metadata_path).merge(
+        force: true,
+        skip_binary: true,
+        skip_screenshots: true,
+        precheck_include_in_app_purchases: false
+      )
+    )
+  end
+
+  desc "归档并上传，同时更新 fastlane/metadata/ios 文案"
+  lane :release_with_metadata do
+    build_app(
+      project: "TreeletHub.xcodeproj",
+      scheme: ios_scheme,
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      xcargs: development_team_xcargs
+    )
+
+    upload_to_app_store(
+      upload_store_options(app_identifier: ios_app_identifier, metadata_path: ios_metadata_path)
+    )
+  end
+end
+
+platform :mac do
+  desc "Mac 归档并上传到 TestFlight。示例：fastlane mac beta --env treelet"
+  lane :beta do |options|
+    api_key = connect_api_key
+
+    unless options[:skip_build]
+      build_app(
+        project: "TreeletHub.xcodeproj",
+        scheme: mac_scheme,
+        configuration: "Release",
+        export_method: "app-store",
+        clean: true,
+        xcargs: development_team_xcargs
+      )
+    end
+
+    upload_to_testflight(
+      {
+        api_key: api_key,
+        skip_waiting_for_build_processing: true
+      }.merge(portal_team_id ? { team_id: portal_team_id } : {})
+    )
+  end
+
+  desc "Mac 归档并上传到 Mac App Store（默认不上传文案）"
+  lane :release do
+    build_app(
+      project: "TreeletHub.xcodeproj",
+      scheme: mac_scheme,
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      xcargs: development_team_xcargs
+    )
+
+    upload_to_app_store(upload_store_options(app_identifier: mac_app_identifier))
+  end
+
+  desc "下载 Mac 商店文案到 fastlane/metadata/mac（需先在 ASC 创建 Mac 应用）"
+  lane :metadata_pull do
+    download_metadata(metadata_common_options(app_identifier: mac_app_identifier, metadata_path: mac_metadata_path))
+  end
+
+  desc "推送 fastlane/metadata/mac 文案（目录可先由 metadata_pull 生成）"
+  lane :metadata_push do
+    upload_to_app_store(
+      metadata_common_options(app_identifier: mac_app_identifier, metadata_path: mac_metadata_path).merge(
+        force: true,
+        skip_binary: true,
+        skip_screenshots: true,
+        precheck_include_in_app_purchases: false
+      )
+    )
+  end
+end

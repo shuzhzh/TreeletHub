@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>TreeletHub</string>
+	<key>CFBundleName</key>
+	<string>TreeletHub</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>TreeletHub advertises on your local network so iPhones on the same Wi‑Fi can discover and pair with this Mac.</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>TreeletHub needs Screen Recording access to invoke the system screenshot tool for screenshot shortcuts.</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>TreeletHub uses Apple Events to read now-playing metadata from the Music app for Dynamic Island.</string>
+	<key>NSInputMonitoringUsageDescription</key>
+	<string>TreeletHub listens for Control and key presses to show the Keyboard Launcher overlay and open mapped apps.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TreeletHub uses your approximate location to show local weather and forecasts through WeatherKit.</string>
+</dict>
+</plist>

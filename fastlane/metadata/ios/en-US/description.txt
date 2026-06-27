@@ -1,0 +1,13 @@
+TreeletHub is a productivity companion for your home or office network.
+
+On your computer, arrange favorite apps, links, and shortcuts in a synced grid. On your phone—on the same trusted Wi‑Fi—tap to launch or switch without walking back to the desk.
+
+Features:
+• Pair with a short code; no cloud account required for core sync
+• Drag-and-drop grid on both sides
+• Optional extra hub pages with subscription
+• Local network only for discovery and control
+
+Install the desktop companion from the Mac App Store to use remote launch. This iPhone app is the remote control for that hub.
+
+Privacy: pairing and layout sync stay on your local network unless you use other Treelet services separately.

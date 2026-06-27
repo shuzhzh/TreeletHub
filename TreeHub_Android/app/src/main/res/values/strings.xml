@@ -1,0 +1,86 @@
+<resources>
+    <string name="app_name">TreeletHub</string>
+
+    <string name="tab_settings">Settings</string>
+    <string name="alert_disconnect_title">Disconnected</string>
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="disconnect_server_message">The connection from your Mac was closed.</string>
+
+    <string name="connect_title">Connect to Mac</string>
+    <string name="connect_intro">Enter the six-digit code shown in TreeletHub on your Mac. On the same Wi‑Fi, we discover the Mac and connect when the code matches.</string>
+    <string name="connect_pairing_label">Pairing code</string>
+    <string name="connect_pin_placeholder">Six-digit code</string>
+    <string name="connect_cached_hint">Loaded your last pairing code and trying to connect…</string>
+    <string name="connect_button_connect">Connect</string>
+    <string name="connect_button_connecting">Connecting…</string>
+    <string name="connect_connecting">Connecting…</string>
+    <string name="connect_find_mac">Looking for your Mac…</string>
+    <string name="connect_wifi_hint">Stay on the same Wi‑Fi as your Mac. Allow network discovery on first use.</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_device">Device</string>
+    <string name="settings_device_name_placeholder">Custom name (leave blank to use the device name)</string>
+    <string name="settings_device_footer">This label is what paired Macs show in their device list. Disconnect and connect again if you change it.</string>
+    <string name="settings_guide_link">User guide</string>
+    <string name="guide_nav_title">User guide</string>
+    <string name="common_back">Back</string>
+    <string name="settings_section_subscription">Subscription &amp; extra pages</string>
+    <string name="settings_subscribed_local">Pro: Extra hub pages are unlocked on this phone.</string>
+    <string name="settings_subscribed_mac">Pro: Extra hub pages are included with your Mac subscription.</string>
+    <string name="settings_subscription_paywall">Extra hub tabs (Apps1–Apps4) require either an active TreeletHub subscription on the Mac or a Google Play Pro purchase when available in your region.</string>
+    <string name="settings_restore">Restore purchases</string>
+    <string name="settings_subscribe">Subscribe</string>
+    <string name="settings_section_background">Appearance</string>
+    <string name="settings_background_footer">One custom photo is kept at a time—use “+” to pick or replace it. Tap the thumbnail to use it as the background.</string>
+    <string name="settings_disconnect">Disconnect from Mac</string>
+    <string name="settings_disconnect_footer">You will need to enter the pairing code again the next time you connect.</string>
+    <string name="settings_delete_photo_bg">Remove photo background</string>
+    <string name="a11y_add_custom_bg">Photo background</string>
+    <string name="a11y_pick_photo">Choose photo</string>
+
+    <string name="slot_empty">Empty</string>
+    <string name="slot_app">App</string>
+    <string name="shortcut_other">Shortcut</string>
+
+    <string name="error_pin_format">Enter exactly six digits—the pairing code from TreeletHub on your Mac.</string>
+    <string name="error_parse_message">We could not read a message from the Mac. Try connecting again.</string>
+    <string name="error_wrong_pin">That code did not match. Check the code on your Mac and try again.</string>
+    <string name="error_unknown">Something went wrong.</string>
+    <string name="error_discovery_failed">Could not discover your Mac on the network (%1$d).</string>
+    <string name="error_resolve_mac_failed">Could not resolve the Mac address (%1$d).</string>
+    <string name="error_resolve_failed">Could not resolve the service.</string>
+    <string name="error_invalid_port">Invalid service port.</string>
+    <string name="error_connect_failed">Connection failed.</string>
+
+    <string name="shortcut_volume">Volume</string>
+    <string name="shortcut_brightness">Brightness</string>
+    <string name="shortcut_media">Media</string>
+    <string name="shortcut_screenshot_full">Screenshot — full screen</string>
+    <string name="shortcut_screenshot_region">Screenshot — selection</string>
+    <string name="shortcut_select_all">Select all</string>
+    <string name="shortcut_copy">Copy</string>
+    <string name="shortcut_paste">Paste</string>
+    <string name="shortcut_open_url">Open link</string>
+
+    <string name="bg_preset_system">Match system</string>
+    <string name="bg_preset_porcelain_light">Porcelain</string>
+    <string name="bg_preset_dawn_blush">Dawn blush</string>
+    <string name="bg_preset_sage_mist">Sage mist</string>
+    <string name="bg_preset_deep_azure">Deep azure</string>
+    <string name="bg_preset_royal_plum">Royal plum</string>
+    <string name="bg_preset_charcoal_silk">Charcoal</string>
+
+    <string name="guide_title_what">What is TreeletHub?</string>
+    <string name="guide_body_what">TreeletHub lets you arrange favorite Mac apps in a grid on the Mac, then open TreeletHub on your phone—on the same Wi‑Fi—to launch those apps remotely. Reorder slots with drag and drop on either side.</string>
+    <string name="guide_title_scenarios">When it helps</string>
+    <string name="guide_body_scenarios">Keep TreeletHub running on the desk Mac. From the couch or another room, use your phone as a remote launcher for apps you already placed in the hub.</string>
+    <string name="guide_title_connect_android">Connect from Android</string>
+    <string name="guide_body_connect_android">1) On the Mac, open TreeletHub and read the six-digit pairing code.\n2) On this phone, open Connect to Mac, type the code, then tap Connect.\n3) If discovery fails, check Wi‑Fi, turn off VPN, and stay on the same network as the Mac.</string>
+    <string name="guide_title_setup_mac">Set up the Mac hub</string>
+    <string name="guide_body_setup_mac">1) Tap any cell and choose a Mac app (.app) to assign.\n2) Drag tiles to swap or move apps between cells.\n3) Extra tabs (Apps1, …) add more pages; some tabs require an active subscription.\n4) If you regenerate the pairing code on the Mac, each phone must reconnect with the new code.</string>
+    <string name="guide_title_setup_phone">After you are paired</string>
+    <string name="guide_body_setup_phone">Use the Apps tab for the live grid. In Settings, rename how your phone appears on the Mac, change the backdrop, or swap your one saved photo background.</string>
+
+    <string name="lang_menu_a11y">Language</string>
+</resources>
