@@ -76,6 +76,17 @@ public struct HubSlotConfig: Codable, Equatable, Identifiable, Sendable {
         shortcutPayload = try c.decodeIfPresent(String.self, forKey: .shortcutPayload)
         iconPNG = try c.decodeIfPresent(Data.self, forKey: .iconPNG)
     }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(kind, forKey: .kind)
+        try c.encodeIfPresent(bundleIdentifier, forKey: .bundleIdentifier)
+        try c.encodeIfPresent(displayName, forKey: .displayName)
+        try c.encodeIfPresent(shortcutKind, forKey: .shortcutKind)
+        try c.encodeIfPresent(shortcutPayload, forKey: .shortcutPayload)
+        try c.encodeIfPresent(iconPNG, forKey: .iconPNG)
+    }
 }
 
 /// 九宫格分页配置（每页固定 9 格，`id` 用作稳定页面标识）。

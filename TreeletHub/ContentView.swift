@@ -86,6 +86,7 @@ struct ContentView: View {
             if useCustomBackground && customBackgroundStore.image == nil {
                 useCustomBackground = false
             }
+            HubIOSWatchBridge.shared.attach(client: client)
             client.restorePairingFromDiskOnLaunch()
         }
         .onChange(of: scenePhase) { _, newPhase in

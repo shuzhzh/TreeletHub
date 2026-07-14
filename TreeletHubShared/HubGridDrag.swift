@@ -15,6 +15,9 @@ public struct HubGridSlotDragDropModifier: ViewModifier {
     }
 
     public func body(content: Content) -> some View {
+        #if os(watchOS)
+        content
+        #else
         let withDrop = content.onDrop(of: [.plainText], isTargeted: nil) { providers in
             guard let p = providers.first else { return false }
             _ = p.loadDataRepresentation(for: .plainText) { data, _ in
@@ -43,6 +46,7 @@ public struct HubGridSlotDragDropModifier: ViewModifier {
                 withDrop
             }
         }
+        #endif
     }
 }
 
