@@ -11,14 +11,39 @@ final class HubIslandScreenMetrics: ObservableObject {
     @Published var hasPhysicalNotch: Bool = false
     /// 灵动岛水平锚点（全局坐标）：刘海/摄像头区域中心；无刘海时为 `screen.frame.midX`。
     @Published var islandAnchorCenterX: CGFloat = 0
+    /// 当前屏幕逻辑宽度（pt），用于按屏宽缩放胶囊尺寸。
+    @Published private(set) var screenWidth: CGFloat = 1512
+    /// 当前屏幕逻辑高度（pt），用于按屏高缩放展开态内容区。
+    @Published private(set) var screenHeight: CGFloat = 982
+
+    /// 展开态胶囊内容宽度：随屏幕宽度缩放并夹在舒适区间。
+    var expandedIslandWidth: CGFloat {
+        Self.scaledIslandWidth(screenWidth: screenWidth, reference: 580, min: 480, max: 720)
+    }
+
+    /// 收起 / 贴边态胶囊内容宽度。
+    var collapsedIslandWidth: CGFloat {
+        Self.scaledIslandWidth(screenWidth: screenWidth, reference: 430, min: 340, max: 540)
+    }
+
+    /// 展开态各 Tab 共用的内容区高度（含 padding 内区域），切换 Tab 窗口不跳动。
+    var expandedBodyHeight: CGFloat {
+        let usable = max(640, screenHeight - 100)
+        let scaled = (usable * 0.40).rounded(.toNearestOrAwayFromZero)
+        return Swift.min(440, Swift.max(360, scaled))
+    }
 
     func update(for screen: NSScreen?) {
         guard let s = screen else {
             topInset = NSStatusBar.system.thickness
             hasPhysicalNotch = false
             islandAnchorCenterX = 640
+            screenWidth = 1280
+            screenHeight = 800
             return
         }
+        screenWidth = s.frame.width
+        screenHeight = s.frame.height
         islandAnchorCenterX = Self.cameraAnchorCenterX(on: s)
         if s.auxiliaryTopLeftArea != nil {
             hasPhysicalNotch = true
@@ -27,6 +52,19 @@ final class HubIslandScreenMetrics: ObservableObject {
             hasPhysicalNotch = false
             topInset = NSStatusBar.system.thickness
         }
+    }
+
+    /// 以常见 14″ 逻辑宽 1512pt 为基准缩放参考宽度，再夹到 `[min, max]`。
+    static func scaledIslandWidth(
+        screenWidth: CGFloat,
+        reference: CGFloat,
+        min: CGFloat,
+        max: CGFloat
+    ) -> CGFloat {
+        let base: CGFloat = 1512
+        let scale = Swift.max(0.82, Swift.min(1.28, screenWidth / base))
+        let w = (reference * scale).rounded(.toNearestOrAwayFromZero)
+        return Swift.min(max, Swift.max(min, w))
     }
 
     /// 由刘海左右「辅区」矩形推算摄像头水平中心；辅区不可用则退回屏幕几何中心。
@@ -72,8 +110,6 @@ final class HubIslandWindowPresenter {
     private var localMouseMonitor: Any?
     /// 由 SwiftUI 注册：贴边态下顶部热区悬停时唤出收起胶囊。
     private var revealCollapsedFromDockHandler: (() -> Void)?
-    /// 与 `HubIslandRootView.collapsedWidth` 一致，用于顶部居中悬停热区半宽。
-    private let collapsedPillWidth: CGFloat = 380
 
     deinit {
         if let obs = screenChangeObserver {
@@ -198,7 +234,7 @@ final class HubIslandWindowPresenter {
         let loc = NSEvent.mouseLocation
         let topBand: CGFloat = 28
         guard loc.y >= screen.frame.maxY - topBand else { return }
-        let halfW = collapsedPillWidth / 2 + 40
+        let halfW = metrics.collapsedIslandWidth / 2 + 40
         guard abs(loc.x - metrics.islandAnchorCenterX) <= halfW else { return }
         handler()
     }
@@ -217,8 +253,13 @@ final class HubIslandWindowPresenter {
                 guard let self else { return }
                 let screen = self.panel?.screen ?? NSScreen.main
                 self.metrics.update(for: screen)
+                // 屏宽变化后 SwiftUI 会按新宽度重布局并回调 `reportContentSize`；
+                // 此处先用当前 hosting 尺寸重新锚点，避免外接屏切换瞬间错位。
                 if let host = self.hostingView {
-                    self.applyPanelFrame(contentSize: host.intrinsicContentSize)
+                    let size = host.bounds.size
+                    if size.width > 1, size.height > 1 {
+                        self.applyPanelFrame(contentSize: size)
+                    }
                 }
             }
         }

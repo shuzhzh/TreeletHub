@@ -116,28 +116,38 @@ struct HubIslandCollapsedTimeWeatherStrip: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 5) {
+        HStack(alignment: .center, spacing: 0) {
             Text(verbatim: Self.timeDigits(from: now))
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.96))
+                .font(.system(size: 12, weight: .medium, design: .default))
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.88))
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
 
             if let weather {
+                collapsedMetaSeparator
                 Image(systemName: weather.symbolName)
-                    .font(.system(size: 13, weight: .semibold))
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(.white.opacity(0.92), Color.cyan.opacity(0.88))
-                    .imageScale(.medium)
-
+                    .font(.system(size: 12, weight: .medium))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.white.opacity(0.78))
                 Text(verbatim: weather.temperatureLine)
-                    .font(.system(size: 13, weight: .medium, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.94))
+                    .font(.system(size: 12, weight: .regular, design: .default))
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.82))
                     .lineLimit(1)
                     .fixedSize(horizontal: true, vertical: false)
+                    .padding(.leading, 3)
             }
         }
         .fixedSize(horizontal: true, vertical: false)
+    }
+
+    private var collapsedMetaSeparator: some View {
+        Text(verbatim: "|")
+            .font(.system(size: 11, weight: .regular))
+            .foregroundStyle(.white.opacity(0.28))
+            .padding(.horizontal, 6)
+            .accessibilityHidden(true)
     }
 }
 
@@ -217,21 +227,21 @@ struct HubIslandClockFaceView: View {
             switch style {
             case .digitalWithSeconds:
                 Text(formatHMS(now))
-                    .font(.system(size: 34, weight: .semibold, design: .rounded))
+                    .font(.system(size: 40, weight: .semibold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.96))
             case .digitalCompact:
                 Text(formatHM(now))
-                    .font(.system(size: 40, weight: .semibold, design: .rounded))
+                    .font(.system(size: 46, weight: .semibold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.96))
             case .analog:
                 HubIslandAnalogClockFace(date: now)
-                    .frame(width: 132, height: 132)
+                    .frame(width: 156, height: 156)
             }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.vertical, 8)
     }
 }
 

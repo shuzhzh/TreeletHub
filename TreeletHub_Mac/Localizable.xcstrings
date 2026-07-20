@@ -1468,13 +1468,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No audio-holding apps detected yet. The list fills in as macOS reports processes that keep the output device busy (macOS 14.2+)."
+            "value" : "No apps are using audio right now."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "暂未检测到占用音频输出的应用。列表会在系统上报相关进程后出现（macOS 14.2+）。"
+            "value" : "当前没有应用在使用音频。"
           }
         }
       }
@@ -1485,13 +1485,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Processes shown here are the ones macOS associates with the current audio output (macOS 14.2+). Track titles and artwork appear when the system exposes Now Playing metadata. This surface does not send hardware media keys."
+            "value" : "Track details come from the Music app. Media keys are not controlled here."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "列表来自系统对当前音频输出相关进程的汇总（macOS 14.2+）。曲目信息在系统提供「正在播放」元数据时显示；此处不提供硬件媒体键控制。"
+            "value" : "曲目详情来自「音乐」App；此处不提供媒体键控制。"
           }
         }
       }

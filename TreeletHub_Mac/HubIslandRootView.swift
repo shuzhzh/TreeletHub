@@ -69,19 +69,26 @@ struct HubIslandRootView: View {
     @State private var stagingDropTargetedExpanded = false
     /// 最近一次实测的胶囊高度；展开/收起宽度变化时用于立即重算窗口帧（高度可能未变）。
     @State private var lastReportedIslandHeight: CGFloat = 72
+    /// 展开态错落入场：顶栏先于内容淡入。
+    @State private var expandedTopBarRevealed = true
+    @State private var expandedBodyRevealed = true
 
-    private let islandWidth: CGFloat = 520
-    private let collapsedWidth: CGFloat = 380
     /// 贴边态胶囊本体高度（与收起态同宽；不含刘海 `contentTopInset`）。
     private let dockedStripBodyHeight: CGFloat = 30
-    /// 黑色叠层透明度：与 `.ultraThinMaterial` 叠合形成半透明玻璃感。
-    private let islandGlassTintOpacity: Double = 0.46
+    /// 展开态内容宽度：由当前屏幕宽度动态计算。
+    private var islandWidth: CGFloat { screenMetrics.expandedIslandWidth }
+    /// 收起 / 贴边态内容宽度。
+    private var collapsedWidth: CGFloat { screenMetrics.collapsedIslandWidth }
+    /// 展开态各 Tab 共用内容区高度，保证切换页时窗口尺寸一致。
+    private var expandedBodyHeight: CGFloat { screenMetrics.expandedBodyHeight }
+    /// 顶栏 Tab 滚动区最大宽度：随岛宽放大。
+    private var topBarTabsMaxWidth: CGFloat { min(islandWidth * 0.52, 320) }
     /// 仅状态栏描边示意、收起胶囊未下拉。
     private var isDocked: Bool { !islandExpanded && !islandCollapsedRevealed }
     /// 胶囊底部圆角：胶囊形态。顶部圆角较小，与刘海下沿曲率自然衔接。
     private var pillBottomCornerRadius: CGFloat {
-        if islandExpanded { return 26 }
-        if islandCollapsedRevealed { return 22 }
+        if islandExpanded { return 28 }
+        if islandCollapsedRevealed { return 24 }
         return 12
     }
     private var pillTopCornerRadius: CGFloat {
@@ -106,11 +113,23 @@ struct HubIslandRootView: View {
         HubMacL10n.string(key, locale: locale)
     }
 
-    /// 按当前态（展开 520 / 收起·贴边 380）+ 左右 padding 上报窗口尺寸，供 `NSPanel` 以摄像头为中心定位。
+    /// 按当前态（展开 / 收起·贴边）+ 左右 padding 上报窗口尺寸，供 `NSPanel` 以摄像头为中心定位。
     private func reportIslandPanelSize(height: CGFloat) {
         let h = max(height, 8)
-        let w = currentPillContentWidth + 24
+        // 与 body `.padding(.horizontal, 20)` 对齐，保证窗口足够容纳底部光影。
+        let w = currentPillContentWidth + 40
         reportContentSize(CGSize(width: w, height: h))
+    }
+
+    /// 顶部高光强度：静态微弱，悬停时略提亮。
+    private var specularStrength: Double {
+        islandHovered ? 0.18 : 0.12
+    }
+
+    /// 底部接触阴影：贴边态更弱，悬停时略增强。
+    private var pillOuterGlowOpacity: Double {
+        if isDocked { return islandHovered ? 0.26 : 0.16 }
+        return islandHovered ? 0.5 : 0.36
     }
 
     var body: some View {
@@ -119,9 +138,9 @@ struct HubIslandRootView: View {
             pillChrome
             Spacer(minLength: 0)
         }
-        // 顶部完全贴住屏幕物理上沿（与刘海无缝相连）。两侧/底部留出与桌面的视觉间距。
-        .padding(.horizontal, 12)
-        .padding(.bottom, 12)
+        // 顶部完全贴住屏幕物理上沿（与刘海无缝相连）。两侧/底部留出光影与桌面的呼吸间距。
+        .padding(.horizontal, 20)
+        .padding(.bottom, 26)
         // 固定为内容固有宽度，由窗口锚点（摄像头中心）控制水平位置。
         .fixedSize(horizontal: true, vertical: true)
         // 悬停反馈用描边/阴影，不用 scaleEffect：整块缩放会让浮层上的文字在 Retina 上发糊。
@@ -152,6 +171,13 @@ struct HubIslandRootView: View {
             lastReportedIslandHeight = size.height
             reportIslandPanelSize(height: size.height)
         }
+        .onChange(of: screenMetrics.screenWidth) { _, _ in
+            // 分辨率 / 外接屏切换后按新宽度立刻重锚点。
+            reportIslandPanelSize(height: lastReportedIslandHeight)
+        }
+        .onChange(of: screenMetrics.screenHeight) { _, _ in
+            reportIslandPanelSize(height: lastReportedIslandHeight)
+        }
         .onChange(of: anyIslandSheetOpen) { _, open in
             if open {
                 cancelScheduledCollapse()
@@ -171,6 +197,7 @@ struct HubIslandRootView: View {
             registerRevealFromDock? {
                 revealCollapsedFromDock()
             }
+            syncPlaybackPollingInterval()
         }
         .onChange(of: prefersDockedBar) { _, _ in
             syncCollapsedVisibilityToPreference()
@@ -186,15 +213,18 @@ struct HubIslandRootView: View {
                 cancelScheduledCollapse()
                 cancelScheduledDock()
                 islandCollapsedRevealed = true
+                runExpandedRevealAnimation()
             }
             // 展开/收起切换时宽度变了，但高度可能不变；必须立刻按新宽度重新居中窗口。
             reportIslandPanelSize(height: lastReportedIslandHeight)
+            syncPlaybackPollingInterval()
         }
         .onChange(of: islandCollapsedRevealed) { _, revealed in
             reportIslandPanelSize(height: lastReportedIslandHeight)
             if revealed {
                 cancelScheduledDock()
             }
+            syncPlaybackPollingInterval()
         }
         .onChange(of: hub.grid.selectedPageId) { _, newId in
             islandGridSelectedPageId = newId
@@ -242,6 +272,19 @@ struct HubIslandRootView: View {
         }
     }
 
+    /// 展开态 1s 刷新（进度条流畅）；收起态 2s（仅摘要）；贴边态 6s（几乎不可见）。
+    private func syncPlaybackPollingInterval() {
+        let interval: TimeInterval
+        if islandExpanded {
+            interval = 1
+        } else if islandCollapsedRevealed {
+            interval = 2
+        } else {
+            interval = 6
+        }
+        playbackState.setPollingInterval(interval)
+    }
+
     private func cancelScheduledCollapse() {
         pendingAutoCollapse?.cancel()
         pendingAutoCollapse = nil
@@ -273,6 +316,18 @@ struct HubIslandRootView: View {
         cancelScheduledDock()
         prefersDockedBar = false
         islandCollapsedRevealed = true
+    }
+
+    /// 展开态顶栏与内容错落入场，避免整块瞬间弹出。
+    private func runExpandedRevealAnimation() {
+        expandedTopBarRevealed = false
+        expandedBodyRevealed = false
+        withAnimation(.easeOut(duration: 0.26)) {
+            expandedTopBarRevealed = true
+        }
+        withAnimation(.easeOut(duration: 0.32).delay(0.07)) {
+            expandedBodyRevealed = true
+        }
     }
 
     private func scheduleCollapseAfterMouseLeave() {
@@ -336,29 +391,68 @@ struct HubIslandRootView: View {
         .frame(maxWidth: width, alignment: .center)
         .clipped()
         .background { islandPillGlassLayer }
-        .overlay {
-            pillVisibleOutline
-                .stroke(
-                    Color.white.opacity(pillOutlineOpacity),
-                    lineWidth: pillOutlineLineWidth
-                )
-        }
+        .overlay { islandPillSpecularOverlay }
+        .overlay { islandPillBorderOverlay }
+        .compositingGroup()
+        // 中性接触阴影：贴顶融合刘海，光影落在胶囊下沿。
+        .shadow(color: Color.black.opacity(pillOuterGlowOpacity), radius: islandHovered ? 20 : 14, y: 10)
         .frame(width: width, alignment: .top)
     }
 
+    /// 深石墨胶囊：不透明纵向渐变，与 iPhone 灵动岛一致的实色深黑。
+    /// 注意：不能使用 SwiftUI Material——在无边框透明 NSPanel 上它会给整个窗口
+    /// 铺一层背景模糊底板，导致胶囊外的留白区域出现半透明灰底。
     private var islandPillGlassLayer: some View {
-        ZStack {
-            pillShape.fill(.ultraThinMaterial)
-            pillShape.fill(Color.black.opacity(islandGlassTintOpacity))
-        }
+        pillShape.fill(
+            LinearGradient(
+                colors: [
+                    Color(red: 0.11, green: 0.12, blue: 0.14),
+                    Color(red: 0.03, green: 0.035, blue: 0.05),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
 
-    private var pillOutlineOpacity: Double {
-        islandHovered ? 0.28 : 0.2
+    /// 顶部镜面高光：随悬停与呼吸相位变化。
+    private var islandPillSpecularOverlay: some View {
+        pillShape
+            .fill(
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(specularStrength),
+                        Color.white.opacity(specularStrength * 0.35),
+                        Color.clear,
+                    ],
+                    startPoint: .top,
+                    endPoint: UnitPoint(x: 0.5, y: 0.42)
+                )
+            )
+            .allowsHitTesting(false)
+    }
+
+    /// 渐变描边：上亮下暗，悬停时略提亮。
+    private var islandPillBorderOverlay: some View {
+        pillVisibleOutline
+            .stroke(
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(islandHovered ? 0.42 : 0.28),
+                        Color.white.opacity(islandHovered ? 0.16 : 0.1),
+                        Color.white.opacity(islandHovered ? 0.08 : 0.04),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: pillOutlineLineWidth
+            )
+            .allowsHitTesting(false)
     }
 
     private var pillOutlineLineWidth: CGFloat {
-        islandHovered ? 1.2 : 1
+        // 细描边：接近系统通知中心的边缘高光，避免过粗。
+        islandHovered ? 1.0 : 0.75
     }
 
     /// 贴边态：与收起态同宽、屏幕水平居中（摄像头下方），指针移入即可唤出收起胶囊。
@@ -373,21 +467,13 @@ struct HubIslandRootView: View {
         .help(macL("mac.island.dock_help"))
     }
 
+    /// 贴边态内容：仅一条细横条（类似 iPhone 底部指示条），悬停时提亮。
     private var dockedStripContent: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "square.grid.3x3.fill")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.5))
-            Capsule(style: .continuous)
-                .fill(Color.white.opacity(islandHovered ? 0.38 : 0.28))
-                .frame(width: 44, height: 4)
-            Image(systemName: "chevron.down")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(.white.opacity(0.42))
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: dockedStripBodyHeight)
-        .padding(.horizontal, 14)
+        Capsule(style: .continuous)
+            .fill(Color.white.opacity(islandHovered ? 0.55 : 0.3))
+            .frame(width: 44, height: 4)
+            .frame(maxWidth: .infinity)
+            .frame(height: dockedStripBodyHeight)
     }
 
     private var pillShape: UnevenRoundedRectangle {
@@ -413,7 +499,9 @@ struct HubIslandRootView: View {
     private var expandedIsland: some View {
         VStack(spacing: 0) {
             topBar
-            Divider().opacity(0.22)
+                .opacity(expandedTopBarRevealed ? 1 : 0)
+                .offset(y: expandedTopBarRevealed ? 0 : -8)
+            Divider().opacity(expandedTopBarRevealed ? 0.18 : 0)
             Group {
                 switch tab {
                 case .playback:
@@ -430,8 +518,12 @@ struct HubIslandRootView: View {
                     clockPanel
                 }
             }
-            .padding(16)
+            .padding(18)
+            .frame(width: islandWidth, height: expandedBodyHeight, alignment: .topLeading)
+            .opacity(expandedBodyRevealed ? 1 : 0)
+            .offset(y: expandedBodyRevealed ? 0 : 10)
         }
+        .frame(width: islandWidth, alignment: .top)
     }
 
     private var clockStyle: HubIslandClockStyle {
@@ -444,28 +536,33 @@ struct HubIslandRootView: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .center, spacing: 8) {
                     Image(systemName: "square.grid.3x3.fill")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.82))
+                        .symbolRenderingMode(.hierarchical)
+                        .frame(width: 22, height: 22)
                     Text(macL("mac.app.name"))
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: 13, weight: .semibold))
                         .lineLimit(1)
                         .truncationMode(.tail)
                         .layoutPriority(0)
-                    Spacer(minLength: 6)
-                    HubIslandCollapsedTimeWeatherStrip(now: clockController.now, weather: weatherStore.snapshot)
-                        .layoutPriority(2)
-                    batteryStrip
-                        .layoutPriority(1)
-                        .fixedSize(horizontal: true, vertical: false)
+                    Spacer(minLength: 8)
+                    HStack(alignment: .center, spacing: 0) {
+                        HubIslandCollapsedTimeWeatherStrip(now: clockController.now, weather: weatherStore.snapshot)
+                        collapsedMetaSeparator
+                        collapsedBatteryMeta
+                    }
+                    .layoutPriority(2)
                     collapsedVisibilityToggleButton
-                    Image(systemName: "chevron.down.circle.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.5))
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.55))
                         .symbolRenderingMode(.hierarchical)
+                        .frame(width: 22, height: 22)
                 }
                 if !collapsedDynamicSubtitle.isEmpty {
                     Text(collapsedDynamicSubtitle)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.68))
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundStyle(.white.opacity(0.58))
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
@@ -488,6 +585,33 @@ struct HubIslandRootView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    private var collapsedMetaSeparator: some View {
+        Text(verbatim: "|")
+            .font(.system(size: 11, weight: .regular))
+            .foregroundStyle(.white.opacity(0.28))
+            .padding(.horizontal, 6)
+            .accessibilityHidden(true)
+    }
+
+    /// 收起态电量：与时间/天气同级的轻字重元信息。
+    private var collapsedBatteryMeta: some View {
+        HStack(spacing: 3) {
+            if let p = battery.percent {
+                Text("\(p)%")
+                    .font(.system(size: 12, weight: .regular, design: .default))
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.82))
+            }
+            Image(systemName: batteryIconName)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(
+                    battery.isCharging ? Color(red: 0.45, green: 0.86, blue: 0.55) : Color.white.opacity(0.72)
+                )
+                .font(.system(size: 13, weight: .medium))
+        }
+        .fixedSize(horizontal: true, vertical: false)
+    }
+
     /// 收起态：切换「始终显示」与「贴边隐藏」（偏好写入 `prefersDockedBar`）。
     private var collapsedVisibilityToggleButton: some View {
         Button {
@@ -498,8 +622,8 @@ struct HubIslandRootView: View {
             }
         } label: {
             Image(systemName: prefersDockedBar ? "eye" : "eye.slash")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.52))
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(.white.opacity(0.58))
                 .symbolRenderingMode(.hierarchical)
                 .frame(width: 22, height: 22)
                 .contentShape(Rectangle())
@@ -508,28 +632,28 @@ struct HubIslandRootView: View {
         .help(prefersDockedBar ? macL("mac.island.pin_visible_help") : macL("mac.island.hide_to_dock_help"))
     }
 
-    /// 收起态专用：与主页「文件暂存」虚线框语义一致，仅本区域 `onDrop`。
+    /// 收起态专用：实线微边或纯色块区分，仅本区域 `onDrop`。
     private var collapsedStagingDropStrip: some View {
-        ZStack {
+        VStack(spacing: 5) {
+            Image(systemName: "archivebox.fill")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(.white.opacity(0.7))
+            Text(macL("mac.island.staging_short"))
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(.white.opacity(0.78))
+        }
+        .frame(width: 64, height: 56)
+        .background(
             RoundedRectangle(cornerRadius: 11, style: .continuous)
                 .fill(stagingDropTargetedCollapsed ? Color.cyan.opacity(0.14) : Color.white.opacity(0.06))
+        )
+        .overlay(
             RoundedRectangle(cornerRadius: 11, style: .continuous)
                 .strokeBorder(
-                    style: StrokeStyle(lineWidth: 1, dash: [4, 3]),
-                    antialiased: true
+                    Color.white.opacity(stagingDropTargetedCollapsed ? 0.22 : 0.1),
+                    lineWidth: 0.75
                 )
-                .foregroundStyle(Color.white.opacity(stagingDropTargetedCollapsed ? 0.38 : 0.18))
-            VStack(spacing: 2) {
-                Image(systemName: "archivebox.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.72))
-                Text(macL("mac.island.staging_short"))
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.85))
-            }
-            .padding(.vertical, 2)
-        }
-        .frame(width: 58, height: 54)
+        )
         .contentShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
         .onTapGesture {
             expandIslandToHomeForStaging()
@@ -564,10 +688,11 @@ struct HubIslandRootView: View {
                 islandExpanded = false
                 islandCollapsedRevealed = true
             } label: {
-                Image(systemName: "chevron.up.circle.fill")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.5))
+                Image(systemName: "chevron.up")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.55))
                     .symbolRenderingMode(.hierarchical)
+                    .frame(width: 22, height: 22)
             }
             .buttonStyle(.plain)
             .help(macL("mac.island.collapse_help"))
@@ -582,7 +707,7 @@ struct HubIslandRootView: View {
                     tabPill(icon: "clock.fill", selected: tab == .clock) { tab = .clock }
                 }
             }
-            .frame(maxWidth: 240)
+            .frame(maxWidth: topBarTabsMaxWidth)
             Spacer(minLength: 4)
             Menu {
                 Button {
@@ -608,10 +733,10 @@ struct HubIslandRootView: View {
                 }
             } label: {
                 Image(systemName: "gearshape.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.9))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.55))
                     .frame(width: 30, height: 28)
-                    .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .contentShape(Rectangle())
             }
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
@@ -625,15 +750,19 @@ struct HubIslandRootView: View {
     private func tabPill(icon: String, selected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(selected ? .black : .white.opacity(0.88))
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(selected ? .white.opacity(0.96) : .white.opacity(0.5))
                 .frame(width: 34, height: 30)
-                .background(
-                    selected ? Color.white.opacity(0.92) : Color.white.opacity(0.12),
-                    in: RoundedRectangle(cornerRadius: 8, style: .continuous)
-                )
+                .background {
+                    if selected {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(Color.white.opacity(0.16))
+                    }
+                }
+                .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
+        .animation(.easeOut(duration: 0.18), value: selected)
     }
 
     private var batteryStrip: some View {
@@ -675,10 +804,13 @@ struct HubIslandRootView: View {
                 .foregroundStyle(.white.opacity(0.62))
 
             if playbackState.audioOccupants.isEmpty {
+                Spacer(minLength: 8)
                 Text(macL("mac.island.playback.empty"))
                     .font(.callout)
                     .foregroundStyle(.white.opacity(0.48))
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 6) {
@@ -688,7 +820,7 @@ struct HubIslandRootView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxHeight: 200)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .scrollIndicators(.hidden)
             }
 
@@ -697,17 +829,12 @@ struct HubIslandRootView: View {
                 playbackNowPlayingDetail
             }
 
-            Text(macL("mac.island.playback.no_media_keys"))
-                .font(.footnote)
-                .foregroundStyle(.white.opacity(0.5))
-                .frame(maxWidth: .infinity)
-                .multilineTextAlignment(.center)
-
             Text(playbackFootnote)
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.42))
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.38))
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private var playbackNowPlayingDetailVisible: Bool {
@@ -825,10 +952,12 @@ struct HubIslandRootView: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             if clipboardHistory.entries.isEmpty {
+                Spacer(minLength: 8)
                 Label(macL("mac.island.clipboard.empty"), systemImage: "clipboard")
-                    .font(.caption)
+                    .font(.callout)
                     .foregroundStyle(.white.opacity(0.48))
-                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Spacer(minLength: 8)
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 6) {
@@ -838,10 +967,11 @@ struct HubIslandRootView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxHeight: 220)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .scrollIndicators(.hidden)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     @ViewBuilder
@@ -1003,36 +1133,36 @@ struct HubIslandRootView: View {
     }
 
     private var homePanel: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 10) {
-                VStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(spacing: 8) {
                     HubIslandAirDropButton(urls: stagedItems.map(\.storedURL))
                         .disabled(stagedItems.isEmpty)
                         .opacity(stagedItems.isEmpty ? 0.45 : 1)
                     Text(macL("mac.island.airdrop"))
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.white.opacity(0.65))
                 }
-                .frame(width: 92)
-                .padding(.vertical, 10)
+                .frame(width: 100)
+                .padding(.vertical, 14)
                 .frame(maxHeight: .infinity)
                 .background(dashedInnerBorder())
                 dropZone
             }
-            .frame(height: 132)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(macL("mac.island.pairing_code"))
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.white.opacity(0.55))
                 Text(hub.pairing.pin)
-                    .font(.system(size: 22, weight: .semibold, design: .rounded))
+                    .font(.system(size: 26, weight: .semibold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(.white)
                 HStack(spacing: 6) {
                     Circle()
                         .fill(hub.server.isListening ? Color.green : Color.orange)
-                        .frame(width: 6, height: 6)
+                        .frame(width: 7, height: 7)
                     Text(
                         hub.server.isListening
                             ? String(
@@ -1042,12 +1172,14 @@ struct HubIslandRootView: View {
                             )
                             : macL("mac.island.not_listening")
                     )
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.white.opacity(0.65))
                 }
             }
             .padding(.horizontal, 4)
+            .padding(.top, 2)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private func dashedInnerBorder() -> some View {
@@ -1205,7 +1337,7 @@ struct HubIslandRootView: View {
 
     private var weatherPanel: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
+            HStack(alignment: .center, spacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(macL("mac.island.weather"))
                         .font(.subheadline.weight(.semibold))
@@ -1213,11 +1345,11 @@ struct HubIslandRootView: View {
                     if let place = weatherStore.placeDisplayName, !place.isEmpty {
                         HStack(spacing: 5) {
                             Image(systemName: "location.fill")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(.cyan.opacity(0.95))
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(Color(red: 0.62, green: 0.82, blue: 0.92).opacity(0.95))
                             Text(place)
                                 .font(.caption.weight(.medium))
-                                .foregroundStyle(.white.opacity(0.82))
+                                .foregroundStyle(.white.opacity(0.78))
                                 .lineLimit(2)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -1227,30 +1359,25 @@ struct HubIslandRootView: View {
                 if weatherStore.isLoading {
                     ProgressView()
                         .controlSize(.small)
-                        .tint(.white.opacity(0.9))
+                        .tint(.white.opacity(0.85))
+                } else {
+                    Button {
+                        weatherStore.refreshIfAuthorized()
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(.white.opacity(weatherLocationBlockedForRefresh ? 0.35 : 0.78))
+                            .frame(width: 28, height: 28)
+                            .background(Color.white.opacity(0.1), in: Circle())
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(Color.white.opacity(0.12), lineWidth: 0.75)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(weatherLocationBlockedForRefresh)
+                    .help(macL("mac.island.weather.refresh"))
                 }
-                Button {
-                    weatherStore.refreshIfAuthorized()
-                } label: {
-                    Text(macL("mac.island.weather.refresh"))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(weatherLocationBlockedForRefresh ? 0.45 : 0.96))
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 7)
-                        .background(
-                            Color.white.opacity(weatherLocationBlockedForRefresh ? 0.08 : 0.2),
-                            in: Capsule()
-                        )
-                        .overlay(
-                            Capsule()
-                                .strokeBorder(
-                                    Color.white.opacity(weatherLocationBlockedForRefresh ? 0.12 : 0.35),
-                                    lineWidth: 1
-                                )
-                        )
-                }
-                .buttonStyle(.plain)
-                .disabled(weatherLocationBlockedForRefresh)
             }
 
             ScrollView {
@@ -1306,68 +1433,132 @@ struct HubIslandRootView: View {
                     }
 
                     if let snap = weatherStore.snapshot {
-                        HStack(alignment: .center, spacing: 12) {
-                            Image(systemName: snap.symbolName)
-                                .font(.system(size: 36, weight: .medium))
-                                .symbolRenderingMode(.palette)
-                                .foregroundStyle(.white.opacity(0.95), Color(red: 0.45, green: 0.82, blue: 1.0))
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(verbatim: snap.temperatureLine)
-                                    .font(.title2.weight(.bold))
-                                    .foregroundStyle(.white)
-                                Text(snap.conditionDescription)
-                                    .font(.caption)
-                                    .foregroundStyle(.white.opacity(0.78))
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                            Spacer(minLength: 0)
-                        }
-                        .padding(10)
-                        .background(Color.white.opacity(0.09), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        weatherCurrentCard(snap)
                     }
 
                     if !weatherStore.dailyItems.isEmpty {
                         Text(macL("mac.island.forecast"))
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(.white.opacity(0.82))
-                        VStack(spacing: 6) {
-                            ForEach(weatherStore.dailyItems) { day in
-                                HStack(spacing: 10) {
-                                    Text(day.weekdayShort)
-                                        .font(.caption.weight(.medium))
-                                        .foregroundStyle(.white.opacity(0.9))
-                                        .frame(width: 40, alignment: .leading)
-                                    Image(systemName: day.symbolName)
-                                        .font(.body.weight(.medium))
-                                        .symbolRenderingMode(.palette)
-                                        .foregroundStyle(.white.opacity(0.88), Color.cyan.opacity(0.82))
-                                        .frame(width: 28, alignment: .center)
-                                    Spacer(minLength: 8)
-                                    Text(verbatim: day.lowLine)
-                                        .font(.caption.monospacedDigit())
-                                        .foregroundStyle(Color.cyan.opacity(0.92))
-                                    Text(verbatim: day.highLine)
-                                        .font(.caption.monospacedDigit().weight(.semibold))
-                                        .foregroundStyle(.white.opacity(0.96))
-                                }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 8)
-                                .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                            }
-                        }
+                            .foregroundStyle(.white.opacity(0.78))
+                        weatherForecastCard
                     }
 
                     HubIslandWeatherAttributionFooter()
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxHeight: 320)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .scrollIndicators(.hidden)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private func weatherCurrentCard(_ snap: HubIslandWeatherSnapshot) -> some View {
+        HStack(alignment: .center, spacing: 18) {
+            Image(systemName: snap.symbolName)
+                .font(.system(size: 52, weight: .medium))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(.white.opacity(0.95), weatherAccentColor(for: snap.symbolName))
+                .frame(width: 64, height: 64)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(verbatim: snap.temperatureLine)
+                    .font(.system(size: 32, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white)
+                Text(snap.conditionDescription)
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.78))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+        .background {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(weatherCardGradient(for: snap.symbolName))
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.1), lineWidth: 0.75)
         }
     }
 
+    private var weatherForecastCard: some View {
+        let softLow = Color(red: 0.58, green: 0.74, blue: 0.84)
+        return VStack(spacing: 0) {
+            ForEach(Array(weatherStore.dailyItems.enumerated()), id: \.element.id) { index, day in
+                HStack(spacing: 10) {
+                    Text(day.weekdayShort)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.88))
+                        .frame(width: 40, alignment: .leading)
+                    Image(systemName: day.symbolName)
+                        .font(.system(size: 14, weight: .medium))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(.white.opacity(0.82))
+                        .frame(width: 28, alignment: .center)
+                    Spacer(minLength: 8)
+                    Text(verbatim: day.lowLine)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(softLow.opacity(0.92))
+                        .frame(width: 36, alignment: .trailing)
+                    Text(verbatim: day.highLine)
+                        .font(.caption.monospacedDigit().weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.94))
+                        .frame(width: 36, alignment: .trailing)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                if index < weatherStore.dailyItems.count - 1 {
+                    Rectangle()
+                        .fill(Color.white.opacity(0.08))
+                        .frame(height: 0.5)
+                        .padding(.horizontal, 10)
+                }
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.white.opacity(0.07))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.75)
+        )
+    }
+
+    /// 按天气符号给出主卡片微弱氛围渐变。
+    private func weatherCardGradient(for symbolName: String) -> LinearGradient {
+        let key = symbolName.lowercased()
+        let top: Color
+        let bottom = Color.white.opacity(0.05)
+        if key.contains("rain") || key.contains("storm") || key.contains("bolt") || key.contains("drizzle") {
+            top = Color(red: 0.14, green: 0.2, blue: 0.34).opacity(0.72)
+        } else if key.contains("snow") || key.contains("sleet") {
+            top = Color(red: 0.22, green: 0.28, blue: 0.38).opacity(0.65)
+        } else if key.contains("sun") || key.contains("clear") {
+            top = Color(red: 0.32, green: 0.26, blue: 0.14).opacity(0.55)
+        } else if key.contains("fog") || key.contains("haze") || key.contains("smoke") {
+            top = Color(red: 0.22, green: 0.24, blue: 0.26).opacity(0.6)
+        } else {
+            top = Color(red: 0.16, green: 0.2, blue: 0.28).opacity(0.58)
+        }
+        return LinearGradient(colors: [top, bottom], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+
+    private func weatherAccentColor(for symbolName: String) -> Color {
+        let key = symbolName.lowercased()
+        if key.contains("rain") || key.contains("storm") || key.contains("bolt") {
+            return Color(red: 0.55, green: 0.72, blue: 0.92)
+        }
+        if key.contains("sun") || key.contains("clear") {
+            return Color(red: 0.95, green: 0.78, blue: 0.42)
+        }
+        return Color(red: 0.62, green: 0.78, blue: 0.9)
+    }
+
     private var clockPanel: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             Text(macL("mac.island.clock.title"))
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.88))
@@ -1375,6 +1566,7 @@ struct HubIslandRootView: View {
             HubIslandClockStyleSegmentControl(selectionRaw: $clockStyleRaw)
 
             HubIslandClockFaceView(now: clockController.now, style: clockStyle)
+                .frame(maxHeight: .infinity)
 
             HubIslandAlignedSwitchRow(
                 title: macL("mac.island.clock.hourly_chime"),
@@ -1392,7 +1584,7 @@ struct HubIslandRootView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.black.opacity(0.88))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 11)
                     .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             .buttonStyle(.plain)
@@ -1402,22 +1594,32 @@ struct HubIslandRootView: View {
                 .foregroundStyle(.white.opacity(0.58))
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private var gridPanel: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             Text(macL("mac.island.grid.title"))
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.62))
             pagePicker
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 10),
+                    GridItem(.flexible(), spacing: 10),
+                    GridItem(.flexible(), spacing: 10),
+                ],
+                spacing: 10
+            ) {
                 if let page = currentIslandGridPage {
                     ForEach(page.slots) { slot in
                         islandSlotCell(slot, pageId: page.id)
                     }
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private var pagePicker: some View {
@@ -1477,18 +1679,18 @@ struct HubIslandRootView: View {
                 islandTriggerSlot(slot, pageId: pageId)
             }
         } label: {
-            VStack(spacing: 4) {
+            VStack(spacing: 6) {
                 islandSlotSymbol(slot, pageId: pageId)
-                    .frame(height: 26)
+                    .frame(height: 32)
                 Text(slot.displayName ?? (slot.isEmpty ? macL("mac.slot.add") : macL("mac.slot.app")))
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 11, weight: .medium))
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.white.opacity(0.85))
             }
-            .frame(maxWidth: .infinity, minHeight: 56)
-            .padding(4)
-            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .frame(maxWidth: .infinity, minHeight: 72, maxHeight: .infinity)
+            .padding(8)
+            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.plain)
         .contextMenu {
@@ -1507,7 +1709,7 @@ struct HubIslandRootView: View {
     private func islandSlotSymbol(_ slot: HubSlotConfig, pageId: Int) -> some View {
         if slot.kind == .shortcut, let shortcut = slot.shortcutKind {
             Image(systemName: shortcut.islandSystemImage)
-                .font(.system(size: 18, weight: .medium))
+                .font(.system(size: 22, weight: .medium))
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(.white.opacity(0.9))
         } else if let icon = hub.grid.appIcon(for: pageId, slotIndex: slot.id) {
@@ -1515,10 +1717,10 @@ struct HubIslandRootView: View {
                 .resizable()
                 .interpolation(.high)
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 26, height: 26)
+                .frame(width: 30, height: 30)
         } else {
             Image(systemName: slot.isEmpty ? "plus.circle.fill" : "app.fill")
-                .font(.system(size: 18, weight: .medium))
+                .font(.system(size: 22, weight: .medium))
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(.white.opacity(0.85))
         }
@@ -1636,17 +1838,16 @@ private struct HubIslandAlignedSwitchRow: View {
     }
 }
 
-/// 自定义开关：白色描边轨道；开启时左侧显示绿点，拇指滑至右侧。
+/// 自定义开关：与 iOS 原生一致的形态——开启时轨道整体填充绿色，白色拇指滑至右侧。
 private struct HubIslandCapsuleSwitch: View {
     var accessibilityTitle: String
     @Binding var isOn: Bool
 
-    private static let greenIndicator = Color(red: 0.22, green: 0.82, blue: 0.38)
-    private let trackW: CGFloat = 50
-    private let trackH: CGFloat = 30
-    private let thumbDiameter: CGFloat = 24
-    private let dotDiameter: CGFloat = 9
-    private let inset: CGFloat = 4
+    private static let onTint = Color(red: 0.2, green: 0.78, blue: 0.35)
+    private let trackW: CGFloat = 44
+    private let trackH: CGFloat = 26
+    private let thumbDiameter: CGFloat = 22
+    private let inset: CGFloat = 2
 
     var body: some View {
         Button {
@@ -1654,26 +1855,17 @@ private struct HubIslandCapsuleSwitch: View {
         } label: {
             ZStack {
                 Capsule(style: .continuous)
-                    .fill(isOn ? Color.white.opacity(0.14) : Color.white.opacity(0.07))
+                    .fill(isOn ? Self.onTint : Color.white.opacity(0.16))
                     .frame(width: trackW, height: trackH)
                     .overlay(
                         Capsule(style: .continuous)
-                            .strokeBorder(Color.white.opacity(0.62), lineWidth: 1.35)
+                            .strokeBorder(Color.white.opacity(0.12), lineWidth: 0.5)
                     )
 
-                if isOn {
-                    Circle()
-                        .fill(Self.greenIndicator)
-                        .frame(width: dotDiameter, height: dotDiameter)
-                        .shadow(color: Self.greenIndicator.opacity(0.55), radius: 3)
-                        .offset(x: -trackW / 2 + inset + dotDiameter / 2)
-                        .transition(.scale.combined(with: .opacity))
-                }
-
                 Circle()
-                    .fill(Color.white.opacity(0.96))
+                    .fill(Color.white)
                     .frame(width: thumbDiameter, height: thumbDiameter)
-                    .shadow(color: .black.opacity(0.4), radius: 2, x: 0, y: 1)
+                    .shadow(color: .black.opacity(0.28), radius: 2, x: 0, y: 1)
                     .offset(x: thumbOffsetX)
             }
             .frame(width: trackW, height: trackH)

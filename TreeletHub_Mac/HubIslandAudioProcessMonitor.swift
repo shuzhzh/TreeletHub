@@ -1,8 +1,7 @@
 import CoreAudio
 import Foundation
 
-/// 使用 HAL 的音频进程列表（macOS 14.2+），识别「谁在占用输出设备 / 是否正在输出音频」。
-/// 解决部分 App（如抖音）不向 MediaRemote 上报元数据、但媒体键仍有效的情况。
+/// 使用 HAL 的音频进程列表（macOS 14.2+，公开 API），识别「谁在占用输出设备 / 是否正在输出音频」。
 enum HubIslandAudioProcessMonitor: Sendable {
     struct Row: Sendable {
         let pid: pid_t
@@ -38,25 +37,14 @@ enum HubIslandAudioProcessMonitor: Sendable {
     nonisolated static func pick(
         rows: [Row],
         frontmostPID: pid_t,
-        mrPID: pid_t,
         stickyPID: pid_t
     ) -> Pick? {
         let outputting = rows.filter(\.isRunningOutput)
-        if let r = choose(
-            from: outputting,
-            frontmostPID: frontmostPID,
-            mrPID: mrPID,
-            stickyPID: stickyPID
-        ) {
+        if let r = choose(from: outputting, frontmostPID: frontmostPID, stickyPID: stickyPID) {
             return Pick(pid: r.pid, isAudibleOutput: true)
         }
         let pausedGraph = rows.filter { $0.isRunningAny && !$0.isRunningOutput }
-        if let r = choose(
-            from: pausedGraph,
-            frontmostPID: frontmostPID,
-            mrPID: mrPID,
-            stickyPID: stickyPID
-        ) {
+        if let r = choose(from: pausedGraph, frontmostPID: frontmostPID, stickyPID: stickyPID) {
             return Pick(pid: r.pid, isAudibleOutput: false)
         }
         return nil
@@ -65,14 +53,12 @@ enum HubIslandAudioProcessMonitor: Sendable {
     nonisolated private static func choose(
         from rows: [Row],
         frontmostPID: pid_t,
-        mrPID: pid_t,
         stickyPID: pid_t
     ) -> Row? {
         guard !rows.isEmpty else { return nil }
 
         let pool = rows
 
-        if mrPID > 0, let r = pool.first(where: { $0.pid == mrPID }) { return r }
         if stickyPID > 0, let r = pool.first(where: { $0.pid == stickyPID }) { return r }
         if frontmostPID > 0, let r = pool.first(where: { $0.pid == frontmostPID }) { return r }
 

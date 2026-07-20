@@ -19,11 +19,12 @@ final class HubTypingSoundMonitor {
     private func start() {
         stop()
 
-        let keyMask: NSEvent.EventTypeMask = [.keyDown]
+        // 同时监听 keyUp：机械轴 / 打字机预设播放轻微的松键回弹声，真实感更强。
+        let keyMask: NSEvent.EventTypeMask = [.keyDown, .keyUp]
 
         // 本地监听无需额外权限，至少在本应用内打字可听到音效。
         localKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: keyMask) { [weak self] event in
-            Task { @MainActor in self?.handleKeyDown(event) }
+            Task { @MainActor in self?.handleKeyEvent(event) }
             return event
         }
 
@@ -33,7 +34,8 @@ final class HubTypingSoundMonitor {
         }
 
         globalKeyMonitor = NSEvent.addGlobalMonitorForEvents(matching: keyMask) { [weak self] event in
-            Task { @MainActor in self?.handleKeyDown(event) }
+            Task { @MainActor in self?.handleKeyEvent(event) }
+            Task { @MainActor in self?.handleKeyEvent(event) }
         }
         isMonitoringGlobally = globalKeyMonitor != nil
     }
@@ -46,9 +48,16 @@ final class HubTypingSoundMonitor {
         localKeyMonitor = nil
         isMonitoringGlobally = false
     }
-
-    private func handleKeyDown(_ event: NSEvent) {
-        guard !event.isARepeat else { return }
+    private func handleKeyEvent(_ event: NSEvent) {
+        switch event.type {
+        case .keyDown:
+            guard !event.isARepeat else { return }
+            HubTypingSoundPlayer.play(forKeyCode: event.keyCode)
+        case .keyUp:
+            HubTypingSoundPlayer.playKeyUp(forKeyCode: event.keyCode)
+        default:
+            break
+        }
         HubTypingSoundPlayer.play(forKeyCode: event.keyCode)
     }
 }

@@ -13,7 +13,9 @@ struct HubIslandAudioOccupant: Identifiable, Equatable {
     let hasAudioGraph: Bool
 }
 
-/// 优先通过系统 `MediaRemote` 读取全局「正在播放」（抖音、浏览器、Spotify 等）；若无会话则回退到 AppleScript 读「音乐」。
+/// 「正在播放」数据中枢（仅使用公开 API，可上架 Mac App Store）：
+/// 1. AppleScript 读「音乐」App（scripting-targets 授权）：曲目 / 艺人 / 进度 / 封面；
+/// 2. Core Audio HAL 进程列表（macOS 14.2+）：其他 App 只展示图标与「正在输出 / 占用」状态。
 @MainActor
 final class HubIslandPlaybackState: ObservableObject {
     /// 当前所有占用音频的 App（来自 Core Audio 进程列表 + 必要时补充「音乐」）。
@@ -22,29 +24,43 @@ final class HubIslandPlaybackState: ObservableObject {
     @Published private(set) var trackTitle: String = ""
     @Published private(set) var trackArtist: String = ""
     @Published private(set) var artworkImage: NSImage?
-    /// 无封面时的播放源 App 图标（如抖音）。
+    /// 无封面时的播放源 App 图标。
     @Published private(set) var sourceAppIcon: NSImage?
     @Published private(set) var progress: Double = 0
     @Published private(set) var currentFormatted: String = "0:00"
     @Published private(set) var durationFormatted: String = "--:--"
     @Published private(set) var isPlaying: Bool = false
-    /// 当前详情来自「音乐」脚本（用于脚注文案）。
+    /// 当前详情来自「音乐」脚本（含完整曲目信息）。
     @Published private(set) var hasNowPlayingFromMusic: Bool = false
-    /// 当前详情来自系统媒体会话（MediaRemote）。
+    /// 当前详情来自 HAL 音频进程（仅 App 级信息，无曲目元数据）。
     @Published private(set) var hasNowPlayingFromSystem: Bool = false
-    private var cancellables = Set<AnyCancellable>()
+    private var pollTimer: AnyCancellable?
     private var pollTask: Task<Void, Never>?
-    /// HAL 多路输出时优先沿用上次与控制中心一致的媒体进程（避免点到灵动岛后前台变成自己而误选音效 App）。
+    private var pollInterval: TimeInterval = 1.0
+    /// HAL 多路输出时优先沿用上次选中的媒体进程（避免点到灵动岛后前台变成自己而误选音效 App）。
     private var stickyMediaPID: pid_t = 0
+    /// 当前已取到封面的曲目标识（标题|艺人）；切歌时才重新取封面。
+    private var musicArtworkTrackKey: String?
+    private var artworkFetchTask: Task<Void, Never>?
 
     init() {
-        Timer.publish(every: 1.0, on: .main, in: .common)
+        startPolling(every: pollInterval)
+        refresh()
+    }
+
+    /// 按灵动岛形态调整轮询频率：展开 1s、收起 2s、贴边 6s。
+    func setPollingInterval(_ interval: TimeInterval) {
+        guard interval != pollInterval else { return }
+        pollInterval = interval
+        startPolling(every: interval)
+    }
+
+    private func startPolling(every interval: TimeInterval) {
+        pollTimer = Timer.publish(every: interval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 self?.refresh()
             }
-            .store(in: &cancellables)
-        refresh()
     }
 
     func refresh() {
@@ -55,83 +71,41 @@ final class HubIslandPlaybackState: ObservableObject {
             let selfPID = ProcessInfo.processInfo.processIdentifier
             let effectiveFrontPID: pid_t = frontPID == selfPID ? 0 : frontPID
 
-            async let sysSnap = Task.detached {
-                HubIslandMediaRemote.fetchSnapshot()
-            }.value
-            async let mrIdentity = Task.detached {
-                HubIslandMediaRemote.fetchNowPlayingIdentity()
-            }.value
-            async let musicRow = Task.detached {
-                HubIslandPlaybackState.runOsascriptQuery()
+            // 「音乐」未运行时直接跳过 AppleScript，避免每次轮询都 fork `osascript`。
+            let musicIsRunning = !NSRunningApplication
+                .runningApplications(withBundleIdentifier: "com.apple.Music").isEmpty
+            async let musicRow = Task.detached { () -> HubIslandMusicScriptRow? in
+                guard musicIsRunning else { return nil }
+                return HubIslandPlaybackState.runOsascriptQuery()
             }.value
             async let halTask = Task.detached {
                 HubIslandAudioProcessMonitor.fetchRows()
             }.value
 
-            let (snap, mrIdent, music, halRowsRaw) = await (sysSnap, mrIdentity, musicRow, halTask)
+            let (music, halRowsRaw) = await (musicRow, halTask)
             guard !Task.isCancelled else { return }
 
-            let halRows = halRowsRaw.filter { row in
-                guard row.pid != selfPID else { return false }
-                guard let app = NSRunningApplication(processIdentifier: row.pid) else { return false }
-                switch app.activationPolicy {
-                case .regular, .accessory: return true
-                default: return false
-                }
-            }
-
-            let (mrPidFallback, mrPlayingFallback) = mrIdent
-            let mergedPID: pid_t = {
-                if let s = snap, s.pid > 0 { return s.pid }
-                return mrPidFallback
-            }()
-
-            let mergedSnap: HubIslandMediaRemote.Snapshot? = {
-                if let s = snap {
-                    let pid = mergedPID > 0 ? mergedPID : s.pid
-                    return HubIslandMediaRemote.Snapshot(
-                        title: s.title,
-                        artist: s.artist,
-                        duration: s.duration,
-                        elapsed: s.elapsed,
-                        isPlaying: s.isPlaying,
-                        pid: pid,
-                        artworkData: s.artworkData
-                    )
-                }
-                guard mrPidFallback > 0 else { return nil }
-                return HubIslandMediaRemote.Snapshot(
-                    title: nil,
-                    artist: nil,
-                    duration: 0,
-                    elapsed: 0,
-                    isPlaying: mrPlayingFallback,
-                    pid: mrPidFallback,
-                    artworkData: nil
-                )
-            }()
+            let halRows = Self.resolveDisplayableRows(halRowsRaw, selfPID: selfPID)
 
             let halPick = HubIslandAudioProcessMonitor.pick(
                 rows: halRows,
                 frontmostPID: effectiveFrontPID,
-                mrPID: mergedPID,
                 stickyPID: stickyMediaPID
             )
 
-            if let ms = mergedSnap, ms.looksLikeActiveSession {
-                applySystemMedia(ms, musicRowIfSameSource: music, halRows: halRows, halPick: halPick)
-                if ms.pid > 0 {
-                    stickyMediaPID = ms.pid
-                }
-            } else if let pick = halPick {
+            // 优先级：正在播放的「音乐」> 正在出声的其他 App > 暂停的「音乐」> 占用音频的 App。
+            if let music, music.isPlaying {
+                applyMusicScript(music)
+            } else if let pick = halPick, pick.isAudibleOutput {
                 applyAudioProcessPick(pick)
                 stickyMediaPID = pick.pid
             } else if let music {
                 applyMusicScript(music)
-                stickyMediaPID = 0
+            } else if let pick = halPick {
+                applyAudioProcessPick(pick)
+                stickyMediaPID = pick.pid
             } else {
                 applyEmpty()
-                stickyMediaPID = 0
             }
 
             rebuildAudioOccupants(from: halRows)
@@ -211,40 +185,12 @@ final class HubIslandPlaybackState: ObservableObject {
         trackTitle = ""
         trackArtist = ""
         artworkImage = nil
+        musicArtworkTrackKey = nil
         sourceAppIcon = nil
         progress = 0
         currentFormatted = "0:00"
         durationFormatted = "--:--"
         isPlaying = false
-    }
-
-    /// 与控制中心对齐播放键：MediaRemote 的 PID 可能与实际出声进程不一致，按 **bundle** 在 HAL 里查找是否在 `isRunningOutput`。
-    private func resolvePlayingStateFromHAL(
-        mediaPrimaryPID: pid_t,
-        bundleID: String?,
-        halRows: [HubIslandAudioProcessMonitor.Row],
-        halPick: HubIslandAudioProcessMonitor.Pick?
-    ) {
-        if let bid = bundleID {
-            var sawSameBundle = false
-            var anyOutput = false
-            for row in halRows {
-                guard let rb = NSRunningApplication(processIdentifier: row.pid)?.bundleIdentifier, rb == bid else {
-                    continue
-                }
-                sawSameBundle = true
-                if row.isRunningOutput {
-                    anyOutput = true
-                }
-            }
-            if sawSameBundle {
-                isPlaying = anyOutput
-                return
-            }
-        }
-        if let hal = halPick, hal.pid == mediaPrimaryPID {
-            isPlaying = hal.isAudibleOutput
-        }
     }
 
     private func applyMusicScript(_ info: HubIslandMusicScriptRow) {
@@ -253,7 +199,6 @@ final class HubIslandPlaybackState: ObservableObject {
         stickyMediaPID = 0
         trackTitle = info.title
         trackArtist = info.artist
-        artworkImage = nil
         sourceAppIcon = Self.iconForBundleID("com.apple.Music")
         isPlaying = info.isPlaying
 
@@ -266,76 +211,28 @@ final class HubIslandPlaybackState: ObservableObject {
             durationFormatted = "--:--"
             currentFormatted = Self.formatTime(max(0, info.position))
         }
+
+        // 封面只在切歌时取一次（AppleScript 传输较重，不进轮询热路径）。
+        let trackKey = "\(info.title)|\(info.artist)"
+        if trackKey != musicArtworkTrackKey {
+            musicArtworkTrackKey = trackKey
+            artworkImage = nil
+            fetchMusicArtwork(trackKey: trackKey)
+        }
     }
 
-    private func applySystemMedia(
-        _ snap: HubIslandMediaRemote.Snapshot,
-        musicRowIfSameSource: HubIslandMusicScriptRow?,
-        halRows: [HubIslandAudioProcessMonitor.Row],
-        halPick: HubIslandAudioProcessMonitor.Pick?
-    ) {
-        hasNowPlayingFromMusic = false
-        hasNowPlayingFromSystem = true
-
-        let appFromPID: NSRunningApplication? =
-            snap.pid > 0 ? NSRunningApplication(processIdentifier: snap.pid) : nil
-        let appName = appFromPID?.localizedName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let bundleID = appFromPID?.bundleIdentifier
-
-        let rawTitle = snap.title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let rawArtist = snap.artist?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-
-        if rawTitle.isEmpty {
-            trackTitle = appName.isEmpty
-                ? HubMacL10n.string("mac.playback.now_playing_title")
-                : String(format: HubMacL10n.string("mac.playback.now_playing_with_app"), appName)
-        } else {
-            trackTitle = rawTitle
-        }
-
-        if !rawArtist.isEmpty {
-            trackArtist = rawArtist
-        } else if !appName.isEmpty, !rawTitle.isEmpty {
-            trackArtist = appName
-        } else {
-            trackArtist = ""
-        }
-
-        if let data = snap.artworkData, let img = NSImage(data: data), img.isValid {
-            artworkImage = img
-            sourceAppIcon = appFromPID?.icon ?? Self.iconForBundleID(bundleID)
-        } else {
-            artworkImage = nil
-            sourceAppIcon = appFromPID?.icon ?? Self.iconForBundleID(bundleID)
-        }
-
-        isPlaying = snap.isPlaying
-        resolvePlayingStateFromHAL(
-            mediaPrimaryPID: snap.pid,
-            bundleID: bundleID,
-            halRows: halRows,
-            halPick: halPick
-        )
-
-        let duration = snap.duration
-        let elapsed = snap.elapsed
-
-        if duration > 0.5 {
-            progress = min(1, max(0, elapsed / duration))
-            durationFormatted = Self.formatTime(duration)
-            currentFormatted = Self.formatTime(elapsed)
-        } else {
-            progress = 0
-            durationFormatted = "--:--"
-            currentFormatted = elapsed > 0 ? Self.formatTime(elapsed) : "0:00"
-        }
-
-        // 「音乐」若同时向 MediaRemote 汇报，可用脚本补齐缺失的时长与进度。
-        if bundleID == "com.apple.Music", let m = musicRowIfSameSource, m.duration > 0 {
-            progress = min(1, max(0, m.position / m.duration))
-            durationFormatted = Self.formatTime(m.duration)
-            currentFormatted = Self.formatTime(m.position)
-            hasNowPlayingFromMusic = true
+    private func fetchMusicArtwork(trackKey: String) {
+        artworkFetchTask?.cancel()
+        artworkFetchTask = Task { @MainActor [weak self] in
+            let data = await Task.detached {
+                HubIslandPlaybackState.runOsascriptArtworkQuery()
+            }.value
+            guard let self, !Task.isCancelled else { return }
+            // 取回时可能已经切歌 / 切换到其他数据源，丢弃过期结果。
+            guard self.hasNowPlayingFromMusic, self.musicArtworkTrackKey == trackKey else { return }
+            if let data, let img = NSImage(data: data), img.isValid {
+                self.artworkImage = img
+            }
         }
     }
 
@@ -356,6 +253,7 @@ final class HubIslandPlaybackState: ObservableObject {
             : HubMacL10n.string("mac.playback.artist_idle")
 
         artworkImage = nil
+        musicArtworkTrackKey = nil
         sourceAppIcon = app.icon ?? Self.iconForBundleID(app.bundleIdentifier)
 
         isPlaying = pick.isAudibleOutput
@@ -363,6 +261,57 @@ final class HubIslandPlaybackState: ObservableObject {
         progress = 0
         currentFormatted = "0:00"
         durationFormatted = "--:--"
+    }
+
+    /// HAL 返回的常是 Helper / 渲染子进程（Chrome、抖音等实际出声的进程），
+    /// 它们不是 GUI 应用、拿不到 `NSRunningApplication`。沿父进程链向上找到
+    /// 第一个常规 App，并把同一宿主的多条子进程记录归并（输出状态取或）。
+    nonisolated private static func resolveDisplayableRows(
+        _ rows: [HubIslandAudioProcessMonitor.Row],
+        selfPID: pid_t
+    ) -> [HubIslandAudioProcessMonitor.Row] {
+        var merged: [pid_t: (output: Bool, any: Bool)] = [:]
+        var order: [pid_t] = []
+        for row in rows {
+            guard let appPID = displayableAppPID(for: row.pid, selfPID: selfPID) else { continue }
+            if merged[appPID] == nil { order.append(appPID) }
+            let current = merged[appPID] ?? (false, false)
+            merged[appPID] = (current.output || row.isRunningOutput, current.any || row.isRunningAny)
+        }
+        return order.compactMap { pid in
+            guard let flags = merged[pid] else { return nil }
+            return HubIslandAudioProcessMonitor.Row(pid: pid, isRunningOutput: flags.output, isRunningAny: flags.any)
+        }
+    }
+
+    /// 自身及祖先里第一个 `.regular` / `.accessory` 的 App 进程；到 launchd（pid 1）为止。
+    nonisolated private static func displayableAppPID(for pid: pid_t, selfPID: pid_t) -> pid_t? {
+        var current = pid
+        for _ in 0..<8 {
+            guard current > 1, current != selfPID else { return nil }
+            if let app = NSRunningApplication(processIdentifier: current) {
+                switch app.activationPolicy {
+                case .regular, .accessory: return current
+                default: break
+                }
+            }
+            guard let parent = parentPID(of: current), parent != current else { return nil }
+            current = parent
+        }
+        return nil
+    }
+
+    /// 通过 `sysctl`（公开 API，沙盒可用）读取父进程 PID。
+    nonisolated private static func parentPID(of pid: pid_t) -> pid_t? {
+        var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, pid]
+        var info = kinfo_proc()
+        var size = MemoryLayout<kinfo_proc>.stride
+        let status = mib.withUnsafeMutableBufferPointer { ptr in
+            sysctl(ptr.baseAddress, 4, &info, &size, nil, 0)
+        }
+        guard status == 0, size > 0 else { return nil }
+        let ppid = info.kp_eproc.e_ppid
+        return ppid > 0 ? ppid : nil
     }
 
     private static func iconForBundleID(_ bundleID: String?) -> NSImage? {
@@ -382,11 +331,8 @@ final class HubIslandPlaybackState: ObservableObject {
 
     /// 与 MainActor 隔离无关；仅在后台线程跑 `osascript`，避免阻塞 UI。
     nonisolated private static func runOsascriptQuery() -> HubIslandMusicScriptRow? {
+        // 调用方已确认「音乐」在运行；不再借道 System Events 判断（减少一个自动化目标）。
         let source = """
-        tell application "System Events"
-            set musicRunning to (exists process "Music")
-        end tell
-        if musicRunning is false then return ""
         tell application "Music"
             try
                 if not (exists current track) then return ""
@@ -402,6 +348,71 @@ final class HubIslandPlaybackState: ObservableObject {
         end tell
         """
 
+        guard let raw = runOsascript(source), !raw.isEmpty else { return nil }
+
+        let parts = raw.components(separatedBy: "|||")
+        guard parts.count == 5 else { return nil }
+
+        let stateStr = parts[0].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let title = parts[1]
+        let artist = parts[2]
+        let posStr = parts[3].replacingOccurrences(of: ",", with: ".")
+        let durStr = parts[4].replacingOccurrences(of: ",", with: ".")
+
+        guard let position = Double(posStr), let duration = Double(durStr) else { return nil }
+
+        let playing = stateStr == "playing"
+        return HubIslandMusicScriptRow(
+            title: title,
+            artist: artist,
+            position: position,
+            duration: duration,
+            isPlaying: playing
+        )
+    }
+
+    /// 读取「音乐」当前曲目的封面（仅在切歌时调用一次）。
+    /// `osascript` 会把二进制输出为 `«data tdtaFFD8…»` 形式的十六进制字面量。
+    nonisolated private static func runOsascriptArtworkQuery() -> Data? {
+        let source = """
+        tell application "Music"
+            try
+                if not (exists current track) then return ""
+                if (count of artworks of current track) is 0 then return ""
+                return raw data of artwork 1 of current track
+            on error
+                return ""
+            end try
+        end tell
+        """
+
+        guard let raw = runOsascript(source), !raw.isEmpty else { return nil }
+        return decodeAppleScriptDataLiteral(raw)
+    }
+
+    /// 解析 AppleScript 的 `«data XXXX48656C6C6F…»` 字面量：跳过 4 字符类型码后十六进制解码。
+    nonisolated private static func decodeAppleScriptDataLiteral(_ raw: String) -> Data? {
+        guard let start = raw.range(of: "«data "),
+              let end = raw.range(of: "»", range: start.upperBound..<raw.endIndex)
+        else { return nil }
+        var hex = String(raw[start.upperBound..<end.lowerBound])
+        hex = hex.filter { !$0.isWhitespace }
+        guard hex.count > 4 else { return nil }
+        hex.removeFirst(4)
+        guard hex.count % 2 == 0 else { return nil }
+
+        var data = Data(capacity: hex.count / 2)
+        var index = hex.startIndex
+        while index < hex.endIndex {
+            let next = hex.index(index, offsetBy: 2)
+            guard let byte = UInt8(hex[index..<next], radix: 16) else { return nil }
+            data.append(byte)
+            index = next
+        }
+        return data
+    }
+
+    nonisolated private static func runOsascript(_ source: String) -> String? {
         guard let scriptData = source.data(using: .utf8) else { return nil }
 
         let task = Process()
@@ -429,31 +440,8 @@ final class HubIslandPlaybackState: ObservableObject {
         task.waitUntilExit()
 
         guard task.terminationStatus == 0 else { return nil }
-        guard let raw = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !raw.isEmpty
-        else {
-            return nil
-        }
-
-        let parts = raw.components(separatedBy: "|||")
-        guard parts.count == 5 else { return nil }
-
-        let stateStr = parts[0].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let title = parts[1]
-        let artist = parts[2]
-        let posStr = parts[3].replacingOccurrences(of: ",", with: ".")
-        let durStr = parts[4].replacingOccurrences(of: ",", with: ".")
-
-        guard let position = Double(posStr), let duration = Double(durStr) else { return nil }
-
-        let playing = stateStr == "playing"
-        return HubIslandMusicScriptRow(
-            title: title,
-            artist: artist,
-            position: position,
-            duration: duration,
-            isPlaying: playing
-        )
+        return String(data: outputData, encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
