@@ -8,5 +8,9 @@
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>TreeletHub needs access to your local network to find and connect to your Mac on the same Wi‑Fi, sync the app grid, and launch apps.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>TreeletHub uses the microphone for push-to-talk: your speech is transcribed on this iPhone and the text is typed into ChatGPT, Codex, or Cursor on your Mac.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>TreeletHub converts your speech to text on this iPhone so push-to-talk can send prompts to your Mac.</string>
 </dict>
 </plist>

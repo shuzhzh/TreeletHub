@@ -11,15 +11,23 @@ final class MacHubController: ObservableObject {
     let keyboardHUDStore = HubKeyboardHUDStore()
     let keyboardHUDPresenter = HubKeyboardHUDPresenter()
     let typingSoundMonitor = HubTypingSoundMonitor()
+    let codexMicro: HubCodexMicroBridge
 
     private var cancellables = Set<AnyCancellable>()
 
     init(subscription: HubSubscriptionManager) {
         let p = HubPairingStore()
         let g = HubGridStore()
+        let micro = HubCodexMicroBridge()
         pairing = p
         grid = g
-        server = HubMacServer(gridStore: g, pairingStore: p, isSubscriptionActive: { subscription.isSubscribed })
+        codexMicro = micro
+        server = HubMacServer(
+            gridStore: g,
+            pairingStore: p,
+            isSubscriptionActive: { subscription.isSubscribed },
+            codexMicro: micro
+        )
 
         pairing.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
@@ -36,5 +44,10 @@ final class MacHubController: ObservableObject {
         keyboardHUDPresenter.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
+        micro.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
+
+        micro.start()
     }
 }

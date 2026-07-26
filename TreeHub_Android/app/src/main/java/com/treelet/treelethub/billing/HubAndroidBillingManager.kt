@@ -11,6 +11,7 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
@@ -46,7 +47,12 @@ class HubAndroidBillingManager(
     private val billingClient: BillingClient =
         BillingClient.newBuilder(application)
             .setListener(this)
-            .enablePendingPurchases()
+            .enablePendingPurchases(
+                PendingPurchasesParams.newBuilder()
+                    .enableOneTimeProducts()
+                    .build(),
+            )
+            .enableAutoServiceReconnection()
             .build()
 
     init {
@@ -92,14 +98,16 @@ class HubAndroidBillingManager(
                     ),
                 )
                 .build()
-        billingClient.queryProductDetailsAsync(params) { billingResult, list ->
+        billingClient.queryProductDetailsAsync(params) { billingResult, productDetailsResult ->
             main.post {
                 if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
                     lastError = billingResult.debugMessage
                     isLoading = false
                     return@post
                 }
-                yearlyProductDetails = list.firstOrNull { it.productId == yearlyProductId }
+                yearlyProductDetails =
+                    productDetailsResult.productDetailsList
+                        .firstOrNull { it.productId == yearlyProductId }
                 queryEntitlements { isLoading = false }
             }
         }

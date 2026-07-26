@@ -17,6 +17,23 @@
     "%lld%%" : {
 
     },
+    "guide.body.ai_pad" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Put ChatGPT, Codex, or Cursor into the hub grid, then tap it on iPhone: instead of just launching the app, your phone becomes a dedicated controller for that agent, and the whole vibe-coding loop moves into your hand. Kick off a run, approve or redirect what the agent proposes, tune how hard it thinks, and jump between chat, edits, and the terminal — the model keeps working while you stay in the flow, phone in hand and away from the keyboard.\nChatGPT, Codex, and Cursor each get a layout tuned to how you actually drive them, and every control is remappable to fit your workflow.\nThe Mac needs Accessibility and Automation permission for TreeletHub — without it the controller shows a warning and the keys do nothing."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把 ChatGPT、Codex 或 Cursor 放进九宫格，在 iPhone 上点按它：手机不再只是启动应用，而是变成这个 agent 的专属控制器，整个 vibe coding 循环都握在手里。发起一次运行、批准或纠偏 agent 的提议、调节它思考的深浅、在对话 / 改动 / 终端之间切换——模型持续推进，你握着手机、离开键盘也能保持心流。\nChatGPT、Codex、Cursor 各有贴合你实际操作方式的布局，且每个控件都能自定义映射。\nMac 需要为 TreeletHub 开启「辅助功能」与「自动化」权限，否则控制器会提示未授权、按键无效。"
+          }
+        }
+      }
+    },
     "guide.body.connect_ios" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -47,6 +64,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已配对时在 Apps 九宫格上：双指下滑会隐藏 Mac 上全部已打开应用（含 TreeletHub 自身）以显示桌面。"
+          }
+        }
+      }
+    },
+    "guide.body.push_to_talk" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1) Hold the PTT key on the control pad and speak—the words you say appear on the phone in real time.\n2) Recognition runs on the iPhone itself. No audio leaves the phone; only the finished text travels across your Wi‑Fi to the Mac.\n3) Let go and the text lands in the ChatGPT / Codex / Cursor composer on the Mac. Read it over, then tap Send.\nDouble-tap PTT within 350 ms for hands-free recording, and tap once more to stop. The first time you use it, allow Microphone and Speech Recognition on the iPhone."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1）在控制键盘上按住「PTT」键说话，手机上会实时显示识别出的文字。\n2）识别全程在 iPhone 本机完成，音频不会离开手机，只有最终文字经 Wi‑Fi 发送到 Mac。\n3）松手后文字会自动填入 Mac 上 ChatGPT / Codex / Cursor 的输入框，确认无误后点「Send」发送。\n350 毫秒内双击 PTT 可进入免提录音，再点一次结束。首次使用请允许 iPhone 的「麦克风」与「语音识别」权限。"
           }
         }
       }
@@ -136,6 +170,23 @@
         }
       }
     },
+    "guide.title.ai_pad" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI control keyboard for vibe coding"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 控制键盘 · 掌上 vibe coding"
+          }
+        }
+      }
+    },
     "guide.title.connect_ios" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -166,6 +217,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "显示桌面（iPhone）"
+          }
+        }
+      }
+    },
+    "guide.title.push_to_talk" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push to talk"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住说话"
           }
         }
       }
@@ -3311,6 +3379,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "自动续订须遵守相关条款；以下链接将在默认浏览器中打开。"
+          }
+        }
+      }
+    },
+    "mac.subscription.benefit_aipad_p1" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drop ChatGPT, Codex, or Cursor into the hub and one tap on iPhone turns the phone into a dedicated controller for that agent — the whole vibe-coding loop, from launching a run to steering what it does next, moves into your hand instead of staying on the keyboard and trackpad."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把 ChatGPT、Codex、Cursor 放进九宫格，在 iPhone 上一点，手机就成为这个 agent 的专属控制器——从发起运行到引导它的下一步，整个 vibe coding 循环握在手里，而不是黏在键盘和触控板上。"
+          }
+        }
+      }
+    },
+    "mac.subscription.benefit_aipad_p2" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approve or redirect what the agent proposes, dial its reasoning up or down, and dictate prompts by voice — transcribed on the iPhone, dropped into the Mac composer, sent with a tap — so you can keep an agent moving from the couch, the kitchen, or two meters from the screen."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "批准或纠偏 agent 的提议、上下调节它的推理强度、按住用语音口述提示词——在 iPhone 本机识别成文字、落进 Mac 输入框、一点发送——躺沙发、进厨房、离屏幕两米，都能让 agent 持续推进。"
+          }
+        }
+      }
+    },
+    "mac.subscription.benefit_aipad_p3" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every client ships a layout tuned to its own workflow and every control is remappable. Combine it with multi-page hubs to run AI coding, writing, and everyday apps from a single remote."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个客户端都有贴合自身工作流的默认布局，且每个控件都可自定义映射；配合多页九宫格，用一套遥控器统筹 AI 编程、写作与日常应用。"
+          }
+        }
+      }
+    },
+    "mac.subscription.benefit_aipad_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI control keyboard for vibe coding"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 控制键盘 · 掌上 vibe coding"
           }
         }
       }

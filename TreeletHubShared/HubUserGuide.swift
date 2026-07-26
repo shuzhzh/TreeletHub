@@ -13,6 +13,8 @@ public struct HubUserGuideContent: View {
             guideBlock(titleKey: "guide.title.connect_ios", bodyKey: "guide.body.connect_ios")
             guideBlock(titleKey: "guide.title.setup_mac", bodyKey: "guide.body.setup_mac")
             guideBlock(titleKey: "guide.title.setup_ios", bodyKey: "guide.body.setup_ios")
+            guideBlock(titleKey: "guide.title.ai_pad", bodyKey: "guide.body.ai_pad")
+            guideBlock(titleKey: "guide.title.push_to_talk", bodyKey: "guide.body.push_to_talk")
             guideBlock(titleKey: "guide.title.gestures_ios", bodyKey: "guide.body.gestures_ios")
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -18,8 +18,12 @@ struct ContentView: View {
     @State private var photoPickerItem: PhotosPickerItem?
     /// 正在播放点击缩放动画的格子 id（仅非空格）。
     @State private var iconTapAnimatingSlot: Int?
-    /// 绑定 Tab 选中，避免 `@AppStorage` / 背景状态变化时 `TabView` 重建回到默认页。
+    /// 绑定 Tab 选中，避免 `@AppStorage` / 背景状态变化时重建回到默认页。
     @State private var pairedTabSelectionTag: String = "page-0"
+    /// Push virtual pad when user taps ChatGPT / Codex / Cursor on the grid.
+    @State private var microControlTarget: HubCodexControlTarget?
+    /// Which app-page NavigationStack owns the current pad push.
+    @State private var microSourcePageId: Int?
     @EnvironmentObject private var uiLanguage: HubIOSUILanguage
 
     private func iosL(_ key: String) -> String {
@@ -35,9 +39,15 @@ struct ContentView: View {
         HubBackgroundPreset(rawValue: bgPresetRaw) ?? .system
     }
 
-    /// Mac 订阅有效或 iOS 本地 entitlement 有效时解锁多页（与 Mac 一致最多 `HubService.maxTabs` 页）；否则仅首页 Apps。
+    /// Mac 订阅有效或 iOS 本地 entitlement 有效时解锁多页；否则仅首页 Apps。
     private var hasPremiumHubPages: Bool {
         client.serverReportsSubscriptionActive || iosSubscription.isSubscribed
+    }
+
+    /// iOS 系统底部 TabView 超过 5 个会进「更多」；我们改用分页滚动 + 自定义底栏后不再有「更多」，
+    /// 但仍限制应用页数量，避免底栏按钮过挤（设置固定占 1 个）。
+    private var maxAppTabPages: Int {
+        max(1, HubService.maxTabs - 1)
     }
 
     private var pairedAppTabPages: [HubPageConfig] {
@@ -46,7 +56,7 @@ struct ContentView: View {
             return [HubPageConfig(id: 0, title: "Apps")]
         }
         if hasPremiumHubPages {
-            return Array(sorted.prefix(HubService.maxTabs))
+            return Array(sorted.prefix(maxAppTabPages))
         }
         if let home = sorted.first(where: { $0.id == 0 }) {
             return [home]
@@ -152,8 +162,11 @@ struct ContentView: View {
         }
     }
 
-    // MARK: 已连接：系统 TabView（Apps + 设置）
+    // MARK: 已连接：原生分页 TabView（Apps + 设置）+ 底栏
 
+    /// 用系统分页 `TabView`（底层 `UIPageViewController`）：手指拖动时相邻页会被拉入视野。
+    /// 不要用水平 `ScrollView` 包多个 `NavigationStack`——会在布局阶段打转并触发 scene-update watchdog（0x8BADF00D）。
+    /// 系统带 `.tabItem` 的底部 TabView 不支持横滑，因此底栏用轻量自定义栏同步选中。
     private var pairedRootTabView: some View {
         TabView(selection: $pairedTabSelectionTag) {
             ForEach(pairedAppTabPages) { page in
@@ -161,9 +174,14 @@ struct ContentView: View {
                     hubRootWithBackground {
                         pairedAppsScreen(page: page)
                     }
-                }
-                .tabItem {
-                    Label(page.title, systemImage: "square.grid.3x3.fill")
+                    .navigationDestination(item: microDestinationBinding(for: page.id)) { target in
+                        hubRootWithBackground {
+                            HubCodexMicroView(client: client, lockedTarget: target)
+                                .environmentObject(uiLanguage)
+                        }
+                        .navigationTitle(target.displayNameEN)
+                        .navigationBarTitleDisplayMode(.inline)
+                    }
                 }
                 .tag("page-\(page.id)")
             }
@@ -173,12 +191,12 @@ struct ContentView: View {
                     pairedSettingsScreen
                 }
             }
-            .tabItem {
-                Label(iosL("ios.tab.settings"), systemImage: "gearshape.fill")
-            }
             .tag("settings")
         }
-        .treeletHubTabBarChrome()
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            pairedCustomTabBar
+        }
         .background {
             HubMacGestureOverlay(
                 onTwoFingerSwipeDown: {
@@ -187,6 +205,60 @@ struct ContentView: View {
                 }
             )
         }
+    }
+
+    /// 轻量底栏：外观贴近系统 Tab 栏，选中态驱动上面的分页 TabView。
+    private var pairedCustomTabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(pairedAppTabPages) { page in
+                pairedTabBarButton(
+                    tag: "page-\(page.id)",
+                    title: page.title,
+                    systemImage: "square.grid.3x3.fill"
+                )
+            }
+            pairedTabBarButton(
+                tag: "settings",
+                title: iosL("ios.tab.settings"),
+                systemImage: "gearshape.fill"
+            )
+        }
+        .padding(.top, 6)
+        .padding(.bottom, 4)
+        .background(.ultraThinMaterial)
+        .overlay(alignment: .top) {
+            Divider().opacity(0.35)
+        }
+    }
+
+    private func pairedTabBarButton(tag: String, title: String, systemImage: String) -> some View {
+        let selected = pairedTabSelectionTag == tag
+        return Button {
+            withAnimation(.snappy(duration: 0.28)) {
+                pairedTabSelectionTag = tag
+            }
+            if microControlTarget != nil {
+                microControlTarget = nil
+                microSourcePageId = nil
+            }
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        } label: {
+            VStack(spacing: 3) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 20, weight: selected ? .semibold : .regular))
+                    .symbolVariant(selected ? .fill : .none)
+                Text(title)
+                    .font(.system(size: 10, weight: selected ? .semibold : .regular))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .foregroundStyle(selected ? Color.accentColor : Color.secondary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 4)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func pairedAppsScreen(page: HubPageConfig) -> some View {
@@ -254,6 +326,23 @@ struct ContentView: View {
         .toolbar(.hidden, for: .navigationBar)
     }
 
+    private func microDestinationBinding(for pageId: Int) -> Binding<HubCodexControlTarget?> {
+        Binding(
+            get: {
+                microSourcePageId == pageId ? microControlTarget : nil
+            },
+            set: { newValue in
+                if let newValue {
+                    microSourcePageId = pageId
+                    microControlTarget = newValue
+                } else if microSourcePageId == pageId {
+                    microSourcePageId = nil
+                    microControlTarget = nil
+                }
+            }
+        )
+    }
+
     @ViewBuilder
     private func slotInteractiveCell<Inner: View>(slot: HubSlotConfig, pageId: Int, @ViewBuilder content: () -> Inner) -> some View {
         if slot.kind == .shortcut, let shortcut = slot.shortcutKind,
@@ -274,8 +363,19 @@ struct ContentView: View {
                 }
                 playAppIconTapFeedback()
                 let slotId = slot.id
-                if accessibilityReduceMotion {
+                let openPad = HubCodexControlTarget.resolve(
+                    bundleIdentifier: slot.bundleIdentifier,
+                    displayName: slot.displayName
+                )
+                let activate: () -> Void = {
                     client.tap(page: pageId, slot: slotId)
+                    if let openPad {
+                        microSourcePageId = pageId
+                        microControlTarget = openPad
+                    }
+                }
+                if accessibilityReduceMotion {
+                    activate()
                 } else {
                     withAnimation(.spring(response: 0.24, dampingFraction: 0.62)) {
                         iconTapAnimatingSlot = slotId
@@ -287,7 +387,7 @@ struct ContentView: View {
                             }
                         }
                     }
-                    client.tap(page: pageId, slot: slotId)
+                    activate()
                 }
             } label: {
                 content()
@@ -351,6 +451,30 @@ struct ContentView: View {
                 } label: {
                     Label(iosL("ios.settings.guide_link"), systemImage: "book.fill")
                 }
+            }
+
+            Section {
+                Label {
+                    Text(iosL("ios.settings.ai_pad_p1"))
+                        .font(.subheadline)
+                        .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: "keyboard")
+                        .foregroundStyle(.tint)
+                }
+                Label {
+                    Text(iosL("ios.settings.ai_pad_p2"))
+                        .font(.subheadline)
+                        .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: "mic.fill")
+                        .foregroundStyle(.tint)
+                }
+            } header: {
+                Text(iosL("ios.settings.section_ai_pad"))
+            } footer: {
+                Text(iosL("ios.settings.ai_pad_footer"))
+                    .font(.caption)
             }
 
             Section {
@@ -707,17 +831,6 @@ struct ContentView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.048) {
             UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.55)
         }
-    }
-}
-
-// MARK: - Tab 栏毛玻璃（与系统 Tab 栏一致；iOS 16+ 可见材质）
-
-private extension View {
-    /// 使用 `ultraThinMaterial` 呈现 Tab 栏毛玻璃；在 iOS 26 上与系统液态/磨砂 Tab 外观协调。
-    func treeletHubTabBarChrome() -> some View {
-        self
-            .toolbarBackground(.visible, for: .tabBar)
-            .toolbarBackground(.ultraThinMaterial, for: .tabBar)
     }
 }
 

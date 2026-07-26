@@ -21,6 +21,11 @@ final class HubIOSClient: ObservableObject {
     @Published private(set) var layoutApplyEpoch: UInt64 = 0
     /// Mac 在 layout 中报告的订阅是否有效（与 iOS 本地 StoreKit  entitlement 共同决定是否展示多页 Tab）。
     @Published private(set) var serverReportsSubscriptionActive = false
+    /// 虚拟 Codex Micro 实时状态（由 Mac 推送）。
+    @Published private(set) var codexMicroState: HubCodexMicroState = .empty
+    /// PTT 全程在 iPhone 本地录音识别；此状态驱动 PTT 键/徽章，优先于 Mac 推送的 recording。
+    @Published private(set) var localRecordingPhase: HubCodexRecordingState = .idle
+    let dictation = HubIOSDictationController()
     @Published var pinInput: String = ""
     /// 仅在非静默流程下向用户展示（配对界面）。
     @Published var lastError: String?
@@ -41,6 +46,8 @@ final class HubIOSClient: ObservableObject {
     private var lastSilentReceiveReconnectAt: Date?
     /// 已配对时周期性向 Mac 请求 `layout`，补偿单向推送偶发未刷新。
     private var layoutPullHeartbeatTask: Task<Void, Never>?
+    private var lastAgentTapAt: [Int: Date] = [:]
+    private static let agentDoubleTapWindow: TimeInterval = 0.35
 
     // MARK: - 启动 / 前台静默重连
 
@@ -288,6 +295,160 @@ final class HubIOSClient: ObservableObject {
         connection?.send(content: data, isComplete: false, completion: .contentProcessed { _ in })
     }
 
+    // MARK: - Codex Micro
+
+    func requestCodexMicroState() {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindRequestState))
+    }
+
+    func codexAgentTap(index: Int) {
+        let now = Date()
+        if let last = lastAgentTapAt[index], now.timeIntervalSince(last) <= Self.agentDoubleTapWindow {
+            lastAgentTapAt[index] = nil
+            sendCodexMicro(.init(kind: HubCodexMicroCommand.kindAgentDoubleTap, agentIndex: index, bringToFront: true))
+            return
+        }
+        lastAgentTapAt[index] = now
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindAgentTap, agentIndex: index, bringToFront: false))
+    }
+
+    func codexCommand(_ action: HubCodexMicroAction, handsFree: Bool = false) {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindCommand, action: action, handsFree: handsFree))
+    }
+
+    func codexJoystick(_ direction: HubCodexJoystickDirection) {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindJoystick, direction: direction))
+    }
+
+    func codexDialTurn(steps: Int) {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindDialTurn, steps: steps))
+    }
+
+    func codexDialPress() {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindDialPress))
+    }
+
+    func codexDialLongPress() {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindDialLongPress))
+    }
+
+    func codexDialCancel() {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindDialCancel))
+    }
+
+    func codexLayerCycle() {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindLayerCycle))
+    }
+
+    func codexPushToTalkEnd() {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindPushToTalkEnd))
+    }
+
+    // MARK: - PTT（iPhone 本地录音识别 → 文本发往 Mac）
+
+    /// 按下 PTT：用 iPhone 麦克风开始本地语音识别。
+    func pttStart() {
+        // Already recording (e.g. first tap of a double-tap) — keep the same session.
+        if localRecordingPhase == .recording, dictation.isRecording {
+            return
+        }
+        lastError = nil
+        var next = codexMicroState
+        next.lastControlError = nil
+        codexMicroState = next
+        localRecordingPhase = .recording
+        // 让 Mac 预热：把目标 App 调到前台并聚焦输入框，减少松手后的粘贴延迟。
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindCommand, action: .pushToTalk))
+        Task { @MainActor in
+            do {
+                try await dictation.start()
+            } catch {
+                localRecordingPhase = .idle
+                codexPushToTalkEnd()
+                reportPTTError(error.localizedDescription)
+            }
+        }
+    }
+
+    /// 松手：结束识别，把最终文字发给 Mac 粘贴进目标 App 输入框。
+    func pttStopAndSend() {
+        guard localRecordingPhase == .recording else { return }
+        localRecordingPhase = .processing
+        Task { @MainActor in
+            let text = await dictation.stopAndFinalize()
+            guard !text.isEmpty else {
+                localRecordingPhase = .idle
+                codexPushToTalkEnd()
+                reportPTTError(HubIOSDictationController.DictationError.emptyTranscript.localizedDescription)
+                return
+            }
+            sendCodexMicro(.init(kind: HubCodexMicroCommand.kindInsertText, text: text))
+            // Mac 粘贴成功后会广播 recording == .ready；本地阶段交还给远端状态。
+            localRecordingPhase = .idle
+        }
+    }
+
+    /// 取消（例如页面消失）：丢弃录音，不发送。
+    func pttCancel() {
+        let wasActive = localRecordingPhase != .idle
+        dictation.cancel()
+        localRecordingPhase = .idle
+        if wasActive {
+            codexPushToTalkEnd()
+        }
+    }
+
+    private func reportPTTError(_ message: String) {
+        var next = codexMicroState
+        next.lastControlError = message
+        codexMicroState = next
+    }
+
+    func codexSetMapping(_ mapping: HubCodexMicroMapping) {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindSetMapping, mapping: mapping))
+    }
+
+    /// Turn on command-palette auto-type and optionally re-fire an action.
+    func codexEnableTextAutomationAndRetry(_ action: HubCodexMicroAction?) {
+        var mapping = codexMicroState.mapping
+        mapping.allowsTextAutomation = true
+        codexSetMapping(mapping)
+        // Optimistic local update so the tip disappears immediately.
+        var next = codexMicroState
+        next.mapping = mapping
+        next.lastControlError = nil
+        codexMicroState = next
+        lastError = nil
+        if let action {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                self.codexCommand(action)
+            }
+        }
+    }
+
+    func codexDismissControlHint() {
+        var next = codexMicroState
+        next.lastControlError = nil
+        codexMicroState = next
+        lastError = nil
+    }
+
+    func codexSetTarget(_ target: HubCodexControlTarget) {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindSetTarget, target: target))
+    }
+
+    func codexOpenAccessibilitySettings() {
+        sendCodexMicro(.init(kind: HubCodexMicroCommand.kindOpenAccessibilitySettings))
+    }
+
+    private func sendCodexMicro(_ command: HubCodexMicroCommand) {
+        guard phase == .paired else { return }
+        guard let message = HubCodexMicroWire.encodeCommand(command) else { return }
+        let env = HubWireEnvelope(op: HubWireEnvelope.opCodexMicro, message: message)
+        guard let data = try? HubWireCodec.encodeLine(env) else { return }
+        connection?.send(content: data, isComplete: false, completion: .contentProcessed { _ in })
+    }
+
     // MARK: - 错误（静默时吞掉常见断线）
 
     private func reportBrowserFailure(_ error: NWError) {
@@ -458,6 +619,7 @@ final class HubIOSClient: ObservableObject {
                 pendingBonjourName = nil
                 endSilentIfNeeded()
                 startLayoutPullHeartbeat()
+                requestCodexMicroState()
             } else {
                 if !isSilentReconnect { lastError = HubIOSL10n.string("ios.error.wrong_pin") }
                 phase = .idle
@@ -474,6 +636,15 @@ final class HubIOSClient: ObservableObject {
                 pages = [HubPageConfig(id: 0, title: "Apps", slots: s)]
             }
             layoutApplyEpoch &+= 1
+        case HubWireEnvelope.opCodexMicroState:
+            if let decoded = HubCodexMicroWire.decodeState(env.message) {
+                codexMicroState = decoded
+            } else if let agents = env.agents {
+                var next = codexMicroState
+                next.agents = agents
+                next.updatedAt = Date().timeIntervalSince1970
+                codexMicroState = next
+            }
         case HubWireEnvelope.opError:
             if phase == .paired, let m = env.message,
                m == "未知操作" || m.hasPrefix("unsupportedOp:")
@@ -496,6 +667,7 @@ final class HubIOSClient: ObservableObject {
             wantsAutoConnectAfterBrowse = false
             isSilentReconnect = false
             serverReportsSubscriptionActive = false
+            codexMicroState = .empty
         default:
             break
         }

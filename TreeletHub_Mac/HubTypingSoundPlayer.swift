@@ -54,3 +54,41 @@ enum HubTypingSoundPlayer {
             playSystemMapped(keyCode: keyCode, regular: softRegular, space: "Blow", enter: "Purr", backspace: "Pop")
         case .none, .mechanicalBlue, .mechanicalRed, .mechanicalBrown, .typewriter:
             return
+        }
+    }
+
+    private static func playSystemMapped(
+        keyCode: UInt16,
+        regular: [String],
+        space: String,
+        enter: String,
+        backspace: String
+    ) {
+        let name: String
+        switch keyCode {
+        case 49:
+            name = space
+        case 36, 76:
+            name = enter
+        case 51, 117:
+            name = backspace
+        default:
+            name = regular.randomElement() ?? "Tink"
+        }
+        playNamedSystemSound(name)
+    }
+
+    private static func playNamedSystemSound(_ name: String, volume: Float = 0.55) {
+        guard let template = NSSound(named: NSSound.Name(name)) else {
+            NSSound.beep()
+            return
+        }
+        guard let sound = template.copy() as? NSSound else {
+            template.volume = volume
+            template.play()
+            return
+        }
+        sound.volume = volume
+        sound.play()
+    }
+}

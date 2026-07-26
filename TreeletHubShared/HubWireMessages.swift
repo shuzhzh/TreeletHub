@@ -19,6 +19,8 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
     public var value: Double?
     /// Mac 端订阅是否在有效期内；随 `layout` 下发供 iOS 决定分页 Tab 是否解锁。
     public var subscriptionActive: Bool?
+    /// Codex Micro 虚拟控制面：Agent 状态快照（也可编码在 `message` JSON 中）。
+    public var agents: [HubCodexAgentSlot]?
 
     public init(
         op: String,
@@ -35,7 +37,8 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
         to: Int? = nil,
         command: String? = nil,
         value: Double? = nil,
-        subscriptionActive: Bool? = nil
+        subscriptionActive: Bool? = nil,
+        agents: [HubCodexAgentSlot]? = nil
     ) {
         self.op = op
         self.pin = pin
@@ -52,6 +55,7 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
         self.command = command
         self.value = value
         self.subscriptionActive = subscriptionActive
+        self.agents = agents
     }
 
     public static let opPair = "pair"
@@ -66,6 +70,10 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
     public static let opRequestLayout = "requestLayout"
     /// iOS 多指滑动手势遥控 Mac 窗口/桌面（`command` 见 `HubGestureCommand`）。
     public static let opGesture = "gesture"
+    /// iOS → Mac：虚拟 Codex Micro 控制指令（`message` 为 `HubCodexMicroCommand` JSON）。
+    public static let opCodexMicro = "codexMicro"
+    /// Mac → iOS：Codex Micro 实时状态（`message` 为 `HubCodexMicroState` JSON，`agents` 可同步下发）。
+    public static let opCodexMicroState = "codexMicroState"
 }
 
 /// iOS 遥控 Mac 的手势命令（随 `opGesture` 的 `command` 字段发送）。

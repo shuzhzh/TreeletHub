@@ -66,6 +66,26 @@ On the **Apps** grid while paired: **two-finger swipe down** hides all open Mac 
 
 ---
 
+## AI control pad (iPhone · ChatGPT / Codex / Cursor)
+
+Put ChatGPT, Codex, or Cursor into the hub grid, then tap it on iPhone: instead of only launching the app, the phone opens a **control pad** for it—Agent status lights, Command Keys, a skill joystick, and the reasoning dial.
+
+- **Codex**: approve / decline, continue in a new chat, reasoning effort, Skills.
+- **ChatGPT**: new chat, push to talk, send, command menu, sidebar.
+- **Cursor**: push to talk, send, chat, command palette, accept / reject changes, terminal.
+
+Use the button in the top-right corner to **remap any key**, or restore the default layout. The Mac needs **Accessibility** and **Automation** permission for TreeletHub—without it the pad shows a warning and the keys do nothing.
+
+### Push to talk (PTT)
+
+1. **Hold the PTT key** on the control pad and speak—the transcript appears on the phone in real time.
+2. Recognition runs **on the iPhone itself**. **No audio leaves the phone**; only the finished text travels over Wi‑Fi to the Mac.
+3. **Release** and the text lands in the ChatGPT / Codex / Cursor composer on the Mac. Read it over, then tap **Send**.
+
+**Double-tap PTT** within 350 ms for hands-free recording; tap once more to stop. The first time, allow **Microphone** and **Speech Recognition** on the iPhone.
+
+---
+
 ## Dynamic Island on Mac (subscription)
 
 With an active subscription, enable the top floating strip on Mac for media, pairing code, clipboard, synced grid, clock, and weather (WeatherKit; location + network required)—see your Mac build and permissions.
@@ -98,8 +118,9 @@ Ideal for binding Chrome, WeChat, Terminal, and other daily apps to muscle-memor
 | Permission | Purpose |
 |------------|---------|
 | Local Network | Discover Mac, sync layout, send launch commands |
-| Accessibility / Automation (Mac) | Launch apps and shortcuts |
+| Accessibility / Automation (Mac) | Launch apps, drive AI control pad keys, and insert text |
 | Input Monitoring (Mac, Keyboard Launcher) | Listen for Control and shortcuts to show the overlay and launch mapped apps |
+| Microphone / Speech Recognition (iPhone, push to talk) | Transcribe speech on-device and send the text to the Mac composer |
 | Location (optional) | Weather in Dynamic Island |
 
 ---

@@ -25,6 +25,7 @@ final class HubMacServer: ObservableObject {
 
     let gridStore: HubGridStore
     let pairingStore: HubPairingStore
+    let codexMicro: HubCodexMicroBridge?
     /// 当前 Mac 订阅是否有效（由 HubSubscriptionManager 提供）。
     private let isSubscriptionActive: () -> Bool
 
@@ -32,10 +33,16 @@ final class HubMacServer: ObservableObject {
     @Published private(set) var lastError: String?
     @Published private(set) var connectedDevices: [ConnectedDevice] = []
 
-    init(gridStore: HubGridStore, pairingStore: HubPairingStore, isSubscriptionActive: @escaping () -> Bool = { false }) {
+    init(
+        gridStore: HubGridStore,
+        pairingStore: HubPairingStore,
+        isSubscriptionActive: @escaping () -> Bool = { false },
+        codexMicro: HubCodexMicroBridge? = nil
+    ) {
         self.gridStore = gridStore
         self.pairingStore = pairingStore
         self.isSubscriptionActive = isSubscriptionActive
+        self.codexMicro = codexMicro
 
         pairingStore.$pin
             .dropFirst()
@@ -49,6 +56,10 @@ final class HubMacServer: ObservableObject {
                 self?.broadcastLayout()
             }
             .store(in: &cancellables)
+
+        codexMicro?.onStateChange { [weak self] in
+            self?.broadcastCodexMicroState()
+        }
     }
 
     func start() {
@@ -226,6 +237,7 @@ final class HubMacServer: ObservableObject {
             send(.init(op: HubWireEnvelope.opPairResult, ok: ok), to: clientId)
             if ok {
                 sendLayout(to: clientId)
+                sendCodexMicroState(to: clientId)
             }
         case HubWireEnvelope.opTap:
             guard clients[clientId]?.paired == true else {
@@ -342,6 +354,31 @@ final class HubMacServer: ObservableObject {
                     }
                 }
             }
+        case HubWireEnvelope.opCodexMicro:
+            guard clients[clientId]?.paired == true else {
+                send(.init(op: HubWireEnvelope.opError, message: "未配对"), to: clientId)
+                return
+            }
+            guard let bridge = codexMicro else {
+                send(.init(op: HubWireEnvelope.opError, message: "Codex Micro 不可用"), to: clientId)
+                return
+            }
+            guard let command = HubCodexMicroWire.decodeCommand(env.message) else {
+                send(.init(op: HubWireEnvelope.opError, message: "无效的 Codex Micro 指令"), to: clientId)
+                return
+            }
+            Task {
+                do {
+                    try await bridge.handle(command)
+                    await MainActor.run {
+                        self.sendCodexMicroState(to: clientId)
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.send(.init(op: HubWireEnvelope.opError, message: error.localizedDescription), to: clientId)
+                    }
+                }
+            }
         default:
             send(.init(op: HubWireEnvelope.opError, message: "unsupportedOp:\(env.op)"), to: clientId)
         }
@@ -360,6 +397,20 @@ final class HubMacServer: ObservableObject {
             subscriptionActive: isSubscriptionActive()
         )
         send(env, to: clientId)
+    }
+
+    private func sendCodexMicroState(to clientId: UInt64) {
+        guard let bridge = codexMicro else { return }
+        send(bridge.snapshotEnvelope(), to: clientId)
+    }
+
+    private func broadcastCodexMicroState() {
+        guard let bridge = codexMicro else { return }
+        guard let data = try? HubWireCodec.encodeLine(bridge.snapshotEnvelope()) else { return }
+        for id in clients.keys {
+            guard clients[id]?.paired == true else { continue }
+            clients[id]?.connection.send(content: data, isComplete: false, completion: .contentProcessed { _ in })
+        }
     }
 
     private func broadcastLayout() {

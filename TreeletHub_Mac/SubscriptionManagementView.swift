@@ -104,6 +104,15 @@ struct SubscriptionManagementView: View {
                             ]
                         )
                         SubscriptionBenefitBlock(
+                            icon: "keyboard.badge.waveform",
+                            title: L("mac.subscription.benefit_aipad_title"),
+                            paragraphs: [
+                                L("mac.subscription.benefit_aipad_p1"),
+                                L("mac.subscription.benefit_aipad_p2"),
+                                L("mac.subscription.benefit_aipad_p3")
+                            ]
+                        )
+                        SubscriptionBenefitBlock(
                             icon: "square.grid.3x3.fill",
                             title: L("mac.subscription.benefit_grid_title"),
                             paragraphs: [
