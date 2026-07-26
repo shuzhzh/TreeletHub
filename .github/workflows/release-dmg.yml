@@ -21,6 +21,6 @@ jobs:
           body_path: docs/release-notes-${{ github.ref_name }}.md
           files: |
             releases/TreeletHub.dmg
-            releases/TreeletHub-Mac-1.2.6.dmg
+            releases/TreeletHub-Mac-1.2.7.dmg
           fail_on_unmatched_files: true
           generate_release_notes: false

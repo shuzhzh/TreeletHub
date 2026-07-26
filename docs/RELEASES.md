@@ -4,19 +4,25 @@
 
 ## 维护者步骤
 
-1. 在 Xcode 中 Archive **TreeletHub_Mac**，导出 **DMG**。
-2. 复制到本仓库：`cp ~/Downloads/Treelethub.dmg releases/TreeletHub.dmg`
-3. 编写 `docs/release-notes-vX.Y.Z.md`（与 tag 同名，如 `v1.2.3` → `release-notes-v1.2.3.md`）。
-4. 更新 `README.md` 中的版本号与下载链接（如需要）。
-5. 提交并推送 `main`，再打 tag 并推送：
+1. 用 `TreeletHub_Mac_release/build-dmg.sh X.Y.Z` 生成 fancy DMG（见 skill `package-mac-dmg`）。
+2. 复制到本仓库：
    ```bash
-   git add releases/TreeletHub.dmg docs/release-notes-v1.2.3.md README.md
-   git commit -m "Release macOS v1.2.3 DMG"
-   git push origin main
-   git tag v1.2.3
-   git push origin v1.2.3
+   cp TreeletHub_Mac_release/TreeletHub-Mac-X.Y.Z.dmg releases/TreeletHub.dmg
+   cp TreeletHub_Mac_release/TreeletHub-Mac-X.Y.Z.dmg releases/TreeletHub-Mac-X.Y.Z.dmg
    ```
-6. 在 [Actions](https://github.com/shuzhzh/TreeletHub/actions) 确认 workflow 成功；Release 出现在 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
+3. 更新 `.github/workflows/release-dmg.yml` 中的版本化文件名。
+4. 编写 `docs/release-notes-vX.Y.Z.md`（与 tag 同名，如 `v1.2.7` → `release-notes-v1.2.7.md`）。
+5. 更新 `README.md` 中的功能说明、版本号与下载链接。
+6. 提交并推送 `main`，再打 tag 并推送：
+   ```bash
+   git add releases/TreeletHub.dmg releases/TreeletHub-Mac-X.Y.Z.dmg \
+     docs/release-notes-vX.Y.Z.md README.md .github/workflows/release-dmg.yml
+   git commit -m "Release macOS vX.Y.Z DMG"
+   git push origin main
+   git tag vX.Y.Z
+   git push origin vX.Y.Z
+   ```
+7. 在 [Actions](https://github.com/shuzhzh/TreeletHub/actions) 确认 workflow 成功；Release 出现在 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
 
 ## README 直链（可选）
 

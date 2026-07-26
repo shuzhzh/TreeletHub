@@ -4,8 +4,12 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
+VERSION="${1:-1.2.7}"
+# 卷内始终使用 TreeletHub.app，源目录可以是导出的带版本号目录
 APP_NAME="TreeletHub.app"
-DMG_NAME="TreeletHub-Mac-1.2.6.dmg"
+APP_SRC="${ROOT}/TreeletHub-Mac-${VERSION}.app"
+[[ -d "${APP_SRC}" ]] || APP_SRC="${ROOT}/${APP_NAME}"
+DMG_NAME="TreeletHub-Mac-${VERSION}.dmg"
 VOL_NAME="TreeletHub"
 # create-dmg 要求：背景图像素尺寸必须与 --window-size 完全一致
 WIN_W=660
@@ -34,14 +38,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
-[[ -d "${ROOT}/${APP_NAME}" ]] || { echo "缺少 ${APP_NAME}" >&2; exit 1; }
+[[ -d "${APP_SRC}" ]] || { echo "缺少 app 包: ${APP_SRC}" >&2; exit 1; }
 [[ -f "${ROOT}/background.png" ]] || { echo "缺少 background.png" >&2; exit 1; }
 [[ -f "${ROOT}/logo.png" ]] || { echo "缺少 logo.png" >&2; exit 1; }
 [[ -f "${ROOT}/dmg-support/template.applescript" ]] || { echo "缺少 dmg-support/template.applescript" >&2; exit 1; }
 command -v create-dmg >/dev/null || { echo "请先安装 create-dmg: brew install create-dmg" >&2; exit 1; }
 
-echo "==> 准备 DMG 内容"
-cp -R "${ROOT}/${APP_NAME}" "${STAGING}/"
+echo "==> 准备 DMG 内容（源: $(basename "${APP_SRC}")）"
+cp -R "${APP_SRC}" "${STAGING}/${APP_NAME}"
 # 背景图缩放到与窗口同尺寸（create-dmg 硬性要求）
 sips -z "${WIN_H}" "${WIN_W}" "${ROOT}/background.png" --out "${BG_RESIZED}" >/dev/null
 

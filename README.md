@@ -27,7 +27,7 @@
 | **iPhone / iPad** | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
 | **Android** | [Google Play — TreeletHub: Desktop Control](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
 | **Mac（App Store）** | [Mac App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) |
-| **Mac（DMG）** | [下载 TreeletHub.dmg](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg) |
+| **Mac（DMG）** | [下载 TreeletHub.dmg](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg)（当前 **1.2.7**） |
 
 ### 手机端扫码安装
 
@@ -47,9 +47,12 @@
 
 ### Mac DMG 安装
 
-1. 下载 [TreeletHub.dmg](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg)，将 App 拖入「应用程序」。
+当前直装包：**macOS 1.2.7**（[版本化下载](https://github.com/shuzhzh/TreeletHub/releases/download/v1.2.7/TreeletHub-Mac-1.2.7.dmg) · [最新 TreeletHub.dmg](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg) · [全部 Releases](https://github.com/shuzhzh/TreeletHub/releases)）
+
+1. 下载 DMG，将 App 拖入「应用程序」。
 2. 若系统拦截首次打开：「系统设置 → 隐私与安全性」中允许，或右键 → **打开**。
 3. 允许 **本地网络** 权限，以便与手机配对。
+4. 使用 AI 控制键盘时，再允许 **辅助功能** 与 **自动化**。
 
 也可从 [Mac App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) 安装。
 
@@ -89,9 +92,27 @@ TreeletHub 在 Mac 上把常用应用排成 **九宫格**，同一 Wi‑Fi 下�
 - **拖拽排序** — Mac 与手机均可改格子顺序  
 - **多页** — Apps、Apps1…（部分页面需订阅）  
 - **显示桌面** — iPhone 已配对时，Apps 页双指下滑可隐藏 Mac 上全部窗口  
+- **AI 控制键盘** — 九宫格点按 ChatGPT / Codex / Cursor，用手机遥控 Mac 上对应应用（状态灯、命令键、旋钮、听写写回；详见下方）  
 - **Mac 灵动岛** — 订阅后在 Mac 顶部显示浮层（媒体、剪贴板、天气等，以 Mac 版为准）  
 - **键盘启动器** — 订阅专属：Control 唤出屏幕键盘，把 Mac 应用映射到按键；Control + 键随时唤起/隐藏，首字母自动填充、可拖拽自定义（详见下方）  
 - **多设备** — 一台 Mac 可接多部 iPhone / Android  
+
+---
+
+## AI 控制键盘（iPhone · ChatGPT / Codex / Cursor）
+
+> **把 AI 应用放进九宫格，点进去就是控制台** — 不只是启动，还能用手机驱动 Mac 上的 ChatGPT、Codex 与 Cursor。
+
+| 能力 | 说明 |
+|------|------|
+| **按应用进入** | 九宫格点按 ChatGPT / Codex / Cursor，直接打开对应控制键盘（无需单独 Tab） |
+| **命令与旋钮** | 状态灯、命令键、技能摇杆、推理旋钮；布局按应用独立保存 |
+| **按住说话** | iPhone 本机语音识别，松手后文字填入 Mac 输入框；音频不离开手机 |
+| **权限** | Mac 需允许 **辅助功能** 与 **自动化**；首次使用时系统会提示 |
+
+**版本**：Mac **1.2.7+**，搭配 iPhone **1.2.5+**。
+
+[使用说明：AI 控制键盘](docs/USER_GUIDE.zh-CN.md#ai-控制键盘iphone--chatgpt--codex--cursor) · [AI control pad (English)](docs/USER_GUIDE.en.md#ai-control-pad-iphone--chatgpt--codex--cursor) · [macOS 1.2.7 发布说明](docs/release-notes-v1.2.7.md)
 
 ---
 
