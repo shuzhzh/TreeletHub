@@ -16,17 +16,6 @@
 	<true/>
 	<key>com.apple.security.personal-information.location</key>
 	<true/>
-	<key>com.apple.security.temporary-exception.apple-events</key>
-	<array>
-		<string>com.apple.systemevents</string>
-		<string>com.openai.codex</string>
-		<string>com.openai.chat</string>
-		<string>com.todesktop.230313mzl4w4u92</string>
-	</array>
-	<key>com.apple.security.temporary-exception.files.home-relative.read-only</key>
-	<array>
-		<string>.codex/</string>
-	</array>
 	<key>com.apple.security.scripting-targets</key>
 	<dict>
 		<key>com.apple.Music</key>
