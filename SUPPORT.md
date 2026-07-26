@@ -11,7 +11,8 @@
 - iOS：[App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247)（二维码：`assets/ios-app-qr.png`）
 - Android：[Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub)（二维码：`assets/android-app-qr.png`）
 - Mac App Store：[链接](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258)
-- Mac DMG：[下载](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg)
+- Mac DMG：[最新下载](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg)（当前 **1.2.7**） · [全部 Releases](https://github.com/shuzhzh/TreeletHub/releases)
+- AI 控制键盘说明：[中文](docs/USER_GUIDE.zh-CN.md#ai-控制键盘iphone--chatgpt--codex--cursor) · [English](docs/USER_GUIDE.en.md#ai-control-pad-iphone--chatgpt--codex--cursor)
 
 ## 演示视频
 
