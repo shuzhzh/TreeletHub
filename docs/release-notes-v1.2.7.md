@@ -9,7 +9,7 @@
 - 命令键、摇杆、推理旋钮、听写结束写回输入框等。
 - 按目标应用分别持久化键位映射。
 
-请搭配 **iPhone 端 1.2.5 或更高** 以获得完整体验。详见 [使用说明 · AI 控制键盘](USER_GUIDE.zh-CN.md#ai-控制键盘iphone--chatgpt--codex--cursor)。
+请搭配 **iPhone 端 1.2.5+** 或 **Android 端 1.3+** 以获得完整体验。详见 [使用说明 · AI 控制键盘](USER_GUIDE.zh-CN.md#ai-控制键盘iphone--android--chatgpt--codex--cursor)。
 
 ### 权限与安全
 
@@ -37,4 +37,4 @@
 ### 系统要求
 
 - macOS 14.6 或更高版本
-- iPhone 端 **1.2.5** 或更高以获得完整 AI 控制键盘体验
+- iPhone 端 **1.2.5+** 或 Android 端 **1.3+** 以获得完整 AI 控制键盘体验

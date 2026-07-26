@@ -13,6 +13,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
@@ -23,15 +25,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -52,12 +56,12 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -70,15 +74,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.key
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -91,10 +96,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -109,17 +116,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.treelet.treelethub.R
 import com.treelet.treelethub.billing.HubAndroidBillingManager
-import com.treelet.treelethub.hub.HubAndroidUiState
 import com.treelet.treelethub.hub.HubAndroidClient
+import com.treelet.treelethub.hub.HubAndroidUiState
 import com.treelet.treelethub.hub.HubClientPhase
+import com.treelet.treelethub.hub.HubCodexControlTarget
 import com.treelet.treelethub.hub.HubCustomBackgroundStore
+import com.treelet.treelethub.hub.HubGestureCommand
 import com.treelet.treelethub.hub.HubPageConfig
 import com.treelet.treelethub.hub.HubService
 import com.treelet.treelethub.hub.HubSlotConfig
 import com.treelet.treelethub.hub.normalized
-import com.treelet.treelethub.R
 import com.treelet.treelethub.ui.theme.TreeletHubTheme
+import kotlin.math.abs
+import kotlin.math.hypot
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 @Composable
 fun TreeletHubApp(vm: TreeletHubViewModel) {
@@ -337,6 +350,9 @@ private fun UserGuideCard() {
             GuideBlock(R.string.guide_title_connect_android, R.string.guide_body_connect_android)
             GuideBlock(R.string.guide_title_setup_mac, R.string.guide_body_setup_mac)
             GuideBlock(R.string.guide_title_setup_phone, R.string.guide_body_setup_phone)
+            GuideBlock(R.string.guide_title_ai_pad_phone, R.string.guide_body_ai_pad_phone)
+            GuideBlock(R.string.guide_title_gestures_phone, R.string.guide_body_gestures_phone)
+            GuideBlock(R.string.guide_title_tabs_swipe, R.string.guide_body_tabs_swipe)
         }
     }
 }
@@ -383,16 +399,33 @@ private fun PairedShell(
             }
         }
 
-    var selectedTag by remember { mutableStateOf("page-${displayPages.first().id}") }
+    val tabTags =
+        remember(displayPages) {
+            displayPages.map { "page-${it.id}" } + "settings"
+        }
+    val pagerState = rememberPagerState(pageCount = { tabTags.size })
+    val scope = rememberCoroutineScope()
+    var microTarget by remember { mutableStateOf<HubCodexControlTarget?>(null) }
 
     LaunchedEffect(displayPages, hasPremium) {
-        val valid = displayPages.map { "page-${it.id}" }.toSet() + "settings"
-        if (!valid.contains(selectedTag)) {
-            selectedTag = displayPages.firstOrNull()?.let { "page-${it.id}" } ?: "settings"
+        if (pagerState.currentPage >= tabTags.size) {
+            scope.launch { pagerState.scrollToPage(0) }
         }
     }
 
     val activity = LocalContext.current as androidx.activity.ComponentActivity
+
+    if (microTarget != null) {
+        HubCodexMicroScreen(
+            client = vm.client,
+            lockedTarget = microTarget!!,
+            onBack = {
+                vm.client.pttCancel()
+                microTarget = null
+            },
+        )
+        return
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -401,52 +434,110 @@ private fun PairedShell(
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.62f),
             ) {
-                displayPages.forEach { page ->
+                displayPages.forEachIndexed { index, page ->
                     NavigationBarItem(
-                        selected = selectedTag == "page-${page.id}",
-                        onClick = { selectedTag = "page-${page.id}" },
+                        selected = pagerState.currentPage == index,
+                        onClick = {
+                            microTarget = null
+                            scope.launch { pagerState.animateScrollToPage(index) }
+                        },
                         icon = { Icon(Icons.Default.Grid3x3, contentDescription = null) },
                         label = { Text(page.title) },
                     )
                 }
                 NavigationBarItem(
-                    selected = selectedTag == "settings",
-                    onClick = { selectedTag = "settings" },
+                    selected = pagerState.currentPage == displayPages.size,
+                    onClick = {
+                        microTarget = null
+                        scope.launch { pagerState.animateScrollToPage(displayPages.size) }
+                    },
                     icon = { Icon(Icons.Default.Settings, contentDescription = null) },
                     label = { Text(stringResource(R.string.tab_settings)) },
                 )
             }
         },
     ) { padding ->
-        Box(Modifier.padding(padding)) {
-            when {
-                selectedTag == "settings" ->
-                    SettingsNavHost(
-                        vm = vm,
-                        billing = billing,
-                        prefs = prefs,
-                        bgPresetRaw = bgPresetRaw,
-                        onBgPresetChange = onBgPresetChange,
-                        useCustomBackground = useCustomBackground,
-                        onUseCustomBackgroundChange = onUseCustomBackgroundChange,
-                        bgStore = bgStore,
-                        activity = activity,
-                        serverReportsSubscriptionActive = ui.serverReportsSubscriptionActive,
-                    )
-                else -> {
-                    val pageId = selectedTag.removePrefix("page-").toIntOrNull() ?: 0
-                    val page = displayPages.firstOrNull { it.id == pageId } ?: displayPages.first()
-                    HubAppsPage(
-                        vm = vm,
-                        page = page,
-                        layoutEpoch = ui.layoutApplyEpoch,
-                        useCustomBackground = useCustomBackground,
-                    )
-                }
+        HorizontalPager(
+            state = pagerState,
+            modifier =
+                Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+                    .twoFingerSwipeDown {
+                        vm.client.gesture(HubGestureCommand.ShowDesktop)
+                    },
+            beyondViewportPageCount = 1,
+            userScrollEnabled = true,
+        ) { pageIndex ->
+            if (pageIndex < displayPages.size) {
+                val page = displayPages[pageIndex]
+                HubAppsPage(
+                    vm = vm,
+                    page = page,
+                    layoutEpoch = ui.layoutApplyEpoch,
+                    useCustomBackground = useCustomBackground,
+                    onOpenCodexPad = { target -> microTarget = target },
+                )
+            } else {
+                SettingsNavHost(
+                    vm = vm,
+                    billing = billing,
+                    prefs = prefs,
+                    bgPresetRaw = bgPresetRaw,
+                    onBgPresetChange = onBgPresetChange,
+                    useCustomBackground = useCustomBackground,
+                    onUseCustomBackgroundChange = onUseCustomBackgroundChange,
+                    bgStore = bgStore,
+                    activity = activity,
+                    serverReportsSubscriptionActive = ui.serverReportsSubscriptionActive,
+                )
             }
         }
     }
 }
+
+private fun Modifier.twoFingerSwipeDown(onSwipe: () -> Unit): Modifier =
+    pointerInput(onSwipe) {
+        var lastFireAt = 0L
+        awaitEachGesture {
+            val first = awaitFirstDown(requireUnconsumed = false)
+            val second =
+                withTimeoutOrNull(220) {
+                    awaitFirstDown(requireUnconsumed = false)
+                } ?: return@awaitEachGesture
+            var totalX = 0f
+            var totalY = 0f
+            var tracking = true
+            while (tracking) {
+                val event = awaitPointerEvent()
+                val pressed = event.changes.filter { it.pressed }
+                if (pressed.size < 2) {
+                    tracking = false
+                    break
+                }
+                event.changes.forEach { change ->
+                    if (change.pressed) {
+                        val delta = change.positionChange()
+                        totalX += delta.x
+                        totalY += delta.y
+                    }
+                }
+                if (event.changes.all { it.changedToUp() }) {
+                    tracking = false
+                }
+            }
+            val distance = hypot(totalX.toDouble(), totalY.toDouble())
+            if (distance < 48) return@awaitEachGesture
+            if (totalY <= 36 || totalY <= abs(totalX) * 0.85f) return@awaitEachGesture
+            val now = System.currentTimeMillis()
+            if (now - lastFireAt < 400) return@awaitEachGesture
+            lastFireAt = now
+            onSwipe()
+            // Keep first/second referenced so the compiler keeps the await.
+            first.id
+            second.id
+        }
+    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -759,6 +850,7 @@ private fun HubGridSlot(
     slotBounds: MutableMap<Int, Rect>,
     layoutCoords: Map<Int, LayoutCoordinates?>,
     onSlotPositioned: (Int, LayoutCoordinates) -> Unit,
+    onOpenCodexPad: (HubCodexControlTarget) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val layoutCoordsLatest by rememberUpdatedState(layoutCoords)
@@ -856,6 +948,9 @@ private fun HubGridSlot(
                                 view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                                 tapScale = 1.12f
                                 vm.client.tap(pageId, slot.id)
+                                HubCodexControlTarget
+                                    .resolve(slot.bundleIdentifier, slot.displayName)
+                                    ?.let(onOpenCodexPad)
                                 tapScale = 1f
                             }
                         },
@@ -910,6 +1005,7 @@ private fun HubAppsPage(
     page: HubPageConfig,
     layoutEpoch: Long,
     useCustomBackground: Boolean,
+    onOpenCodexPad: (HubCodexControlTarget) -> Unit,
 ) {
     val slots = page.slots.orEmpty().sortedBy { it.id }
     if (slots.size != 9) return
@@ -953,6 +1049,7 @@ private fun HubAppsPage(
                                 slotBounds = slotBounds,
                                 layoutCoords = layoutCoords,
                                 onSlotPositioned = onSlotPositioned,
+                                onOpenCodexPad = onOpenCodexPad,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
                             )
                         }

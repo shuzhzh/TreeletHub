@@ -19,6 +19,9 @@ object HubWireOps {
     const val disconnect = "disconnect"
     const val control = "control"
     const val requestLayout = "requestLayout"
+    const val gesture = "gesture"
+    const val codexMicro = "codexMicro"
+    const val codexMicroState = "codexMicroState"
 }
 
 @Serializable

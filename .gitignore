@@ -1,6 +1,8 @@
 .DS_Store
 *.dmg
 !releases/*.dmg
+*.apk
+!releases/*.apk
 *.zip
 *.pkg
 

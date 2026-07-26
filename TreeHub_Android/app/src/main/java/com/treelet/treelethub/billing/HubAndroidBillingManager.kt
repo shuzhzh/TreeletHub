@@ -50,6 +50,7 @@ class HubAndroidBillingManager(
             .enablePendingPurchases(
                 PendingPurchasesParams.newBuilder()
                     .enableOneTimeProducts()
+                    .enablePrepaidPlans()
                     .build(),
             )
             .enableAutoServiceReconnection()

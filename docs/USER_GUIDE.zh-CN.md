@@ -20,7 +20,7 @@ TreeletHub 在 Mac 上配置应用九宫格，同一 Wi‑Fi 下的 iPhone、iPa
 | 端 | 链接 |
 |----|------|
 | iPhone / iPad | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
-| Android | [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
+| Android | [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) 或 [APK 1.3](https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk) |
 | Mac | [App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) 或 [DMG](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg) |
 
 ---
@@ -60,15 +60,19 @@ Mac 上重新生成配对码后，手机需用 **新码** 重连。
 - **设置** 中可改设备名、换背景或替换相册背景（各端保留一张自定义图）。
 - 支持拖拽排序，与 Mac 同步。
 
-### 显示桌面（仅 iPhone）
+### 显示桌面（iPhone / Android）
 
 已配对时在 Apps 页 **双指下滑**，可隐藏 Mac 上全部已打开应用（含 TreeletHub）并显示桌面。
 
+### 左右滑动切换 Tab（iPhone / Android）
+
+已配对后，可在九宫格页与设置页之间 **左右滑动** 切换，也可点按底部栏。
+
 ---
 
-## AI 控制键盘（iPhone · ChatGPT / Codex / Cursor）
+## AI 控制键盘（iPhone / Android · ChatGPT / Codex / Cursor）
 
-把 ChatGPT、Codex 或 Cursor 放进九宫格，在 iPhone 上点按它：手机不只是启动应用，而是直接进入对应的 **控制键盘**——Agent 状态灯、命令键、技能摇杆与推理旋钮。
+把 ChatGPT、Codex 或 Cursor 放进九宫格，在手机上点按它：不只是启动应用，而是直接进入对应的 **控制键盘**——Agent 状态灯、命令键、技能摇杆与推理旋钮。
 
 - **Codex**：批准 / 拒绝、新会话继续、推理强度、Skills。
 - **ChatGPT**：新会话、按住说话、发送、命令菜单、侧边栏。
@@ -79,10 +83,10 @@ Mac 上重新生成配对码后，手机需用 **新码** 重连。
 ### 按住说话（PTT）
 
 1. 在控制键盘上 **按住「PTT」** 说话，手机上实时显示识别出的文字。
-2. 识别全程在 **iPhone 本机** 完成，**音频不会离开手机**，只有最终文字经 Wi‑Fi 发送到 Mac。
+2. 识别全程在 **手机本机** 完成，**音频不会离开手机**，只有最终文字经 Wi‑Fi 发送到 Mac。
 3. **松手** 后文字自动填入 Mac 上 ChatGPT / Codex / Cursor 的输入框，确认无误后点 **Send** 发送。
 
-350 毫秒内 **双击 PTT** 进入免提录音，再点一次结束。首次使用需允许 iPhone 的 **麦克风** 与 **语音识别** 权限。
+350 毫秒内 **双击 PTT** 进入免提录音，再点一次结束。首次使用需允许手机的 **麦克风**（及 iPhone 上的 **语音识别**）权限。
 
 ---
 
@@ -120,7 +124,7 @@ Mac 上重新生成配对码后，手机需用 **新码** 重连。
 | 本地网络 | 发现 Mac、同步布局、发送启动指令 |
 | 辅助功能 / 自动化（Mac） | 启动应用、AI 控制键盘按键与文字输入 |
 | 输入监控（Mac，键盘启动器） | 监听 Control 与快捷键以显示浮层并启动映射应用 |
-| 麦克风 / 语音识别（iPhone，按住说话） | 在本机把语音识别成文字后发送到 Mac 输入框 |
+| 麦克风 / 语音识别（手机，按住说话） | 在本机把语音识别成文字后发送到 Mac 输入框 |
 | 定位（可选） | Mac 灵动岛天气 |
 
 ---

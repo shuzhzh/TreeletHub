@@ -1,8 +1,12 @@
-# 发布 Mac DMG 到 GitHub Releases
+# 发布 Mac DMG / Android APK 到 GitHub Releases
 
-本仓库通过 **GitHub Releases** 分发 Mac 直装包。DMG 放在 `releases/TreeletHub.dmg`，推送 **版本 tag** 后由 [GitHub Actions](https://github.com/shuzhzh/TreeletHub/actions/workflows/release-dmg.yml) 自动创建 Release 并上传附件。
+本仓库通过 **GitHub Releases** 分发 Mac 与 Android 直装包。
 
-## 维护者步骤
+## Mac DMG
+
+DMG 放在 `releases/TreeletHub.dmg`，推送 **版本 tag**（如 `v1.2.7`）后由 [GitHub Actions](https://github.com/shuzhzh/TreeletHub/actions/workflows/release-dmg.yml) 自动创建 Release 并上传附件。
+
+### 维护者步骤
 
 1. 用 `TreeletHub_Mac_release/build-dmg.sh X.Y.Z` 生成 fancy DMG（见 skill `package-mac-dmg`）。
 2. 复制到本仓库：
@@ -24,13 +28,31 @@
    ```
 7. 在 [Actions](https://github.com/shuzhzh/TreeletHub/actions) 确认 workflow 成功；Release 出现在 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
 
-## README 直链（可选）
+### README 直链（可选）
 
 若固定文件名为 `TreeletHub.dmg`，可在 README 使用：
 
 `https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg`
 
-（仅当 Release 附件使用该文件名时有效。）
+（仅当 **Latest** Release 附件使用该文件名时有效。Android 发布请使用 `android-vX.Y` tag，并设置 `--latest=false`，以免覆盖 Mac 的 latest。）
+
+## Android APK
+
+1. 在 Android Studio 生成签名 APK，复制为：
+   ```bash
+   cp TreeHub_Android/app/release/TreeletHubX.Y.apk releases/TreeletHub-Android-X.Y.apk
+   ```
+2. 编写 `docs/release-notes-android-vX.Y.md`，并更新 README / SUPPORT 下载链接。
+3. 创建 **非 Latest** Release（保留 Mac `latest`）：
+   ```bash
+   gh release create android-vX.Y \
+     --title "TreeletHub vX.Y for Android" \
+     --notes-file docs/release-notes-android-vX.Y.md \
+     --latest=false \
+     releases/TreeletHub-Android-X.Y.apk
+   ```
+4. 直链示例：
+   `https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk`
 
 ## iOS 二维码
 
