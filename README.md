@@ -18,7 +18,7 @@
 
 ---
 
-本页提供 **TreeletHub** 下载链接与使用说明（不含源代码）。Mac / Android 安装包见 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
+本仓库是 **TreeletHub** 各端源码与发布安装包。Mac / Android 安装包见 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。官网页面在独立仓库维护。
 
 ## 下载
 

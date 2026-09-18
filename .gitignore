@@ -38,12 +38,12 @@ local.properties
 /captures
 
 # IDE
-.idea/caches/
-.idea/libraries/
-.idea/modules.xml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
+.idea/
+**/.idea/
+.cursor/
+
+# 官网站点在独立仓库维护，不要提交到本仓库
+treelet.us/
 
 # Fastlane secrets
 fastlane/.env
