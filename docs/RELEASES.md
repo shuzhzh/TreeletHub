@@ -15,8 +15,8 @@ DMG 放在 `releases/TreeletHub.dmg`，推送 **版本 tag**（如 `v1.2.7`）�
    cp TreeletHub_Mac_release/TreeletHub-Mac-X.Y.Z.dmg releases/TreeletHub-Mac-X.Y.Z.dmg
    ```
 3. 更新 `.github/workflows/release-dmg.yml` 中的版本化文件名。
-4. 编写 `docs/release-notes-vX.Y.Z.md`（与 tag 同名，如 `v1.2.7` → `release-notes-v1.2.7.md`）。
-5. 更新 `README.md` 中的功能说明、版本号与下载链接。
+4. 编写 `docs/release-notes-vX.Y.Z.md`（与 tag 同名，如 `v1.2.7` → `release-notes-v1.2.7.md`），并更新根目录 `CHANGELOG.md`。
+5. 更新 `README.md` 中的功能说明、版本号、截图与下载链接。
 6. 提交并推送 `main`，再打 tag 并推送：
    ```bash
    git add releases/TreeletHub.dmg releases/TreeletHub-Mac-X.Y.Z.dmg \

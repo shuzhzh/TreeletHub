@@ -1,3 +1,5 @@
+完整变更记录见仓库根目录 [CHANGELOG.md](../CHANGELOG.md)。
+
 ## TreeletHub 1.3.0 for macOS（DMG）
 
 配套源码同时覆盖蜂巢启动墙、一次性 Pro 买断与 Codex 深链接控制。国内正式下载走 Cloudflare CDN；GitHub Releases 作为开发备用。

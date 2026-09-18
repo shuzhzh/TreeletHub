@@ -80,7 +80,10 @@ Put **Codex** in the launcher, then tap it on **Android** to open a control pad 
 
 ## Dynamic Island on Mac (Pro)
 
-With Pro unlocked, turn on Dynamic Island in the Mac main window or **Settings (gear)** menu. The floating strip can show media controls, pairing code / file staging, clipboard history, synced launcher pages, clock, and weather (WeatherKit; location + network)—see your Mac build and permissions.
+With Pro unlocked, turn on Dynamic Island in the Mac main window or **Settings (gear)** menu. A thin strip docks at the top of the screen; hover or click to expand:
+
+- **System apps:** an icon wall of installed Mac apps, with search and icon-size controls.
+- **Workspace:** media playback, weather (WeatherKit; optional location), clipboard history, and file staging / pairing widgets.
 
 ---
 
