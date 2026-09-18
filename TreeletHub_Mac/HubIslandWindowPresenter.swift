@@ -9,28 +9,40 @@ final class HubIslandScreenMetrics: ObservableObject {
     @Published var topInset: CGFloat = NSStatusBar.system.thickness
     /// 当前屏幕是否带刘海摄像头切口。
     @Published var hasPhysicalNotch: Bool = false
-    /// 灵动岛水平锚点（全局坐标）：刘海/摄像头区域中心；无刘海时为 `screen.frame.midX`。
+    /// 灵动岛水平锚点（全局坐标）：始终为当前屏幕正中，开启瞬间与贴边后保持同一位置。
     @Published var islandAnchorCenterX: CGFloat = 0
     /// 当前屏幕逻辑宽度（pt），用于按屏宽缩放胶囊尺寸。
     @Published private(set) var screenWidth: CGFloat = 1512
     /// 当前屏幕逻辑高度（pt），用于按屏高缩放展开态内容区。
     @Published private(set) var screenHeight: CGFloat = 982
 
-    /// 展开态胶囊内容宽度：随屏幕宽度缩放并夹在舒适区间。
+    /// 展开态胶囊内容宽度：默认占当前屏宽约 60%，并夹在可用区间。
     var expandedIslandWidth: CGFloat {
-        Self.scaledIslandWidth(screenWidth: screenWidth, reference: 580, min: 480, max: 720)
+        let target = (screenWidth * 0.60).rounded(.toNearestOrAwayFromZero)
+        let maxWidth = max(560, screenWidth - 64)
+        return Swift.min(maxWidth, Swift.max(560, target))
     }
 
-    /// 收起 / 贴边态胶囊内容宽度。
+    /// 收起 / 贴边态胶囊内容宽度：约为展开宽的一半，便于一眼扫到摘要。
     var collapsedIslandWidth: CGFloat {
-        Self.scaledIslandWidth(screenWidth: screenWidth, reference: 430, min: 340, max: 540)
+        let target = (expandedIslandWidth * 0.48).rounded(.toNearestOrAwayFromZero)
+        return Swift.min(expandedIslandWidth * 0.62, Swift.max(360, target))
     }
 
     /// 展开态各 Tab 共用的内容区高度（含 padding 内区域），切换 Tab 窗口不跳动。
+    /// 加高以容纳完整蜂巢启动台与更多面板内容。
     var expandedBodyHeight: CGFloat {
         let usable = max(640, screenHeight - 100)
-        let scaled = (usable * 0.40).rounded(.toNearestOrAwayFromZero)
-        return Swift.min(440, Swift.max(360, scaled))
+        let scaled = (usable * 0.52).rounded(.toNearestOrAwayFromZero)
+        return Swift.min(580, Swift.max(420, scaled))
+    }
+
+    /// 与 SwiftUI 上报的展开态窗口对齐，避免首次用窄占位框把岛偏到一侧。
+    var estimatedExpandedPanelSize: CGSize {
+        CGSize(
+            width: expandedIslandWidth + 40,
+            height: topInset + expandedBodyHeight + 96
+        )
     }
 
     func update(for screen: NSScreen?) {
@@ -44,7 +56,7 @@ final class HubIslandScreenMetrics: ObservableObject {
         }
         screenWidth = s.frame.width
         screenHeight = s.frame.height
-        islandAnchorCenterX = Self.cameraAnchorCenterX(on: s)
+        islandAnchorCenterX = s.frame.midX
         if s.auxiliaryTopLeftArea != nil {
             hasPhysicalNotch = true
             topInset = max(s.safeAreaInsets.top, NSStatusBar.system.thickness)
@@ -108,7 +120,7 @@ final class HubIslandWindowPresenter {
     private let metrics = HubIslandScreenMetrics()
     private var screenChangeObserver: NSObjectProtocol?
     private var localMouseMonitor: Any?
-    /// 由 SwiftUI 注册：贴边态下顶部热区悬停时唤出收起胶囊。
+    /// 由 SwiftUI 注册：贴边态下顶部热区悬停时展开大面板。
     private var revealCollapsedFromDockHandler: (() -> Void)?
 
     deinit {
@@ -174,8 +186,8 @@ final class HubIslandWindowPresenter {
         hosting.layer?.backgroundColor = NSColor.clear.cgColor
         hosting.layer?.isOpaque = false
 
-        // 初始占位，随后由 SwiftUI 实测尺寸回调紧贴顶部更新。
-        let initial = NSSize(width: 400, height: 64)
+        // 直接按展开态尺寸落位，避免先出 400pt 窄窗再撑开造成水平跳动。
+        let initial = metrics.estimatedExpandedPanelSize
         hosting.frame = NSRect(origin: .zero, size: initial)
 
         let panel = NSPanel(
@@ -234,7 +246,8 @@ final class HubIslandWindowPresenter {
         let loc = NSEvent.mouseLocation
         let topBand: CGFloat = 28
         guard loc.y >= screen.frame.maxY - topBand else { return }
-        let halfW = metrics.collapsedIslandWidth / 2 + 40
+        // 热区半宽与贴边条大致同宽；下限约 200pt，避免窄屏热区过小。
+        let halfW = max(200, metrics.collapsedIslandWidth / 2 + 40)
         guard abs(loc.x - metrics.islandAnchorCenterX) <= halfW else { return }
         handler()
     }
@@ -288,10 +301,9 @@ final class HubIslandWindowPresenter {
         hostingView?.invalidateIntrinsicContentSize()
         hostingView?.layoutSubtreeIfNeeded()
 
-        // 顶缘贴物理上沿；水平以摄像头/刘海中心为锚点（无刘海则为屏幕中心）。
+        // 顶缘贴物理上沿；水平始终锚在当前屏幕正中，开启瞬间与贴边后同一位置。
         let sf = screen.frame
-        let anchorX = metrics.islandAnchorCenterX
-        let x = anchorX - w / 2
+        let x = sf.midX - w / 2
         let y = sf.maxY - h
         panel.setFrame(NSRect(x: x, y: y, width: w, height: h), display: true)
     }

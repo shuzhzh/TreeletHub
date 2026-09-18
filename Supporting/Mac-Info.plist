@@ -13,7 +13,7 @@
 	<key>NSScreenCaptureUsageDescription</key>
 	<string>TreeletHub needs Screen Recording access to invoke the system screenshot tool for screenshot shortcuts.</string>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>TreeletHub uses Apple Events to control ChatGPT, Codex, and Cursor from your iPhone, and to read Music now-playing metadata for Dynamic Island.</string>
+	<string>TreeletHub uses Apple Events to read Music now-playing metadata for Dynamic Island.</string>
 	<key>NSInputMonitoringUsageDescription</key>
 	<string>TreeletHub listens for Control and key presses to show the Keyboard Launcher overlay and open mapped apps.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

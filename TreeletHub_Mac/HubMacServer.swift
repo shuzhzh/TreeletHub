@@ -313,13 +313,22 @@ final class HubMacServer: ObservableObject {
                 send(.init(op: HubWireEnvelope.opError, message: "无效的页面"), to: clientId)
                 return
             }
+            let pageTo = env.pageTo ?? page
+            guard gridStore.pages.contains(where: { $0.id == pageTo }) else {
+                send(.init(op: HubWireEnvelope.opError, message: "无效的目标页面"), to: clientId)
+                return
+            }
             guard let from = env.from, let to = env.to,
-                  (0..<9).contains(from), (0..<9).contains(to), from != to
+                  (0..<9).contains(from), (0..<9).contains(to)
             else {
                 send(.init(op: HubWireEnvelope.opError, message: "无效的交换参数"), to: clientId)
                 return
             }
-            gridStore.swapSlots(page: page, at: from, j: to)
+            if page == pageTo, from == to {
+                send(.init(op: HubWireEnvelope.opError, message: "无效的交换参数"), to: clientId)
+                return
+            }
+            gridStore.swapSlots(page: page, at: from, withPage: pageTo, at: to)
         case HubWireEnvelope.opRequestLayout:
             guard clients[clientId]?.paired == true else {
                 send(.init(op: HubWireEnvelope.opError, message: "未配对"), to: clientId)

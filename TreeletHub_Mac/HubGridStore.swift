@@ -8,6 +8,8 @@ final class HubGridStore: ObservableObject {
     private static let defaultsKey = "treelethub.grid.pages.v2"
     private static let legacySlotsKey = "treelethub.grid.slots.v1"
     private static let bookmarkKey = "treelethub.grid.bookmarks.v1"
+    /// 标记是否已尝试过预填常用应用（避免用户清空后再次自动填入）。
+    private static let didApplyStarterLayoutKey = "treelethub.grid.didApplyStarter.v1"
 
     @Published private(set) var pages: [HubPageConfig]
     @Published var selectedPageId: Int = 0
@@ -16,6 +18,7 @@ final class HubGridStore: ObservableObject {
 
     init() {
         pages = Self.loadPersistedPages()
+        applyStarterLayoutIfNeeded()
         normalizePageTitles()
         selectedPageId = pages.first?.id ?? 0
         if let bData = UserDefaults.standard.data(forKey: Self.bookmarkKey),
@@ -24,6 +27,57 @@ final class HubGridStore: ObservableObject {
             bookmarks = dict
         }
         persist()
+    }
+
+    /// 首次空布局时预填本机存在的常用系统应用；只执行一次。
+    private func applyStarterLayoutIfNeeded() {
+        if UserDefaults.standard.bool(forKey: Self.didApplyStarterLayoutKey) {
+            return
+        }
+        if HubService.configuredSlotCount(in: pages) == 0 {
+            pages = Self.makeStarterPages()
+        }
+        UserDefaults.standard.set(true, forKey: Self.didApplyStarterLayoutKey)
+    }
+
+    /// 新装默认常用应用（按本机是否安装过滤）。
+    private static let starterAppCandidates: [(bundleId: String, fallbackName: String)] = [
+        ("com.apple.Safari", "Safari"),
+        ("com.apple.Notes", "Notes"),
+        ("com.apple.systempreferences", "System Settings"),
+        ("com.apple.SystemSettings", "System Settings"),
+        ("com.apple.Maps", "Maps"),
+        ("com.apple.MobileSMS", "Messages"),
+        ("com.apple.mail", "Mail"),
+        ("com.apple.Music", "Music"),
+        ("com.apple.Photos", "Photos"),
+        ("com.apple.iCal", "Calendar"),
+    ]
+
+    private static func makeStarterPages() -> [HubPageConfig] {
+        var slots = (0..<9).map { HubSlotConfig(id: $0) }
+        var filled = 0
+        var usedBundleIds = Set<String>()
+        for candidate in starterAppCandidates {
+            guard filled < 9 else { break }
+            // System Settings 在不同 macOS 上 bundle id 可能不同，避免重复占位。
+            if candidate.bundleId == "com.apple.SystemSettings",
+               usedBundleIds.contains("com.apple.systempreferences") {
+                continue
+            }
+            guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: candidate.bundleId)
+            else { continue }
+            let displayName = FileManager.default.displayName(atPath: url.path)
+            slots[filled] = HubSlotConfig(
+                id: filled,
+                kind: .app,
+                bundleIdentifier: candidate.bundleId,
+                displayName: displayName.isEmpty ? candidate.fallbackName : displayName
+            )
+            usedBundleIds.insert(candidate.bundleId)
+            filled += 1
+        }
+        return [HubPageConfig(id: 0, title: defaultPageTitle(for: 0), slots: slots)]
     }
 
     var selectedPage: HubPageConfig? {
@@ -119,33 +173,49 @@ final class HubGridStore: ObservableObject {
 
     /// 交换两个格子上的应用配置（书签按 bundle id 索引，交换后仍有效）。
     func swapSlots(page pageId: Int, at i: Int, j: Int) {
-        guard i != j, (0..<9).contains(i), (0..<9).contains(j) else { return }
-        guard let pageIndex = pages.firstIndex(where: { $0.id == pageId }) else { return }
+        swapSlots(page: pageId, at: i, withPage: pageId, at: j)
+    }
+
+    /// 同页或跨页交换两个槽位内容（保留各自 slot id）。
+    func swapSlots(page pageA: Int, at i: Int, withPage pageB: Int, at j: Int) {
+        guard (0..<9).contains(i), (0..<9).contains(j) else { return }
+        if pageA == pageB, i == j { return }
+        guard let indexA = pages.firstIndex(where: { $0.id == pageA }),
+              let indexB = pages.firstIndex(where: { $0.id == pageB })
+        else { return }
+
         var updatedPages = pages
-        var next = updatedPages[pageIndex].slots
-        let a = next[i]
-        let b = next[j]
-        next[i] = HubSlotConfig(
-            id: i,
-            kind: b.kind,
-            bundleIdentifier: b.bundleIdentifier,
-            displayName: b.displayName,
-            shortcutKind: b.shortcutKind,
-            shortcutPayload: b.shortcutPayload,
-            iconPNG: b.iconPNG
-        )
-        next[j] = HubSlotConfig(
-            id: j,
-            kind: a.kind,
-            bundleIdentifier: a.bundleIdentifier,
-            displayName: a.displayName,
-            shortcutKind: a.shortcutKind,
-            shortcutPayload: a.shortcutPayload,
-            iconPNG: a.iconPNG
-        )
-        updatedPages[pageIndex].slots = next
+        if indexA == indexB {
+            var next = updatedPages[indexA].slots
+            let a = next[i]
+            let b = next[j]
+            next[i] = remappedSlot(b, id: i)
+            next[j] = remappedSlot(a, id: j)
+            updatedPages[indexA].slots = next
+        } else {
+            var slotsA = updatedPages[indexA].slots
+            var slotsB = updatedPages[indexB].slots
+            let a = slotsA[i]
+            let b = slotsB[j]
+            slotsA[i] = remappedSlot(b, id: i)
+            slotsB[j] = remappedSlot(a, id: j)
+            updatedPages[indexA].slots = slotsA
+            updatedPages[indexB].slots = slotsB
+        }
         pages = updatedPages
         persist()
+    }
+
+    private func remappedSlot(_ source: HubSlotConfig, id: Int) -> HubSlotConfig {
+        HubSlotConfig(
+            id: id,
+            kind: source.kind,
+            bundleIdentifier: source.bundleIdentifier,
+            displayName: source.displayName,
+            shortcutKind: source.shortcutKind,
+            shortcutPayload: source.shortcutPayload,
+            iconPNG: source.iconPNG
+        )
     }
 
     /// 发给 iOS 的布局条目（含高清 PNG；长边约 512px，兼顾 Retina 与局域网体积）。

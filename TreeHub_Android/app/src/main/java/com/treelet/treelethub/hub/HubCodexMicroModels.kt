@@ -114,18 +114,17 @@ enum class HubCodexControlTarget {
     val showsAgentKeys: Boolean
         get() =
             when (this) {
-                Codex, ChatGPT, ChatGPTClassic -> true
-                Cursor -> false
+                Codex -> true
+                ChatGPT, ChatGPTClassic, Cursor -> false
             }
 
     val defaultDialMode: HubCodexDialMode
-        get() =
-            when (this) {
-                Codex -> HubCodexDialMode.ReasoningOnly
-                ChatGPT, ChatGPTClassic, Cursor -> HubCodexDialMode.ComposerNavigation
-            }
+        get() = HubCodexDialMode.ReasoningOnly
 
     companion object {
+        /** Targets that open the virtual control pad. */
+        val padSupportedTargets: Set<HubCodexControlTarget> = setOf(Codex)
+
         fun resolve(
             bundleIdentifier: String?,
             displayName: String?,
@@ -133,23 +132,11 @@ enum class HubCodexControlTarget {
             val bid = bundleIdentifier?.trim()?.lowercase().orEmpty()
             val name = displayName?.trim()?.lowercase().orEmpty()
 
-            if (bid == Cursor.bundleIdentifier || name == "cursor" || name.contains("cursor")) {
-                return Cursor
-            }
-            if (bid == ChatGPTClassic.bundleIdentifier || name.contains("classic")) {
-                return ChatGPTClassic
-            }
-            if (
-                bid == ChatGPT.bundleIdentifier ||
-                bid == "com.openai.chatgpt" ||
-                name.contains("chatgpt") ||
-                name.contains("chat gpt") ||
-                name == "gpt"
-            ) {
-                if (name.contains("codex")) return Codex
-                return ChatGPT
-            }
+            // Only Codex opens the pad; ChatGPT / Cursor launch only.
             if (name.contains("codex")) return Codex
+            if (bid == Codex.bundleIdentifier || bid == "com.openai.chatgpt") {
+                return null
+            }
             return null
         }
     }
@@ -268,121 +255,34 @@ data class HubCodexMicroMapping(
             )
 
         fun defaultCommandKeys(target: HubCodexControlTarget): List<HubCodexMicroAction> =
-            when (target) {
-                HubCodexControlTarget.Codex ->
-                    listOf(
-                        HubCodexMicroAction.FastMode,
-                        HubCodexMicroAction.Approve,
-                        HubCodexMicroAction.Decline,
-                        HubCodexMicroAction.ContinueNewChat,
-                        HubCodexMicroAction.PushToTalk,
-                        HubCodexMicroAction.SendMessage,
-                    )
-                HubCodexControlTarget.ChatGPT, HubCodexControlTarget.ChatGPTClassic ->
-                    listOf(
-                        HubCodexMicroAction.NewChat,
-                        HubCodexMicroAction.PushToTalk,
-                        HubCodexMicroAction.SendMessage,
-                        HubCodexMicroAction.OpenCommandMenu,
-                        HubCodexMicroAction.ToggleSidebar,
-                        HubCodexMicroAction.OpenSettings,
-                    )
-                HubCodexControlTarget.Cursor ->
-                    listOf(
-                        HubCodexMicroAction.PushToTalk,
-                        HubCodexMicroAction.SendMessage,
-                        HubCodexMicroAction.FocusChatGPT,
-                        HubCodexMicroAction.OpenCommandMenu,
-                        HubCodexMicroAction.Approve,
-                        HubCodexMicroAction.Decline,
-                    )
-            }
+            listOf(
+                HubCodexMicroAction.PushToTalk,
+                HubCodexMicroAction.NewChat,
+                HubCodexMicroAction.OpenSkills,
+                HubCodexMicroAction.ScheduledTasks,
+                HubCodexMicroAction.OpenSettings,
+                HubCodexMicroAction.FocusChatGPT,
+            )
 
         fun defaultJoystick(target: HubCodexControlTarget): Map<String, HubCodexMicroAction> =
-            when (target) {
-                HubCodexControlTarget.Codex ->
-                    mapOf(
-                        "up" to HubCodexMicroAction.PlanMode,
-                        "right" to HubCodexMicroAction.HistoryForward,
-                        "down" to HubCodexMicroAction.ToggleSidebar,
-                        "left" to HubCodexMicroAction.HistoryBack,
-                    )
-                HubCodexControlTarget.ChatGPT, HubCodexControlTarget.ChatGPTClassic ->
-                    mapOf(
-                        "up" to HubCodexMicroAction.NewChat,
-                        "right" to HubCodexMicroAction.HistoryForward,
-                        "down" to HubCodexMicroAction.ToggleSidebar,
-                        "left" to HubCodexMicroAction.HistoryBack,
-                    )
-                HubCodexControlTarget.Cursor ->
-                    mapOf(
-                        "up" to HubCodexMicroAction.FocusChatGPT,
-                        "right" to HubCodexMicroAction.ReviewChanges,
-                        "down" to HubCodexMicroAction.OpenTerminal,
-                        "left" to HubCodexMicroAction.ToggleSidebar,
-                    )
-            }
+            mapOf(
+                "up" to HubCodexMicroAction.NewChat,
+                "right" to HubCodexMicroAction.OpenSkills,
+                "down" to HubCodexMicroAction.OpenSettings,
+                "left" to HubCodexMicroAction.ScheduledTasks,
+            )
 
         fun remappableActions(target: HubCodexControlTarget): List<HubCodexMicroAction> =
-            when (target) {
-                HubCodexControlTarget.Codex ->
-                    listOf(
-                        HubCodexMicroAction.FastMode,
-                        HubCodexMicroAction.Approve,
-                        HubCodexMicroAction.Decline,
-                        HubCodexMicroAction.ContinueNewChat,
-                        HubCodexMicroAction.PushToTalk,
-                        HubCodexMicroAction.SendMessage,
-                        HubCodexMicroAction.NewChat,
-                        HubCodexMicroAction.PlanMode,
-                        HubCodexMicroAction.ReasoningEffort,
-                        HubCodexMicroAction.OpenSkills,
-                        HubCodexMicroAction.ReviewChanges,
-                        HubCodexMicroAction.GitCommit,
-                        HubCodexMicroAction.CreatePullRequest,
-                        HubCodexMicroAction.AttachFiles,
-                        HubCodexMicroAction.ScheduledTasks,
-                        HubCodexMicroAction.OpenBrowser,
-                        HubCodexMicroAction.OpenTerminal,
-                        HubCodexMicroAction.HistoryBack,
-                        HubCodexMicroAction.HistoryForward,
-                        HubCodexMicroAction.ToggleSidebar,
-                        HubCodexMicroAction.OpenSettings,
-                        HubCodexMicroAction.OpenCommandMenu,
-                        HubCodexMicroAction.FocusChatGPT,
-                    )
-                HubCodexControlTarget.ChatGPT, HubCodexControlTarget.ChatGPTClassic ->
-                    listOf(
-                        HubCodexMicroAction.NewChat,
-                        HubCodexMicroAction.PushToTalk,
-                        HubCodexMicroAction.SendMessage,
-                        HubCodexMicroAction.OpenCommandMenu,
-                        HubCodexMicroAction.ToggleSidebar,
-                        HubCodexMicroAction.OpenSettings,
-                        HubCodexMicroAction.HistoryBack,
-                        HubCodexMicroAction.HistoryForward,
-                        HubCodexMicroAction.AttachFiles,
-                        HubCodexMicroAction.FocusChatGPT,
-                        HubCodexMicroAction.ContinueNewChat,
-                    )
-                HubCodexControlTarget.Cursor ->
-                    listOf(
-                        HubCodexMicroAction.FocusChatGPT,
-                        HubCodexMicroAction.OpenCommandMenu,
-                        HubCodexMicroAction.Approve,
-                        HubCodexMicroAction.Decline,
-                        HubCodexMicroAction.OpenTerminal,
-                        HubCodexMicroAction.SendMessage,
-                        HubCodexMicroAction.ReviewChanges,
-                        HubCodexMicroAction.GitCommit,
-                        HubCodexMicroAction.CreatePullRequest,
-                        HubCodexMicroAction.AttachFiles,
-                        HubCodexMicroAction.ToggleSidebar,
-                        HubCodexMicroAction.OpenSettings,
-                        HubCodexMicroAction.NewChat,
-                        HubCodexMicroAction.PushToTalk,
-                    )
-            }
+            listOf(
+                HubCodexMicroAction.PushToTalk,
+                HubCodexMicroAction.NewChat,
+                HubCodexMicroAction.ContinueNewChat,
+                HubCodexMicroAction.OpenSkills,
+                HubCodexMicroAction.ScheduledTasks,
+                HubCodexMicroAction.OpenSettings,
+                HubCodexMicroAction.FocusChatGPT,
+                HubCodexMicroAction.None,
+            )
     }
 }
 
@@ -408,7 +308,7 @@ data class HubCodexMicroState(
     val availableTargets: List<HubCodexTargetAvailability> = emptyList(),
 ) {
     val canControl: Boolean
-        get() = targetInstalled && accessibilityGranted
+        get() = targetInstalled || accessibilityGranted || automationReady
 
     companion object {
         val empty = HubCodexMicroState()

@@ -171,6 +171,23 @@
         }
       }
     },
+    "watch.launcher.empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No apps yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无应用"
+          }
+        }
+      }
+    },
     "watch.console.linked_hint" : {
       "extractionState" : "stale",
       "localizations" : {

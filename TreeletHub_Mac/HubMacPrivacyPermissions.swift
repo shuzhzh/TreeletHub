@@ -3,6 +3,7 @@ import ApplicationServices
 import CoreGraphics
 
 /// macOS 隐私权限：屏幕录制（截图）、定位（天气）、辅助功能 + 输入监控（键盘 HUD）。
+/// AI 控制板不再请求这些权限；仅键盘启动器使用 Input Monitoring + Accessibility。
 enum HubMacPrivacyPermissions {
     static func openScreenRecordingSettings() {
         openPrefsURL("x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")
@@ -25,17 +26,19 @@ enum HubMacPrivacyPermissions {
     }
 
     static var hasInputMonitoringAccess: Bool {
-        CGPreflightListenEventAccess()
+        guard HubMacFeatureFlags.allowsGlobalInputMonitoring else { return false }
+        return CGPreflightListenEventAccess()
     }
 
     /// `NSEvent.addGlobalMonitorForEvents` 依赖辅助功能授权。
     static var hasAccessibilityAccess: Bool {
-        AXIsProcessTrusted()
+        guard HubMacFeatureFlags.allowsGlobalInputMonitoring else { return false }
+        return AXIsProcessTrusted()
     }
 
     /// 键盘 HUD 全局监听同时需要辅助功能与输入监控。
     static var canUseKeyboardHUDMonitoring: Bool {
-        hasAccessibilityAccess && hasInputMonitoringAccess
+        HubMacFeatureFlags.allowsGlobalInputMonitoring && hasAccessibilityAccess && hasInputMonitoringAccess
     }
 
     @discardableResult
@@ -45,17 +48,20 @@ enum HubMacPrivacyPermissions {
 
     @discardableResult
     static func requestInputMonitoringAccess() -> Bool {
-        CGRequestListenEventAccess()
+        guard HubMacFeatureFlags.allowsGlobalInputMonitoring else { return false }
+        return CGRequestListenEventAccess()
     }
 
     @discardableResult
     static func requestAccessibilityAccess() -> Bool {
+        guard HubMacFeatureFlags.allowsGlobalInputMonitoring else { return false }
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
     }
 
     @discardableResult
     static func requestKeyboardHUDMonitoringAccess() -> Bool {
+        guard HubMacFeatureFlags.allowsGlobalInputMonitoring else { return false }
         let input = requestInputMonitoringAccess()
         let accessibility = requestAccessibilityAccess()
         return input && accessibility

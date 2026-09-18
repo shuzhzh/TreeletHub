@@ -25,6 +25,7 @@ final class HubKeyboardHUDPresenter: ObservableObject {
     private weak var boundUILanguage: HubMacUILanguage?
     private var boundDisableFeature: (() -> Void)?
     private var isPresentingAppPicker = false
+    private var introHideWork: DispatchWorkItem?
 
     deinit {
         if let obs = screenChangeObserver {
@@ -58,12 +59,21 @@ final class HubKeyboardHUDPresenter: ObservableObject {
         if enabled {
             monitor.setEnabled(true)
         } else {
+            cancelIntroAutoHide()
             monitor.setEnabled(false)
             hideHUD()
         }
     }
 
+    /// 打开开关时在屏幕正中闪现一次，让用户看到开启后的样子；约 3 秒后自动收起。
+    func presentIntroPreview() {
+        guard boundStore != nil, boundUILanguage != nil else { return }
+        showHUDIfNeeded()
+        scheduleIntroAutoHide()
+    }
+
     private func showHUDIfNeeded() {
+        cancelIntroAutoHide()
         guard !isHUDVisible else { return }
         guard let store = boundStore, let uiLanguage = boundUILanguage else { return }
         showHUD(store: store, uiLanguage: uiLanguage)
@@ -85,7 +95,7 @@ final class HubKeyboardHUDPresenter: ObservableObject {
         let hosting = NSHostingView(rootView: root)
         configureHUDHostingAppearance(hosting, screen: NSScreen.main)
 
-        let initial = NSSize(width: 1440, height: 760)
+        let initial = HubKeyboardHUDLayout.estimatedPanelSize
         hosting.frame = NSRect(origin: .zero, size: initial)
 
         let panel = HubKeyboardHUDPanel(
@@ -137,6 +147,7 @@ final class HubKeyboardHUDPresenter: ObservableObject {
     }
 
     func hideHUD() {
+        cancelIntroAutoHide()
         isPresentingAppPicker = false
         stopOutsideClickMonitors()
         panel?.orderOut(nil)
@@ -231,8 +242,24 @@ final class HubKeyboardHUDPresenter: ObservableObject {
 
         let sf = screen.frame
         let x = sf.midX - w / 2
-        let y = sf.midY - h / 2 + sf.height * 0.06
+        let y = sf.midY - h / 2
         panel.setFrame(NSRect(x: x, y: y, width: w, height: h), display: true)
+    }
+
+    private func scheduleIntroAutoHide() {
+        cancelIntroAutoHide()
+        let work = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                self?.hideHUD()
+            }
+        }
+        introHideWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: work)
+    }
+
+    private func cancelIntroAutoHide() {
+        introHideWork?.cancel()
+        introHideWork = nil
     }
 
     /// 在键盘 HUD 上添加/替换应用：先完全隐藏 HUD（floating 层级会挡住 sheet），再以应用模态弹出选择器。

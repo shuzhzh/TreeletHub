@@ -72,15 +72,15 @@
     <string name="bg_preset_charcoal_silk">Charcoal</string>
 
     <string name="guide_title_what">What is TreeletHub?</string>
-    <string name="guide_body_what">TreeletHub lets you arrange favorite Mac apps in a grid on the Mac, then open TreeletHub on your phone—on the same Wi‑Fi—to launch those apps remotely. Reorder slots with drag and drop on either side.</string>
+    <string name="guide_body_what">TreeletHub runs on your Mac as a honeycomb launcher for favorite apps and shortcuts. Pair this phone on the same Wi‑Fi to launch those Mac apps remotely. Layout stays in sync.</string>
     <string name="guide_title_scenarios">When it helps</string>
-    <string name="guide_body_scenarios">Keep TreeletHub running on the desk Mac. From the couch or another room, use your phone as a remote launcher for apps you already placed in the hub.</string>
+    <string name="guide_body_scenarios">Keep TreeletHub running on the desk Mac. From the couch or another room, use your phone as a remote launcher for apps you already pinned on the Mac hub.</string>
     <string name="guide_title_connect_android">Connect from Android</string>
-    <string name="guide_body_connect_android">1) On the Mac, open TreeletHub and read the six-digit pairing code.\n2) On this phone, open Connect to Mac, type the code, then tap Connect.\n3) If discovery fails, check Wi‑Fi, turn off VPN, and stay on the same network as the Mac.</string>
+    <string name="guide_body_connect_android">0) Install the Mac app first (website DMG)—this phone app alone cannot launch Mac apps.\n1) On the Mac, open TreeletHub and read the six-digit pairing code.\n2) On this phone, open Connect to Mac, type the code, then tap Connect.\n3) If discovery fails, check Wi‑Fi, turn off VPN, and stay on the same network as the Mac.</string>
     <string name="guide_title_setup_mac">Set up the Mac hub</string>
-    <string name="guide_body_setup_mac">1) Tap any cell and choose a Mac app (.app) to assign.\n2) Drag tiles to swap or move apps between cells.\n3) Extra tabs (Apps1, …) add more pages; some tabs require an active subscription.\n4) If you regenerate the pairing code on the Mac, each phone must reconnect with the new code.</string>
+    <string name="guide_body_setup_mac">1) Tap + on the Mac (or the dashed + on the honeycomb) to add an app, web shortcut, or system action.\n2) Pinch to zoom, drag to pan; Control-click a tile to remove it.\n3) Free plan includes up to 10 apps; unlock Pro once for unlimited slots.\n4) If you regenerate the pairing code on the Mac, each phone must reconnect with the new code.\n5) On Mac, open Settings (gear) for Dynamic Island, Keyboard Launcher, and Pro unlock.</string>
     <string name="guide_title_setup_phone">After you are paired</string>
-    <string name="guide_body_setup_phone">Use the Apps tab for the live grid. In Settings, rename how your phone appears on the Mac, change the backdrop, or swap your one saved photo background.</string>
+    <string name="guide_body_setup_phone">Use the Apps tab for the live launcher synced from the Mac. In Settings, rename how your phone appears on the Mac, change the backdrop, or swap your one saved photo background.</string>
 
     <string name="lang_menu_a11y">Language</string>
     <!-- AI_CONTROL_PAD_STRINGS -->
@@ -115,7 +115,7 @@
     <string name="codex_action_skills">Skills</string>
     <string name="codex_action_terminal">Open terminal</string>
     <string name="codex_agent_source">Agent Keys follow</string>
-    <string name="codex_blocked_hint">Install the target app and allow Accessibility / Automation for TreeletHub on Mac.</string>
+    <string name="codex_blocked_hint">Install the Codex Mac app or the Codex CLI on this Mac.</string>
     <string name="codex_brightness">Key brightness</string>
     <string name="codex_cancel">Cancel</string>
     <string name="codex_chatgpt_connected">ChatGPT desktop linked</string>
@@ -129,7 +129,7 @@
     <string name="codex_dial_composer">Dial: Composer navigation</string>
     <string name="codex_dial_mode">Dial mode</string>
     <string name="codex_dial_reasoning">Dial: Reasoning only</string>
-    <string name="codex_fix_permission">Fix</string>
+    <string name="codex_fix_permission">Help</string>
     <string name="codex_idle_lights_fmt">Idle lights: %1$d sec</string>
     <string name="codex_installed_idle">Installed</string>
     <string name="codex_joy_down">Down</string>
@@ -139,7 +139,7 @@
     <string name="codex_joystick">Skill joystick</string>
     <string name="codex_joystick_map">Joystick</string>
     <string name="codex_layer_fmt">Layer %1$d</string>
-    <string name="codex_link_accessibility">Mac Accessibility</string>
+    <string name="codex_link_accessibility">Codex ready</string>
     <string name="codex_link_phone_mac">Phone ↔ Mac</string>
     <string name="codex_link_target_fmt">Target: %1$s</string>
     <string name="codex_not_installed">Not installed</string>
@@ -148,7 +148,7 @@
     <string name="codex_palette_hint_body_fmt">On Mac, type or select 「%1$s」. Or tap below to let TreeletHub type it for you.</string>
     <string name="codex_palette_hint_title">Command menu opened on Mac</string>
     <string name="codex_processing">Processing speech</string>
-    <string name="codex_ready_hint">Ready to control the selected Mac app.</string>
+    <string name="codex_ready_hint">Ready — uses Codex deep links and CLI (no Accessibility).</string>
     <string name="codex_ready_to_send">Ready — tap Send</string>
     <string name="codex_reasoning">Reasoning</string>
     <string name="codex_recording">Recording</string>
@@ -186,10 +186,16 @@
     <string name="codex_speech_unavailable">Speech recognition is unavailable on this device or language.</string>
     <string name="codex_empty_transcript">No speech detected. Move closer to the mic and try again.</string>
     <string name="guide_title_ai_pad_phone">AI control keyboard</string>
-    <string name="guide_body_ai_pad_phone">Put ChatGPT, Codex, or Cursor into the hub grid, then tap it on this phone: instead of only launching the app, you open a control pad—status lights, command keys, joystick, and reasoning dial. Hold PTT to dictate on the phone; release to fill the Mac composer. Layouts are saved per app. Mac needs Accessibility and Automation for TreeletHub.</string>
+    <string name="guide_body_ai_pad_phone">Put ChatGPT, Codex, or Cursor into the Mac launcher, then tap it on this phone: instead of only launching the app, you open a control pad—status lights, command keys, joystick, and reasoning dial. Hold PTT to dictate on the phone; release to fill the Mac composer. Mac needs Accessibility and Automation for TreeletHub.</string>
     <string name="guide_title_gestures_phone">Show desktop</string>
-    <string name="guide_body_gestures_phone">On the Apps grid while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop. Swipe left or right on the bottom tabs to switch hub pages.</string>
+    <string name="guide_body_gestures_phone">On the Apps launcher while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop.</string>
     <string name="guide_title_tabs_swipe">Swipe between tabs</string>
     <string name="guide_body_tabs_swipe">While paired, swipe left or right across the hub pages (and Settings) to switch tabs, or tap the bottom bar.</string>
     <!-- AI_CONTROL_PAD_STRINGS_END -->
+    <string name="guide_title_island">Dynamic Island (Mac · Pro)</string>
+    <string name="guide_body_island">With Pro unlocked on Mac, turn on Dynamic Island in the main window or gear menu. The floating strip can show media, pairing code / file staging, clipboard, synced launcher, clock, and weather (needs Location).</string>
+    <string name="guide_title_keyboard_hud">Keyboard Launcher (Mac · Pro)</string>
+    <string name="guide_body_keyboard_hud">With Pro unlocked on Mac, enable Keyboard Launcher and allow Input Monitoring. Release Control for the on-screen keymap; Control + key launches mapped apps globally.</string>
+    <string name="guide_title_pro">Pro unlock</string>
+    <string name="guide_body_pro">Free: up to 10 apps on Mac. One-time Pro unlock ($9.99, not a subscription) removes the limit and unlocks Dynamic Island, Keyboard Launcher, and other Pro features. Mac unlock status can sync to paired phones.</string>
 </resources>

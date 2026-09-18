@@ -4,9 +4,9 @@
 
 ## 简介
 
-TreeletHub 在 Mac 上配置应用九宫格，同一 Wi‑Fi 下的 iPhone、iPad 或 Android 手机配对后，可远程启动 Mac 应用。两端均可拖拽调整格子。
+TreeletHub 在 Mac 上以**蜂巢启动墙**收纳常用应用与快捷方式；同一 Wi‑Fi 下的 iPhone、iPad 或 Android 配对后，可远程启动这些 Mac 应用。布局会在设备间同步。
 
-常见用法：Mac 上保持 TreeletHub 运行，在客厅或别的房间用手机唤起已放进九宫格的应用。
+常见用法：Mac 上保持 TreeletHub 运行，在客厅或别的房间用手机唤起已放进启动墙的应用。
 
 ### 演示视频
 
@@ -21,13 +21,15 @@ TreeletHub 在 Mac 上配置应用九宫格，同一 Wi‑Fi 下的 iPhone、iPa
 |----|------|
 | iPhone / iPad | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
 | Android | [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) 或 [APK 1.3](https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk) |
-| Mac | [App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) 或 [DMG](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg) |
+| Mac | [CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg) |
+
+仅安装手机端无法使用——必须同时安装 Mac 客户端并配对。
 
 ---
 
 ## 从 iPhone / iPad 连接 Mac
 
-1. Mac 上打开 TreeletHub，记下 **6 位配对码**。
+1. **先安装 Mac 版**（官网 DMG），再在 Mac 打开 TreeletHub，记下 **6 位配对码**。
 2. iPhone 打开「**连接 Mac**」，输入配对码并连接。
 3. 首次连接允许「**本地网络**」。
 
@@ -37,7 +39,7 @@ Mac 上重新生成配对码后，手机需用 **新码** 重连。
 
 ## 从 Android 连接 Mac
 
-1. Mac 上打开 TreeletHub，记下 **6 位配对码**。
+1. **先安装 Mac 版**，再在 Mac 打开 TreeletHub，记下 **6 位配对码**。
 2. Android 打开「**Connect to Mac**」，输入配对码并连接。
 3. 与 Mac 保持 **同一 Wi‑Fi**；首次使用允许网络发现。若搜不到 Mac，可关闭 VPN 后重试。
 
@@ -45,60 +47,46 @@ Mac 上重新生成配对码后，手机需用 **新码** 重连。
 
 ---
 
-## Mac 端九宫格设置
+## Mac 端：添加应用与蜂巢启动墙
 
-1. 点按格子，选择要绑定的 `.app`。
-2. 拖拽已绑定的应用在格子间移动或交换。
-3. 多页 Tab（Apps、Apps1…）可扩展页面；**部分页面需订阅**。
-4. 可绑定网页快捷方式、系统快捷操作等（以 Mac 版界面为准）。
+1. 点按主窗口 **「+」**，或蜂巢墙上的虚线 **「+」**，绑定 `.app`、网页快捷方式或系统快捷操作。
+2. **捏合缩放**、**拖动浏览**；**Control-点击** 格子可清除。
+3. 免费最多 **10** 个应用 / 快捷方式；解锁 Pro 后不限数量。
+4. 右上角 **齿轮** 可开关灵动岛、键盘启动器，以及语言与 Pro 解锁。
+
+主窗口配对码下方也有灵动岛 / 键盘启动器的紧凑开关。
 
 ---
 
 ## 配对成功后（手机端）
 
-- **Apps** 页显示与 Mac 同步的九宫格，点按启动应用。
+- **Apps** 显示与 Mac 同步的蜂巢启动墙，点按启动应用。
 - **设置** 中可改设备名、换背景或替换相册背景（各端保留一张自定义图）。
-- 支持拖拽排序，与 Mac 同步。
+- 底栏在 Apps 与设置之间切换。
 
 ### 显示桌面（iPhone / Android）
 
 已配对时在 Apps 页 **双指下滑**，可隐藏 Mac 上全部已打开应用（含 TreeletHub）并显示桌面。
 
-### 左右滑动切换 Tab（iPhone / Android）
+---
 
-已配对后，可在九宫格页与设置页之间 **左右滑动** 切换，也可点按底部栏。
+## Codex 控制（Android）
+
+把 **Codex** 放进启动墙后，在 **Android** 上点按可打开控制键盘（Skills、定时任务、设置等）。Mac 通过 **深链接 / Codex CLI** 驱动，不再向目标应用注入按键。
+
+**ChatGPT** 与 **Cursor**（以及 iPhone 上的所有应用）点按后只启动 Mac 上的对应应用，不再进入控制键盘。
 
 ---
 
-## AI 控制键盘（iPhone / Android · ChatGPT / Codex / Cursor）
+## Mac 灵动岛（Pro）
 
-把 ChatGPT、Codex 或 Cursor 放进九宫格，在手机上点按它：不只是启动应用，而是直接进入对应的 **控制键盘**——Agent 状态灯、命令键、技能摇杆与推理旋钮。
-
-- **Codex**：批准 / 拒绝、新会话继续、推理强度、Skills。
-- **ChatGPT**：新会话、按住说话、发送、命令菜单、侧边栏。
-- **Cursor**：按住说话、发送、Chat、命令面板、接受 / 拒绝改动、终端。
-
-点右上角按钮可 **逐键重新映射**，也可恢复官方默认布局。Mac 需为 TreeletHub 开启 **辅助功能** 与 **自动化** 权限，否则控制页会提示未授权且按键无效。
-
-### 按住说话（PTT）
-
-1. 在控制键盘上 **按住「PTT」** 说话，手机上实时显示识别出的文字。
-2. 识别全程在 **手机本机** 完成，**音频不会离开手机**，只有最终文字经 Wi‑Fi 发送到 Mac。
-3. **松手** 后文字自动填入 Mac 上 ChatGPT / Codex / Cursor 的输入框，确认无误后点 **Send** 发送。
-
-350 毫秒内 **双击 PTT** 进入免提录音，再点一次结束。首次使用需允许手机的 **麦克风**（及 iPhone 上的 **语音识别**）权限。
+解锁 Pro 后，在 Mac 主窗口或 **设置（齿轮）** 开启「灵动岛」：屏幕顶部浮层可收起 / 展开，包含媒体控制、配对码 / 文件暂存、剪贴板、同步启动墙、时间与天气（WeatherKit，需定位与网络）等，以 Mac 版与权限为准。
 
 ---
 
-## Mac 灵动岛（订阅）
+## Mac 键盘启动器（Pro）
 
-有效订阅下，Mac 可开启顶部浮层，包含媒体控制、配对码、剪贴板、同步九宫格、时间与天气（WeatherKit，需定位与网络）等，以 Mac 版与权限为准。
-
----
-
-## Mac 键盘启动器（订阅）
-
-有效订阅下，Mac 主窗口可开启 **键盘启动器**：
+解锁 Pro 后，在 Mac 主窗口或设置菜单开启 **键盘启动器**：
 
 1. 打开开关后，按提示在「系统设置 → 隐私与安全性 → **输入监控**」中允许 TreeletHub。
 2. **松开 Control** 唤出屏幕键盘浮层；按已映射的按键启动应用，或 **Esc / 点击浮层外** 关闭。
@@ -109,11 +97,11 @@ Mac 上重新生成配对码后，手机需用 **新码** 重连。
 
 ---
 
-## 订阅
+## Pro 解锁（一次性买断）
 
-- 免费可用 **首页 Apps** 九宫格。
-- 订阅解锁 **多页**、Mac **灵动岛** 与 Mac **键盘启动器**。
-- iOS / Mac：通过 **App Store** 购买；Android 多页可通过 **Google Play Pro** 或 Mac 端有效订阅解锁（以各端设置页为准）。
+- 免费可用最多 **10** 个应用 / 快捷方式。
+- **一次性 $9.99** 解锁 Pro（非订阅、不自动续费）：无限添加、Mac **灵动岛**、Mac **键盘启动器** 等全部 Pro 功能。
+- iOS / Mac：通过 **App Store** 内购；Mac 解锁状态会同步到已配对手机。Android 解锁以各端设置页为准。
 
 ---
 
@@ -122,10 +110,9 @@ Mac 上重新生成配对码后，手机需用 **新码** 重连。
 | 权限 | 用途 |
 |------|------|
 | 本地网络 | 发现 Mac、同步布局、发送启动指令 |
-| 辅助功能 / 自动化（Mac） | 启动应用、AI 控制键盘按键与文字输入 |
 | 输入监控（Mac，键盘启动器） | 监听 Control 与快捷键以显示浮层并启动映射应用 |
-| 麦克风 / 语音识别（手机，按住说话） | 在本机把语音识别成文字后发送到 Mac 输入框 |
 | 定位（可选） | Mac 灵动岛天气 |
+| 屏幕录制（Mac，灵动岛） | 按系统要求为浮层能力授权（以权限说明为准） |
 
 ---
 

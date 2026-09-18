@@ -29,40 +29,6 @@
           }
         }
       }
-    },
-    "NSMicrophoneUsageDescription" : {
-      "comment" : "Privacy - Microphone Usage Description",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TreeletHub uses the microphone for push-to-talk: your speech is transcribed on this iPhone and the text is typed into ChatGPT, Codex, or Cursor on your Mac."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TreeletHub 需要使用麦克风实现「按住说话」：语音在本机识别成文字后，输入到 Mac 上的 ChatGPT、Codex 或 Cursor。"
-          }
-        }
-      }
-    },
-    "NSSpeechRecognitionUsageDescription" : {
-      "comment" : "Privacy - Speech Recognition Usage Description",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TreeletHub converts your speech to text on this iPhone so push-to-talk can send prompts to your Mac."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TreeletHub 在本机把语音转换为文字，以便「按住说话」将提示词发送到你的 Mac。"
-          }
-        }
-      }
     }
   },
   "version" : "1.0"

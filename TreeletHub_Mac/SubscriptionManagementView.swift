@@ -8,30 +8,35 @@ private enum HubSubscriptionLegalLinks {
 private struct SubscriptionBenefitBlock: View {
     let icon: String
     let title: String
-    let paragraphs: [String]
+    let detail: String
+    var previewKind: HubFeatureLookKind? = nil
 
     var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(.secondary)
-                .frame(width: 28, alignment: .center)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .fixedSize(horizontal: false, vertical: true)
-                ForEach(Array(paragraphs.enumerated()), id: \.offset) { _, paragraph in
-                    Text(paragraph)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: icon)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 22, alignment: .center)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text(detail)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            if let previewKind {
+                HubFeatureLookStrip(kind: previewKind, style: .compact)
+                    .padding(.leading, 34)
+            }
         }
-        .padding(14)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color(nsColor: .controlBackgroundColor).opacity(0.65))
@@ -65,78 +70,49 @@ struct SubscriptionManagementView: View {
                 }
                 .keyboardShortcut(.cancelAction)
             }
-            .padding(.bottom, 12)
+            .padding(.bottom, 14)
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
+                VStack(alignment: .leading, spacing: 16) {
                     productHeaderSection
 
-                    Divider()
-                        .opacity(0.35)
+                    Text(L("mac.subscription.includes_desc"))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Label(L("mac.subscription.includes_title"), systemImage: "checkmark.seal.fill")
-                            .font(.headline.weight(.semibold))
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundStyle(Color.accentColor)
-                        Text(L("mac.subscription.includes_desc"))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-
-                    VStack(alignment: .leading, spacing: 12) {
+                        SubscriptionBenefitBlock(
+                            icon: "plus.app.fill",
+                            title: L("mac.subscription.benefit_grid_title"),
+                            detail: String(
+                                format: L("mac.subscription.benefit_grid_p1"),
+                                locale: uiLanguage.locale,
+                                HubService.freeAppLimit
+                            )
+                        )
                         SubscriptionBenefitBlock(
                             icon: "rectangle.topthird.inset.filled",
                             title: L("mac.subscription.benefit_island_title"),
-                            paragraphs: [
-                                L("mac.subscription.benefit_island_p1"),
-                                L("mac.subscription.benefit_island_p2")
-                            ]
+                            detail: L("mac.subscription.benefit_island_p1"),
+                            previewKind: .island
                         )
                         SubscriptionBenefitBlock(
                             icon: "keyboard",
                             title: L("mac.subscription.benefit_keyboardhud_title"),
-                            paragraphs: [
-                                L("mac.subscription.benefit_keyboardhud_p1"),
-                                L("mac.subscription.benefit_keyboardhud_p2"),
-                                L("mac.subscription.benefit_keyboardhud_p3")
-                            ]
-                        )
-                        SubscriptionBenefitBlock(
-                            icon: "keyboard.badge.waveform",
-                            title: L("mac.subscription.benefit_aipad_title"),
-                            paragraphs: [
-                                L("mac.subscription.benefit_aipad_p1"),
-                                L("mac.subscription.benefit_aipad_p2"),
-                                L("mac.subscription.benefit_aipad_p3")
-                            ]
-                        )
-                        SubscriptionBenefitBlock(
-                            icon: "square.grid.3x3.fill",
-                            title: L("mac.subscription.benefit_grid_title"),
-                            paragraphs: [
-                                String(
-                                    format: L("mac.subscription.benefit_grid_p1"),
-                                    locale: uiLanguage.locale,
-                                    HubService.maxTabs
-                                )
-                            ]
+                            detail: L("mac.subscription.benefit_keyboardhud_p1"),
+                            previewKind: .keyboardHUD
                         )
                         SubscriptionBenefitBlock(
                             icon: "iphone.and.arrow.forward",
                             title: L("mac.subscription.benefit_sync_title"),
-                            paragraphs: [
-                                L("mac.subscription.benefit_sync_p1")
-                            ]
+                            detail: L("mac.subscription.benefit_sync_p1")
                         )
                     }
 
-                    renewalCallout
-
-                    statusAndExpirationSection
+                    lifetimeCallout
                 }
-                .padding(20)
+                .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -146,7 +122,7 @@ struct SubscriptionManagementView: View {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
                 )
-                .padding(.bottom, 16)
+                .padding(.bottom, 14)
             }
 
             HStack(spacing: 12) {
@@ -161,21 +137,21 @@ struct SubscriptionManagementView: View {
                             .foregroundStyle(.white)
                     } else {
                         Button {
-                            Task { await manager.purchaseYearly() }
+                            Task { await manager.purchasePro() }
                         } label: {
                             ZStack {
-                                Text(L("mac.subscription.subscribe_now"))
-                                    .opacity(manager.purchaseInFlight ? 0 : 1)
-                                if manager.purchaseInFlight {
+                                Text(purchaseButtonTitle)
+                                    .opacity(manager.purchaseInFlight || manager.isLoading ? 0 : 1)
+                                if manager.purchaseInFlight || manager.isLoading {
                                     ProgressView()
                                         .controlSize(.small)
                                 }
                             }
-                            .frame(minWidth: 128, minHeight: 26)
+                            .frame(minWidth: 168, minHeight: 26)
                         }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
-                        .disabled(manager.purchaseInFlight || manager.yearlyProduct == nil)
+                        .disabled(manager.purchaseInFlight || manager.isLoading)
                     }
                 }
 
@@ -204,20 +180,6 @@ struct SubscriptionManagementView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            if !manager.displayDescription.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(L("mac.subscription.store_desc"))
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.secondary)
-                    Text(manager.displayDescription)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-
             VStack(alignment: .leading, spacing: 8) {
                 Text(L("mac.subscription.auto_renew_legal"))
                     .font(.footnote)
@@ -233,43 +195,40 @@ struct SubscriptionManagementView: View {
                 }
                 .font(.subheadline)
             }
-            .padding(.top, 4)
+            .padding(.top, 12)
         }
         .padding(22)
-        .frame(minWidth: 520, minHeight: 520)
-        .frame(maxWidth: 640)
+        .frame(minWidth: 480, idealWidth: 520, minHeight: 460)
+        .frame(maxWidth: 560)
         .task {
             await manager.refreshFromStore()
         }
     }
 
-    private func formattedExpirationLine(for exp: Date) -> String {
-        let dateStr = exp.formatted(Date.FormatStyle(date: .long, time: .omitted).locale(uiLanguage.locale))
-        return String(format: L("mac.subscription.expires"), locale: uiLanguage.locale, dateStr)
+    private var purchaseButtonTitle: String {
+        let template = L("mac.subscription.buy_now_price")
+        // 若本地化缺失，避免把 key 原样显示在按钮上。
+        if template == "mac.subscription.buy_now_price" || !template.contains("%@") {
+            let unlock = L("mac.subscription.subscribe_now")
+            let label = unlock == "mac.subscription.subscribe_now" ? "Unlock Pro" : unlock
+            return "\(label) — \(manager.displayPrice)"
+        }
+        return String(format: template, locale: uiLanguage.locale, manager.displayPrice)
     }
 
     @ViewBuilder
     private var productHeaderSection: some View {
         HStack(alignment: .center, spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                if manager.displayTitle.isEmpty {
-                    Text(L("mac.subscription.loading"))
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text(manager.displayTitle)
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(.primary)
-                }
-                if manager.displayPrice.isEmpty {
-                    Text(L("mac.subscription.price_loading"))
-                        .font(.title2.weight(.bold))
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text(manager.displayPrice)
-                        .font(.title2.weight(.bold))
-                        .monospacedDigit()
-                }
+            VStack(alignment: .leading, spacing: 6) {
+                Text(manager.displayTitle.isEmpty ? L("mac.subscription.product_fallback_title") : manager.displayTitle)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Text(manager.displayPrice)
+                    .font(.title2.weight(.bold))
+                    .monospacedDigit()
+                Text(L("mac.subscription.once_badge"))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
             }
             Spacer(minLength: 12)
             statusTag
@@ -282,12 +241,12 @@ struct SubscriptionManagementView: View {
         }
     }
 
-    private var renewalCallout: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "arrow.trianglehead.clockwise")
-                .font(.title3)
+    private var lifetimeCallout: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "checkmark.seal")
+                .font(.body)
                 .foregroundStyle(.secondary)
-                .frame(width: 28, alignment: .center)
+                .frame(width: 22, alignment: .center)
                 .accessibilityHidden(true)
             Text(L("mac.subscription.renewal"))
                 .font(.callout)
@@ -295,7 +254,7 @@ struct SubscriptionManagementView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(14)
+        .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color.accentColor.opacity(0.08))
@@ -313,33 +272,5 @@ struct SubscriptionManagementView: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.orange)
         }
-    }
-
-    @ViewBuilder
-    private var subscriptionExpirationSection: some View {
-        Group {
-            if manager.isSubscribed {
-                if let exp = manager.subscriptionExpirationDate {
-                    Text(formattedExpirationLine(for: exp))
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text(L("mac.subscription.expires_unknown"))
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var statusAndExpirationSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            subscriptionExpirationSection
-        }
-        .padding(.top, 2)
-        .opacity(manager.isSubscribed ? 1 : 0)
-        .accessibilityHidden(!manager.isSubscribed)
-        .animation(.easeInOut(duration: 0.2), value: manager.isSubscribed)
     }
 }

@@ -15,9 +15,11 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
     /// `reorder`：交换两个格子上的应用（0...8）
     public var from: Int?
     public var to: Int?
+    /// `reorder` 跨页时目标页；缺省则与 `page` 同页。
+    public var pageTo: Int?
     public var command: String?
     public var value: Double?
-    /// Mac 端订阅是否在有效期内；随 `layout` 下发供 iOS 决定分页 Tab 是否解锁。
+    /// Mac 端订阅是否在有效期内；随 `layout` 下发（Watch 桥接可转发；iOS 自身不再用其做门控）。
     public var subscriptionActive: Bool?
     /// Codex Micro 虚拟控制面：Agent 状态快照（也可编码在 `message` JSON 中）。
     public var agents: [HubCodexAgentSlot]?
@@ -35,6 +37,7 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
         message: String? = nil,
         from: Int? = nil,
         to: Int? = nil,
+        pageTo: Int? = nil,
         command: String? = nil,
         value: Double? = nil,
         subscriptionActive: Bool? = nil,
@@ -52,6 +55,7 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
         self.message = message
         self.from = from
         self.to = to
+        self.pageTo = pageTo
         self.command = command
         self.value = value
         self.subscriptionActive = subscriptionActive

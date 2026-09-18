@@ -119,5 +119,25 @@ public struct HubPageConfig: Codable, Equatable, Identifiable, Sendable {
 public enum HubService {
     public static let bonjourType = "_treelethub._tcp"
     public static let bonjourDomain: String? = nil
+    /// 布局页上限（含首页）；免费用户也可使用多页，但已配置条目受 `freeAppLimit` 限制。
     public static let maxTabs = 5
+    /// 免费可添加的应用 / 快捷方式总数；超过后需一次性解锁 Pro。
+    public static let freeAppLimit = 10
+
+    /// 统计已配置的非空槽位数量。
+    public static func configuredSlotCount(in pages: [HubPageConfig]) -> Int {
+        pages.reduce(0) { partial, page in
+            partial + page.slots.filter { !$0.isEmpty }.count
+        }
+    }
+
+    /// 按 page id 顺序找第一个空槽。
+    public static func firstEmptySlot(in pages: [HubPageConfig]) -> (pageId: Int, slotId: Int)? {
+        for page in pages.sorted(by: { $0.id < $1.id }) {
+            if let slot = page.slots.first(where: \.isEmpty) {
+                return (page.id, slot.id)
+            }
+        }
+        return nil
+    }
 }

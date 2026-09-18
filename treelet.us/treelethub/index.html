@@ -38,6 +38,7 @@
     <link rel="icon" type="image/png" href="assets/1024.png" sizes="1024x1024" />
     <link rel="apple-touch-icon" href="assets/1024.png" />
     <link rel="stylesheet" href="assets/style.css" />
+    <script src="downloads/urls.js" defer></script>
     <script>
       (function () {
         try {
@@ -45,6 +46,13 @@
           if (q === 'en') location.replace('en/index.html');
         } catch (e) {}
       })();
+      document.addEventListener('DOMContentLoaded', function () {
+        var cfg = window.TREELETHUB_DOWNLOADS;
+        if (!cfg) return;
+        document.querySelectorAll('[data-download="mac"]').forEach(function (el) {
+          if (cfg.macDmg) el.setAttribute('href', cfg.macDmg);
+        });
+      });
     </script>
     <script type="application/ld+json">
       {
@@ -59,8 +67,8 @@
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "USD",
-          "description": "应用可免费下载；部分多页等能力可能以应用内订阅提供，以各端实际展示为准。"
-        },
+              "description": "应用可免费下载；Mac 免费最多 10 个应用。一次性解锁 Pro（$9.99）可无限添加，并开启灵动岛与键盘启动器等功能，以各端实际展示为准。"
+            },
         "publisher": {
           "@type": "Organization",
           "name": "Treelet Tech"
@@ -69,8 +77,9 @@
         "image": "https://treelet.us/treelethub/assets/1024.png",
         "sameAs": [
           "https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247",
-          "https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258"
-        ]
+          "https://models.appda.store/treelethub/TreeletHub.dmg"
+        ],
+        "downloadUrl": "https://models.appda.store/treelethub/TreeletHub.dmg"
       }
     </script>
   </head>
@@ -119,21 +128,29 @@
           <p class="lead lead-tight">
             我们希望把它放进与外接<strong>机械键盘、鼠标、显示器</strong>同一类清单里：不花哨，但每天都省时间、减打断。
           </p>
-          <div class="cta-row">
+          <p class="lead lead-tight callout">
+            <strong>重要：</strong>仅安装 iPhone 版无法使用。TreeletHub 不是 iOS 启动器——必须在 Mac
+            安装配套客户端并配对后，才能用手机遥控桌面。
+          </p>
+          <div class="cta-row" id="download-mac">
             <a
               class="btn btn-primary"
+              data-download="mac"
+              href="https://models.appda.store/treelethub/TreeletHub.dmg"
+              rel="noopener noreferrer"
+              >下载 Mac 版（.dmg）</a>
+            <a
+              class="btn btn-ghost"
               href="https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247"
               rel="noopener noreferrer"
               target="_blank"
               >App Store（iPhone / iPad）</a>
-            <a
-              class="btn btn-ghost"
-              href="https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258"
-              rel="noopener noreferrer"
-              target="_blank"
-              >Mac App Store</a>
           </div>
-          <p class="note">iPhone / iPad 与 Mac 需分别安装；请保持设备在同一 Wi‑Fi。订阅与购买由 Apple App Store 处理。</p>
+          <p class="note">
+            请先装 Mac，再装 iPhone；保持同一 Wi‑Fi。Mac 版由 Cloudflare CDN 直装（
+            <code>models.appda.store</code>），不再通过 Mac App Store / GitHub 分发。iPhone 的 Pro 解锁与购买仍由
+            Apple App Store 处理（一次性买断，非订阅）。
+          </p>
         </section>
 
         <section aria-labelledby="why-title">
@@ -166,11 +183,14 @@
         <section aria-labelledby="how-title">
           <h2 id="how-title">三步上手</h2>
           <ol class="steps">
-            <li>在 Mac 打开 TreeletHub，记下界面上的 <strong>6 位配对码</strong>。</li>
-            <li>在 iPhone 的「连接 Mac」页面输入配对码并连接；按系统提示允许本地网络权限。</li>
             <li>
-              在 Mac 九宫格为格子绑定 <strong>应用</strong> 或 Mac 端提供的<strong>快捷操作</strong>（例如打开指定网页等）；连接成功后，在
-              iPhone 的「Apps」里即可一键触发。
+              在本页<strong>下载并安装 Mac 版</strong>，打开 TreeletHub，记下界面上的
+              <strong>6 位配对码</strong>。
+            </li>
+            <li>在 iPhone 安装 App 后，于「连接 Mac」输入配对码并连接；按系统提示允许本地网络权限。</li>
+            <li>
+              在 Mac 蜂巢启动墙点「+」绑定 <strong>应用</strong> 或<strong>快捷操作</strong>（例如打开指定网页）；连接成功后，在
+              iPhone 的「Apps」里即可一键触发。免费最多 10 个；Pro 一次买断可无限添加，并开启灵动岛与键盘启动器。
             </li>
           </ol>
         </section>
@@ -181,26 +201,27 @@
             <div class="card">
               <span class="pill">Mac</span>
               <h3>配置</h3>
-              <p>配对码；九宫格绑定应用与快捷项；局域网内接收已配对 iPhone 的指令；多页扩展（部分需订阅）。</p>
+              <p>配对码；蜂巢启动墙绑定应用与快捷项；局域网内接收已配对手机指令；Pro 解锁灵动岛与键盘启动器。</p>
             </div>
             <div class="card">
               <span class="pill">iPhone</span>
               <h3>启动</h3>
-              <p>配对连接；同步九宫格；轻点启动；可拖拽排序与换背景。</p>
+              <p>配对连接；同步启动墙；轻点启动；可换背景。设置里可查看使用说明与 Pro 解锁。</p>
             </div>
           </div>
         </section>
 
         <section aria-labelledby="island-title">
-          <h2 id="island-title">Mac 灵动岛</h2>
+          <h2 id="island-title">Mac 灵动岛与键盘启动器</h2>
           <div class="card">
             <p>
-              在有效<strong>订阅</strong>内，Mac 端可开启「灵动岛模式」：屏幕顶部有一条可收起 / 展开的浮层，把常用信息与入口收在一处。
+              解锁 <strong>Pro（一次性买断）</strong> 后，在 Mac 主窗口或右上角<strong>齿轮菜单</strong>开启「灵动岛」与「键盘启动器」。
             </p>
             <p>
-              <strong>能力概览：</strong>媒体播放与快捷控制；<strong>主页</strong>（配对码、文件暂存、隔空投送）；<strong>剪贴板</strong>历史；与
-              iPhone 同步的<strong>九宫格</strong>；<strong>时间</strong>；以及基于定位的<strong>实况天气</strong>（Apple Weather /
-              WeatherKit，需定位与网络拉取预报）。具体以 Mac 端版本与权限说明为准。
+              <strong>灵动岛：</strong>屏幕顶部可收起 / 展开的浮层——媒体控制；<strong>主页</strong>（配对码、文件暂存、隔空投送）；<strong>剪贴板</strong>历史；同步启动墙；<strong>时间</strong>；以及基于定位的<strong>实况天气</strong>（WeatherKit）。
+            </p>
+            <p>
+              <strong>键盘启动器：</strong>松开 Control 唤出屏幕键位；Control + 按键全局启动映射应用。需在系统设置中允许<strong>输入监控</strong>。
             </p>
           </div>
         </section>

@@ -132,21 +132,13 @@ struct ContentView: View {
         guard !sorted.isEmpty else {
             return [HubPageConfig(id: 0, title: "Apps")]
         }
-        if companion.snapshot.subscriptionActive {
-            return Array(sorted.prefix(HubService.maxTabs))
-        }
-        if let home = sorted.first(where: { $0.id == 0 }) {
-            return [home]
-        }
-        return [sorted[0]]
+        return Array(sorted.prefix(HubService.maxTabs))
     }
 
     private var pairedConsole: some View {
         TabView(selection: $selectedPageId) {
-            ForEach(displayPages) { page in
-                watchGrid(page: page)
-                    .tag(page.id)
-            }
+            watchHoneycombLauncher
+                .tag(0)
 
             List {
                 Section {
@@ -165,46 +157,28 @@ struct ContentView: View {
             .tag(-1)
         }
         .tabViewStyle(.verticalPage)
-        .id("watch-console-\(companion.snapshot.layoutApplyEpoch)")
     }
 
-    private func watchGrid(page: HubPageConfig) -> some View {
-        let columns = [
-            GridItem(.flexible(), spacing: 3),
-            GridItem(.flexible(), spacing: 3),
-            GridItem(.flexible(), spacing: 3)
-        ]
-        return GeometryReader { geo in
-            let spacing: CGFloat = 3
-            // 优先按宽度铺满，让每格尽量大。
-            let cellW = max(0, (geo.size.width - spacing * 2) / 3)
-            let gridH = cellW * 3 + spacing * 2
-            let topReserve: CGFloat = displayPages.count > 1 ? 16 : 0
-            let availableH = max(0, geo.size.height - topReserve)
-            let scale = gridH > 0 ? min(1, availableH / gridH) : 1
-            let cell = cellW * scale
-            VStack(spacing: 2) {
-                if displayPages.count > 1 {
-                    Text(page.title)
-                        .font(.caption2.weight(.semibold))
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                LazyVGrid(columns: columns, spacing: spacing * scale) {
-                    ForEach(page.slots) { slot in
-                        Button {
-                            handleSlotTap(pageId: page.id, slot: slot)
-                        } label: {
-                            WatchSlotCell(slot: slot)
-                        }
-                        .buttonStyle(.plain)
-                        .frame(width: cell, height: cell)
-                        .disabled(slot.isEmpty && slot.kind != .shortcut)
-                    }
-                }
-                Spacer(minLength: 0)
+    private var watchLauncherItems: [HubLauncherItem] {
+        HubLauncherItems.flattened(from: displayPages)
+    }
+
+    private var watchHoneycombLauncher: some View {
+        HubHoneycombLauncherCanvas(
+            items: watchLauncherItems,
+            emptyHint: watchL("watch.launcher.empty"),
+            persistenceKey: "treelethub.launcher.watch",
+            baseIconSide: 44,
+            icon: { item, side in
+                HubHoneycombRoundIcon(item: item, side: side)
+            },
+            onSelect: { item in
+                handleSlotTap(pageId: item.pageId, slot: item.slot)
+            },
+            itemAccessibilityLabel: { item in
+                item.slot.displayName ?? (item.slot.isEmpty ? "Empty" : "App")
             }
-        }
+        )
     }
 
     private func handleSlotTap(pageId: Int, slot: HubSlotConfig) {
@@ -226,9 +200,8 @@ struct ContentView: View {
     }
 
     private func validatePageSelection() {
-        let ids = Set(displayPages.map(\.id))
-        if selectedPageId != -1, !ids.contains(selectedPageId) {
-            selectedPageId = displayPages.first?.id ?? 0
+        if selectedPageId != -1, selectedPageId != 0 {
+            selectedPageId = 0
         }
     }
 

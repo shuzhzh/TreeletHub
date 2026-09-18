@@ -20,7 +20,7 @@ struct TreeletHub_MacApp: App {
                 .environmentObject(uiLanguage)
                 .environmentObject(launchAtLogin)
         }
-        // 首次打开足够大，主界面（配对码、灵动岛说明、多 Tab、九宫格）可一屏展示，避免默认小窗出现纵向滚动条。
-        .defaultSize(width: 820, height: 960)
+        // 首次打开足够大：配对码、未开启时的效果图，以及足够高的蜂巢启动墙。
+        .defaultSize(width: 1080, height: 1380)
     }
 }

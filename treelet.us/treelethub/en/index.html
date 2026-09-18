@@ -38,6 +38,7 @@
     <link rel="icon" type="image/png" href="../assets/1024.png" sizes="1024x1024" />
     <link rel="apple-touch-icon" href="../assets/1024.png" />
     <link rel="stylesheet" href="../assets/style.css" />
+    <script src="../downloads/urls.js" defer></script>
     <script>
       (function () {
         try {
@@ -45,6 +46,13 @@
           if (q === 'zh') location.replace('../index.html');
         } catch (e) {}
       })();
+      document.addEventListener('DOMContentLoaded', function () {
+        var cfg = window.TREELETHUB_DOWNLOADS;
+        if (!cfg) return;
+        document.querySelectorAll('[data-download="mac"]').forEach(function (el) {
+          if (cfg.macDmg) el.setAttribute('href', cfg.macDmg);
+        });
+      });
     </script>
     <script type="application/ld+json">
       {
@@ -59,8 +67,8 @@
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "USD",
-          "description": "Free to download; some capabilities such as extra hub pages may be offered as in-app subscriptions per platform."
-        },
+              "description": "Free to download; Mac free plan includes up to 10 apps. One-time Pro unlock ($9.99) removes the limit and enables Dynamic Island, Keyboard Launcher, and other Pro features per platform."
+            },
         "publisher": {
           "@type": "Organization",
           "name": "Treelet Tech"
@@ -69,8 +77,9 @@
         "image": "https://treelet.us/treelethub/assets/1024.png",
         "sameAs": [
           "https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247",
-          "https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258"
-        ]
+          "https://models.appda.store/treelethub/TreeletHub.dmg"
+        ],
+        "downloadUrl": "https://models.appda.store/treelethub/TreeletHub.dmg"
       }
     </script>
   </head>
@@ -122,21 +131,29 @@
             We place it next to a mechanical keyboard, mouse, and external display: quiet gear that saves minutes every
             day by making context switches shorter and calmer.
           </p>
-          <div class="cta-row">
+          <p class="lead lead-tight callout">
+            <strong>Important:</strong> the iPhone app alone cannot work. TreeletHub is not an iOS launcher—you must
+            install the Mac companion, pair on the same Wi‑Fi, then remote your desktop from the phone.
+          </p>
+          <div class="cta-row" id="download-mac">
             <a
               class="btn btn-primary"
+              data-download="mac"
+              href="https://models.appda.store/treelethub/TreeletHub.dmg"
+              rel="noopener noreferrer"
+              >Download for Mac (.dmg)</a>
+            <a
+              class="btn btn-ghost"
               href="https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247"
               rel="noopener noreferrer"
               target="_blank"
               >App Store (iPhone / iPad)</a>
-            <a
-              class="btn btn-ghost"
-              href="https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258"
-              rel="noopener noreferrer"
-              target="_blank"
-              >Mac App Store</a>
           </div>
-          <p class="note">Install on iPhone/iPad and Mac separately; keep devices on the same Wi‑Fi. Purchases are handled by Apple.</p>
+          <p class="note">
+            Install Mac first, then iPhone; keep devices on the same Wi‑Fi. The Mac build is a Cloudflare CDN download
+            (<code>models.appda.store</code>), not Mac App Store / GitHub. iPhone Pro unlock is still handled by Apple
+            (one-time purchase, not a subscription).
+          </p>
         </section>
 
         <section aria-labelledby="why-title">
@@ -172,12 +189,15 @@
         <section aria-labelledby="how-title">
           <h2 id="how-title">Three steps</h2>
           <ol class="steps">
-            <li>Open TreeletHub on your Mac and note the <strong>6-digit pairing code</strong>.</li>
-            <li>On iPhone, enter the code under “Connect to Mac” and connect; allow Local Network access if asked.</li>
             <li>
-              On the Mac grid, bind each slot to a <strong>macOS app</strong> or a supported <strong>shortcut</strong>
-              (for example opening a specific URL); after pairing, use the “Apps” tab on iPhone to trigger them with one
-              tap.
+              <strong>Download and install the Mac app</strong> from this page, open TreeletHub, and note the
+              <strong>6-digit pairing code</strong>.
+            </li>
+            <li>Install on iPhone, enter the code under “Connect to Mac,” and allow Local Network access if asked.</li>
+            <li>
+              On the Mac honeycomb launcher, tap <strong>+</strong> to bind a <strong>macOS app</strong> or supported
+              <strong>shortcut</strong>; after pairing, use the “Apps” tab on iPhone to trigger them with one tap. Free
+              includes up to 10 apps; one-time Pro unlock adds unlimited slots, Dynamic Island, and Keyboard Launcher.
             </li>
           </ol>
         </section>
@@ -188,28 +208,31 @@
             <div class="card">
               <span class="pill">Mac</span>
               <h3>Configure</h3>
-              <p>Pairing code; bind apps and shortcuts to slots; receive commands from paired iPhones on the LAN; extra pages (subscription on some).</p>
+              <p>Pairing code; honeycomb launcher for apps and shortcuts; receive commands from paired phones on the LAN; Pro unlocks Dynamic Island and Keyboard Launcher.</p>
             </div>
             <div class="card">
               <span class="pill">iPhone</span>
               <h3>Launch</h3>
-              <p>Pair; synced grid; tap to launch; drag to reorder and change backgrounds.</p>
+              <p>Pair; synced launcher; tap to launch; change backgrounds. Settings includes the user guide and Pro unlock.</p>
             </div>
           </div>
         </section>
 
         <section aria-labelledby="island-title">
-          <h2 id="island-title">Mac Dynamic Island</h2>
+          <h2 id="island-title">Mac Dynamic Island &amp; Keyboard Launcher</h2>
           <div class="card">
             <p>
-              With an active <strong>subscription</strong>, turn on Island mode on the Mac: a collapsible strip at the top
-              of the screen that keeps frequent controls in one place.
+              With <strong>Pro unlocked (one-time purchase)</strong>, turn on Dynamic Island and Keyboard Launcher from
+              the Mac main window or the <strong>gear menu</strong>.
             </p>
             <p>
-              <strong>Includes:</strong> playback and quick actions; <strong>Home</strong> (pairing code, file staging,
-              AirDrop); <strong>clipboard</strong> history; the <strong>synced hub grid</strong>; <strong>clock</strong>;
-              and on-device <strong>weather</strong> via <strong>Apple Weather / WeatherKit</strong> (needs location +
-              internet to fetch forecasts). Details follow the shipped Mac build and permission prompts.
+              <strong>Dynamic Island:</strong> a collapsible top strip—media controls; <strong>Home</strong> (pairing
+              code, file staging, AirDrop); <strong>clipboard</strong> history; synced launcher; <strong>clock</strong>;
+              and <strong>weather</strong> via WeatherKit (location + network).
+            </p>
+            <p>
+              <strong>Keyboard Launcher:</strong> release Control for an on-screen keymap; Control + key launches mapped
+              apps globally. Allow <strong>Input Monitoring</strong> in System Settings when prompted.
             </p>
           </div>
         </section>

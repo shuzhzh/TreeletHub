@@ -351,6 +351,9 @@ private fun UserGuideCard() {
             GuideBlock(R.string.guide_title_setup_mac, R.string.guide_body_setup_mac)
             GuideBlock(R.string.guide_title_setup_phone, R.string.guide_body_setup_phone)
             GuideBlock(R.string.guide_title_ai_pad_phone, R.string.guide_body_ai_pad_phone)
+            GuideBlock(R.string.guide_title_island, R.string.guide_body_island)
+            GuideBlock(R.string.guide_title_keyboard_hud, R.string.guide_body_keyboard_hud)
+            GuideBlock(R.string.guide_title_pro, R.string.guide_body_pro)
             GuideBlock(R.string.guide_title_gestures_phone, R.string.guide_body_gestures_phone)
             GuideBlock(R.string.guide_title_tabs_swipe, R.string.guide_body_tabs_swipe)
         }
@@ -950,6 +953,7 @@ private fun HubGridSlot(
                                 vm.client.tap(pageId, slot.id)
                                 HubCodexControlTarget
                                     .resolve(slot.bundleIdentifier, slot.displayName)
+                                    ?.takeIf { it in HubCodexControlTarget.padSupportedTargets }
                                     ?.let(onOpenCodexPad)
                                 tapScale = 1f
                             }

@@ -14,6 +14,19 @@
         }
       }
     },
+    "%@. %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@. %2$@"
+          }
+        }
+      }
+    },
+    "%lld" : {
+
+    },
     "%lld%%" : {
 
     },
@@ -40,13 +53,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1) On the Mac, open TreeletHub and read the six-digit pairing code.\n2) On iPhone, open Connect to Mac, type the code, then tap Connect.\n3) The first time, allow Local Network access when iOS prompts you—without it, the phone cannot discover the Mac."
+            "value" : "0) Install the Mac app first (website DMG)—the iPhone app alone cannot launch Mac apps.\n1) On the Mac, open TreeletHub and read the six-digit pairing code.\n2) On iPhone, open Connect to Mac, type the code, then tap Connect.\n3) The first time, allow Local Network access when iOS prompts you."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1）在 Mac 上打开 TreeletHub，记下界面上的 6 位配对码。\n2）在 iPhone 的「连接 Mac」中输入配对码并点击连接。\n3）首次连接请在系统提示中允许「本地网络」，否则无法发现 Mac。"
+            "value" : "0）请先安装 Mac 版（官网 DMG）——仅装 iPhone 端无法启动 Mac 应用。\n1）在 Mac 上打开 TreeletHub，记下界面上的 6 位配对码。\n2）在 iPhone 的「连接 Mac」中输入配对码并点击连接。\n3）首次连接请在系统提示中允许「本地网络」。"
           }
         }
       }
@@ -57,13 +70,64 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "On the Apps grid while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop."
+            "value" : "On the Apps launcher while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已配对时在 Apps 九宫格上：双指下滑会隐藏 Mac 上全部已打开应用（含 TreeletHub 自身）以显示桌面。"
+            "value" : "已配对时在 Apps 启动墙上：双指下滑会隐藏 Mac 上全部已打开应用（含 TreeletHub 自身）以显示桌面。"
+          }
+        }
+      }
+    },
+    "guide.body.island" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With Pro unlocked, turn on Dynamic Island in the Mac main window or Settings menu. A floating bar at the top of the screen can show media controls, pairing code / file staging, clipboard history, synced launcher pages, clock, and weather (WeatherKit needs Location)."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解锁 Pro 后，在 Mac 主窗口或设置菜单开启「灵动岛」。屏幕顶部浮层可提供媒体控制、配对码 / 文件暂存、剪贴板历史、同步启动墙、时间与天气（WeatherKit 需定位）。"
+          }
+        }
+      }
+    },
+    "guide.body.keyboard_hud" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With Pro unlocked, enable Keyboard Launcher on Mac, then allow Input Monitoring when prompted.\n1) Release Control to show the on-screen keymap; press a mapped key to launch, or Esc / click outside to dismiss.\n2) Control + key also toggles the mapped app globally.\n3) First enable auto-fills keys from app name initials; tap empty keys to add, drag to swap."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解锁 Pro 后，在 Mac 开启「键盘启动器」，并按提示允许「输入监控」。\n1）松开 Control 唤出屏幕键位浮层；按已映射键启动，Esc 或点浮层外关闭。\n2）也可随时用 Control + 按键全局唤起 / 隐藏对应应用。\n3）首次开启会按应用名首字母自动填键；点空键添加，拖拽可交换。"
+          }
+        }
+      }
+    },
+    "guide.body.pro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free: up to 10 apps/shortcuts on Mac. One-time Pro unlock ($9.99, not a subscription) removes the limit and unlocks Dynamic Island, Keyboard Launcher, and other Pro features. Purchase on Mac or iPhone via App Store; Mac unlock status syncs to paired phones."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费：Mac 最多 10 个应用 / 快捷方式。一次性解锁 Pro（$9.99，非订阅）可无限添加，并开启灵动岛、键盘启动器等全部 Pro 功能。可在 Mac 或 iPhone 经 App Store 购买；Mac 解锁状态会同步到已配对手机。"
           }
         }
       }
@@ -91,13 +155,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keep TreeletHub running on the desk Mac. From the couch or another room, use your iPhone as a remote launcher for apps you already placed in the hub."
+            "value" : "Keep TreeletHub running on your desk Mac. From the couch or another room, use your phone as a remote launcher for apps you already pinned on the Mac hub."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mac 上常驻 TreeletHub；你在客厅或别的房间，用 iPhone 快速唤起已放进九宫格的 Mac 应用。"
+            "value" : "Mac 上常驻 TreeletHub；你在客厅或别的房间，用手机快速唤起已放进 Mac 启动墙的应用。"
           }
         }
       }
@@ -108,13 +172,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Use the Apps tab for the live grid. In Settings, rename how your iPhone appears on the Mac, change the backdrop, or swap your one saved photo background."
+            "value" : "Use the Apps tab for the live honeycomb launcher. In Settings, rename how your phone appears on the Mac, change the backdrop, or swap your one saved photo background."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在「Apps」使用实时九宫格；在「设置」里可修改在 Mac 上显示的设备名、更换界面背景，或替换仅保留一张的相册背景。"
+            "value" : "在「Apps」使用与 Mac 同步的蜂巢启动墙；在「设置」里可修改在 Mac 上显示的设备名、更换界面背景，或替换仅保留一张的相册背景。"
           }
         }
       }
@@ -125,13 +189,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1) Tap any cell and choose a Mac app (.app) to assign.\n2) Drag tiles to swap or move apps between cells.\n3) Extra tabs (Apps1, …) add more pages; some tabs require an active subscription.\n4) If you regenerate the pairing code on the Mac, each iPhone must reconnect with the new code."
+            "value" : "1) Tap the + button (or the dashed + on the honeycomb) to add an app, web shortcut, or system action.\n2) Pinch to zoom, drag to pan; Control-click a tile to remove it.\n3) Free plan includes up to 10 apps; unlock Pro once for unlimited slots.\n4) If you regenerate the pairing code on the Mac, each phone must reconnect with the new code.\n5) Open Settings (gear) for Dynamic Island, Keyboard Launcher, language, and Pro unlock."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1）点按格子并选择要绑定的应用程序（.app）。\n2）拖拽已配置的应用在格子间交换或移动。\n3）多页 Tab（Apps、Apps1…）可扩展更多页面；部分页面可能需要订阅。\n4）在 Mac 上重新生成配对码后，已配对的 iPhone 需用新码重新连接。"
+            "value" : "1）点按「+」按钮（或蜂巢墙上的虚线 +）添加应用、网页快捷方式或系统操作。\n2）捏合缩放、拖动浏览；Control-点击格子可清除。\n3）免费最多 10 个应用；一次性解锁 Pro 后不限数量。\n4）在 Mac 上重新生成配对码后，已配对手机需用新码重连。\n5）右上角齿轮可开关灵动岛、键盘启动器，以及语言与 Pro 解锁。"
           }
         }
       }
@@ -142,13 +206,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "TreeletHub lets you arrange favorite Mac apps in a grid on the Mac, then open TreeletHub on your iPhone—on the same Wi‑Fi—to launch those apps remotely. Reorder slots with drag and drop on either side."
+            "value" : "TreeletHub runs on your Mac as a honeycomb launcher for favorite apps and shortcuts. Pair your iPhone or Android on the same Wi‑Fi to launch those Mac apps remotely. Layout stays in sync across devices."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "TreeletHub 让你在 Mac 上把常用应用摆成九宫格，再在同一个 Wi‑Fi 下的 iPhone 上远程点按启动；两端都支持拖拽调整格子顺序。"
+            "value" : "TreeletHub 在 Mac 上以蜂巢启动墙收纳常用应用与快捷方式；同一 Wi‑Fi 下的 iPhone / Android 配对后可远程启动这些 Mac 应用，布局会在设备间同步。"
           }
         }
       }
@@ -210,13 +274,64 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show desktop (iPhone)"
+            "value" : "Show desktop (phone)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示桌面（iPhone）"
+            "value" : "显示桌面（手机）"
+          }
+        }
+      }
+    },
+    "guide.title.island" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island (Mac · Pro)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac 灵动岛（Pro）"
+          }
+        }
+      }
+    },
+    "guide.title.keyboard_hud" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keyboard Launcher (Mac · Pro)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac 键盘启动器（Pro）"
+          }
+        }
+      }
+    },
+    "guide.title.pro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro unlock"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro 解锁"
           }
         }
       }
@@ -267,7 +382,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "连接成功后（iPhone）"
+            "value" : "连接成功后（手机）"
           }
         }
       }
@@ -302,6 +417,210 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "TreeletHub 是什么？"
+          }
+        }
+      }
+    },
+    "intro.got_it" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get started"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始使用"
+          }
+        }
+      }
+    },
+    "intro.read_full_guide" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read full guide"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看完整说明"
+          }
+        }
+      }
+    },
+    "intro.step1.body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep TreeletHub open on your Mac. Apps and shortcuts live here; the phone is a remote control, not a standalone launcher."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请在 Mac 上保持 TreeletHub 运行。应用与快捷方式都配置在这里；手机是遥控器，不能单独当启动器。"
+          }
+        }
+      }
+    },
+    "intro.step1.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Mac is the hub"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以 Mac 电脑为中心"
+          }
+        }
+      }
+    },
+    "intro.step2.body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the code shown on Mac in the iPhone app (same Wi‑Fi). Allow Local Network when iOS asks."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 iPhone 端输入 Mac 上显示的配对码（需同一 Wi‑Fi）；系统提示时请允许「本地网络」。"
+          }
+        }
+      }
+    },
+    "intro.step2.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pair with the six-digit code"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 6 位码配对手机"
+          }
+        }
+      }
+    },
+    "intro.step3.body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap + (or the dashed + on the honeycomb) to pin apps, web links, or system actions. Pinch to zoom; Control-click to remove."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按「+」（或蜂巢墙上的虚线 +）添加应用、网页或系统操作。捏合缩放；Control-点击可清除。"
+          }
+        }
+      }
+    },
+    "intro.step3.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add apps with +"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点 + 添加应用"
+          }
+        }
+      }
+    },
+    "intro.step4.body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island and Keyboard Launcher are one-time Pro unlocks. Free plan includes up to 10 apps."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "灵动岛与键盘启动器属于一次性 Pro 解锁。免费版最多 10 个应用。"
+          }
+        }
+      }
+    },
+    "intro.step4.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional Pro extras"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选 Pro 能力"
+          }
+        }
+      }
+    },
+    "intro.subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A honeycomb launcher on your Mac—pin favorites here, then launch them from your phone on the same Wi‑Fi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Mac 上用蜂巢启动墙收纳常用应用，同一 Wi‑Fi 下可用手机远程唤起。"
+          }
+        }
+      }
+    },
+    "intro.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to TreeletHub"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "欢迎使用 TreeletHub"
           }
         }
       }
@@ -799,6 +1118,40 @@
         }
       }
     },
+    "mac.feature.preview.enlarge" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enlarge preview"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "放大预览"
+          }
+        }
+      }
+    },
+    "mac.feature.preview.hint" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click a photo to enlarge. This is how it looks on the desktop after you turn it on."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按图片可放大。这是开启后出现在桌面上的效果。"
+          }
+        }
+      }
+    },
     "mac.island.a11y.weather" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -863,6 +1216,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "隔空投送暂存区中的文件"
+          }
+        }
+      }
+    },
+    "mac.island.apps.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No applications found"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到应用"
+          }
+        }
+      }
+    },
+    "mac.island.apps.search" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search apps"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索应用"
+          }
+        }
+      }
+    },
+    "mac.island.apps.zoom_in" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Larger icons"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "放大图标"
+          }
+        }
+      }
+    },
+    "mac.island.apps.zoom_out" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smaller icons"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缩小图标"
           }
         }
       }
@@ -1293,7 +1714,7 @@
       }
     },
     "mac.island.grid.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1378,7 +1799,7 @@
       }
     },
     "mac.island.menu.subscription" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1429,18 +1850,18 @@
       }
     },
     "mac.island.paywall" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dynamic Island mode is part of your subscription. Turn the switch on below to review or purchase plans."
+            "value" : "Dynamic Island is part of the one-time Pro unlock."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "灵动岛模式为订阅功能；打开下方开关可前往订阅管理。"
+            "value" : "灵动岛属于一次性 Pro 解锁内容。"
           }
         }
       }
@@ -1536,13 +1957,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No apps are using audio right now."
+            "value" : "No audio-holding apps detected yet. The list fills in as macOS reports processes that keep the output device busy (macOS 14.2+)."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "当前没有应用在使用音频。"
+            "value" : "暂未检测到占用音频输出的应用。列表会在系统上报相关进程后出现（macOS 14.2+）。"
           }
         }
       }
@@ -1553,13 +1974,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Track details come from the Music app. Media keys are not controlled here."
+            "value" : "Processes shown here are the ones macOS associates with the current audio output (macOS 14.2+). Track titles and artwork appear when the system exposes Now Playing metadata. This surface does not send hardware media keys."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "曲目详情来自「音乐」App；此处不提供媒体键控制。"
+            "value" : "列表来自系统对当前音频输出相关进程的汇总（macOS 14.2+）。曲目信息在系统提供「正在播放」元数据时显示；此处不提供硬件媒体键控制。"
           }
         }
       }
@@ -1594,6 +2015,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "占用音频的 App"
+          }
+        }
+      }
+    },
+    "mac.island.preview.apps" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App launcher at the top of the screen"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "屏幕顶部的系统应用墙"
+          }
+        }
+      }
+    },
+    "mac.island.preview.apps.short" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用墙"
+          }
+        }
+      }
+    },
+    "mac.island.preview.workspace" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workspace · clipboard, weather, and clock"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工作台 · 剪贴板 / 天气 / 时钟"
+          }
+        }
+      }
+    },
+    "mac.island.preview.workspace.short" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workspace"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工作台"
           }
         }
       }
@@ -1747,6 +2236,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已开启"
+          }
+        }
+      }
+    },
+    "mac.island.tab.workspace" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workspace"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工作台"
           }
         }
       }
@@ -2109,18 +2615,18 @@
       }
     },
     "mac.keyboardhud.paywall" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keyboard Launcher is part of your subscription. Turn the switch on below to review or purchase plans."
+            "value" : "Desktop shortcuts are part of the one-time Pro unlock."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "键盘启动器为订阅功能；打开下方开关可前往订阅管理。"
+            "value" : "桌面快捷键属于一次性 Pro 解锁内容。"
           }
         }
       }
@@ -2172,6 +2678,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "为此键位选择应用"
+          }
+        }
+      }
+    },
+    "mac.keyboardhud.preview.overlay" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Release Control to show this keymap"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "松开 Control 后出现的键位浮层"
           }
         }
       }
@@ -2312,6 +2835,142 @@
         }
       }
     },
+    "mac.launcher.count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %@"
+          }
+        }
+      }
+    },
+    "mac.launcher.edit_done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成"
+          }
+        }
+      }
+    },
+    "mac.launcher.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the + button to add your first app."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按 + 号添加第一个应用。"
+          }
+        }
+      }
+    },
+    "mac.launcher.empty_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a few favorite apps here. They sync to your paired iPhone so you can launch them remotely."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先在这里添加几个常用应用；配对手机后即可远程启动，布局会同步。"
+          }
+        }
+      }
+    },
+    "mac.launcher.empty_cta" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add first app"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加第一个应用"
+          }
+        }
+      }
+    },
+    "mac.launcher.empty_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your honeycomb is empty"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蜂巢启动墙还是空的"
+          }
+        }
+      }
+    },
+    "mac.launcher.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pinch to zoom · drag to pan · press & hold to edit"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "捏合缩放 · 拖动浏览 · 长按进入编辑"
+          }
+        }
+      }
+    },
+    "mac.onboarding.menu" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick intro"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功能简介"
+          }
+        }
+      }
+    },
     "mac.open_panel.prompt" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2342,6 +3001,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择要添加的应用"
+          }
+        }
+      }
+    },
+    "mac.pairing.next_step" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next: open TreeletHub on iPhone and enter this code."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下一步：在 iPhone 打开 TreeletHub，输入此配对码。"
           }
         }
       }
@@ -3367,18 +4043,18 @@
       }
     },
     "mac.subscription.auto_renew_legal" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Subscriptions renew automatically until cancelled in System Settings → Apple Account → Subscriptions. Legal links open in your default browser."
+            "value" : "This is a one-time In-App Purchase, not a subscription. Links open in your browser."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "自动续订须遵守相关条款；以下链接将在默认浏览器中打开。"
+            "value" : "这是一次性内购，不是订阅。链接将在浏览器中打开。"
           }
         }
       }
@@ -3452,52 +4128,52 @@
       }
     },
     "mac.subscription.benefit_grid_p1" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Up to %lld pages of apps and shortcuts (Apps, Apps1, …). Without a subscription, only the first page is available."
+            "value" : "Free includes %lld apps. Pro removes the limit."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最多 %lld 页应用与快捷方式（Apps、Apps1…）。未订阅时仅可使用第一页。"
+            "value" : "免费可添加 %lld 个；Pro 不限数量。"
           }
         }
       }
     },
     "mac.subscription.benefit_grid_title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multi-page hub"
+            "value" : "Unlimited apps"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "多页应用网格"
+            "value" : "无限添加应用"
           }
         }
       }
     },
     "mac.subscription.benefit_island_p1" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "With an active subscription, turn on Dynamic Island mode in the main window for the floating strip along the top of the desktop."
+            "value" : "Floating desktop control bar with media, weather, and clipboard."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "订阅有效时，可在主窗口开启灵动岛模式，在桌面顶部使用悬浮控制条。"
+            "value" : "桌面悬浮控制条：媒体、天气与剪贴板。"
           }
         }
       }
@@ -3520,35 +4196,35 @@
       }
     },
     "mac.subscription.benefit_island_title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dynamic Island & desktop tools"
+            "value" : "Dynamic Island"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "灵动岛与桌面控制中心"
+            "value" : "灵动岛"
           }
         }
       }
     },
     "mac.subscription.benefit_keyboardhud_p1" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keyboard Launcher maps your Mac apps onto an on-screen keyboard. Press Control to summon the overlay, then tap a key—or press Control + key from anywhere—to launch or hide the app instantly."
+            "value" : "Hold Control to launch apps from a floating keymap."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "键盘启动器把 Mac 应用映射到屏幕键盘上：按下 Control 唤出浮层，直接按键或 Control + 按键，即可在任意位置瞬间唤起或隐藏对应应用。"
+            "value" : "按住 Control，用浮动键位快速启动应用。"
           }
         }
       }
@@ -3588,12 +4264,12 @@
       }
     },
     "mac.subscription.benefit_keyboardhud_title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keyboard Launcher"
+            "value" : "Keyboard launcher"
           }
         },
         "zh-Hans" : {
@@ -3605,52 +4281,69 @@
       }
     },
     "mac.subscription.benefit_sync_p1" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sync the hub layout to paired iPhones on the same LAN (companion app required) and reflect subscription status on the phone."
+            "value" : "Keep hub layout and Pro status in sync on iPhone and Android."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "通过局域网将布局同步到已配对的 iPhone（若安装配套客户端），并在下发数据中同步订阅解锁状态；移动端具体能力以 iOS 端说明为准。"
+            "value" : "布局与 Pro 状态同步到配对的 iPhone 与 Android。"
           }
         }
       }
     },
     "mac.subscription.benefit_sync_title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pair with iPhone"
+            "value" : "Phone sync"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "与 iPhone 配对同步"
+            "value" : "手机同步"
+          }
+        }
+      }
+    },
+    "mac.subscription.buy_now_price" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock — %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解锁 — %@"
           }
         }
       }
     },
     "mac.subscription.err.no_products" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Products are unavailable right now. Try again later."
+            "value" : "StoreKit cannot load this product yet. Submit the Pro IAP with your next app version in App Store Connect, then tap Refresh."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "暂未拉取到订阅商品，请稍后重试。"
+            "value" : "商店暂时拉不到该商品。请在 App Store Connect 把 Pro 内购随下一版 App 提交审核，然后点「刷新」。"
           }
         }
       }
@@ -3775,24 +4468,24 @@
       }
     },
     "mac.subscription.includes_desc" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Everything below stays available for the paid period at the App Store price in your region."
+            "value" : "Pay once. Unlock everything below forever."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "以下功能在付费周期内全部可用；与 App Store 订阅价格对应。"
+            "value" : "一次买断，永久解锁以下全部功能。"
           }
         }
       }
     },
     "mac.subscription.includes_title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3826,18 +4519,35 @@
       }
     },
     "mac.subscription.not_subscribed" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Not subscribed"
+            "value" : "Locked"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未订阅"
+            "value" : "未解锁"
+          }
+        }
+      }
+    },
+    "mac.subscription.once_badge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One-time purchase"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一次性买断"
           }
         }
       }
@@ -3876,6 +4586,23 @@
         }
       }
     },
+    "mac.subscription.product_fallback_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TreeletHub Pro"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TreeletHub Pro"
+          }
+        }
+      }
+    },
     "mac.subscription.refresh" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3894,18 +4621,18 @@
       }
     },
     "mac.subscription.renewal" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Plans renew automatically until you cancel them under System Settings → Apple Account → Subscriptions."
+            "value" : "One-time purchase. No subscription. No auto-renewal."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "订阅将按期自动续费，直至您在系统「设置 › Apple 账户 › 订阅」或 Mac App Store 账户管理中取消为本 App 安排的自动续订。"
+            "value" : "一次性买断。无订阅，不自动续费。"
           }
         }
       }
@@ -3945,58 +4672,58 @@
       }
     },
     "mac.subscription.subscribe_now" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Subscribe"
+            "value" : "Unlock Pro"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "立即订阅"
+            "value" : "解锁 Pro"
           }
         }
       }
     },
     "mac.subscription.subscribed" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Subscribed"
+            "value" : "Unlocked"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已订阅"
+            "value" : "已解锁"
           }
         }
       }
     },
     "mac.subscription.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Subscription"
+            "value" : "Unlock Pro"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "订阅管理"
+            "value" : "解锁 Pro"
           }
         }
       }
     },
     "mac.toolbar.subscription" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4249,9 +4976,6 @@
           }
         }
       }
-    },
-    "V" : {
-
     },
     "Weather" : {
       "extractionState" : "stale",

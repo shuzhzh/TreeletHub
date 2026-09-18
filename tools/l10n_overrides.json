@@ -5,52 +5,124 @@
       "zh-Hans": "TreeletHub 是什么？"
     },
     "guide.body.what": {
-      "en": "TreeletHub lets you arrange favorite Mac apps in a grid on the Mac, then open TreeletHub on your iPhone—on the same Wi‑Fi—to launch those apps remotely. Reorder slots with drag and drop on either side.",
-      "zh-Hans": "TreeletHub 让你在 Mac 上把常用应用摆成九宫格，再在同一个 Wi‑Fi 下的 iPhone 上远程点按启动；两端都支持拖拽调整格子顺序。"
+      "en": "TreeletHub runs on your Mac as a honeycomb launcher for favorite apps and shortcuts. Pair your iPhone or Android on the same Wi‑Fi to launch those Mac apps remotely. Layout stays in sync across devices.",
+      "zh-Hans": "TreeletHub 在 Mac 上以蜂巢启动墙收纳常用应用与快捷方式；同一 Wi‑Fi 下的 iPhone / Android 配对后可远程启动这些 Mac 应用，布局会在设备间同步。"
     },
     "guide.title.scenarios": {
       "en": "When it helps",
       "zh-Hans": "典型使用场景"
     },
     "guide.body.scenarios": {
-      "en": "Keep TreeletHub running on the desk Mac. From the couch or another room, use your iPhone as a remote launcher for apps you already placed in the hub.",
-      "zh-Hans": "Mac 上常驻 TreeletHub；你在客厅或别的房间，用 iPhone 快速唤起已放进九宫格的 Mac 应用。"
+      "en": "Keep TreeletHub running on your desk Mac. From the couch or another room, use your phone as a remote launcher for apps you already pinned on the Mac hub.",
+      "zh-Hans": "Mac 上常驻 TreeletHub；你在客厅或别的房间，用手机快速唤起已放进 Mac 启动墙的应用。"
     },
     "guide.title.connect_ios": {
       "en": "Connect from iPhone",
       "zh-Hans": "如何从 iPhone 连接"
     },
     "guide.body.connect_ios": {
-      "en": "1) On the Mac, open TreeletHub and read the six-digit pairing code.\n2) On iPhone, open Connect to Mac, type the code, then tap Connect.\n3) The first time, allow Local Network access when iOS prompts you—without it, the phone cannot discover the Mac.",
-      "zh-Hans": "1）在 Mac 上打开 TreeletHub，记下界面上的 6 位配对码。\n2）在 iPhone 的「连接 Mac」中输入配对码并点击连接。\n3）首次连接请在系统提示中允许「本地网络」，否则无法发现 Mac。"
+      "en": "0) Install the Mac app first (website DMG)—the iPhone app alone cannot launch Mac apps.\n1) On the Mac, open TreeletHub and read the six-digit pairing code.\n2) On iPhone, open Connect to Mac, type the code, then tap Connect.\n3) The first time, allow Local Network access when iOS prompts you.",
+      "zh-Hans": "0）请先安装 Mac 版（官网 DMG）——仅装 iPhone 端无法启动 Mac 应用。\n1）在 Mac 上打开 TreeletHub，记下界面上的 6 位配对码。\n2）在 iPhone 的「连接 Mac」中输入配对码并点击连接。\n3）首次连接请在系统提示中允许「本地网络」。"
     },
     "guide.title.setup_mac": {
       "en": "Set up the Mac hub",
       "zh-Hans": "如何在 Mac 上配置"
     },
     "guide.body.setup_mac": {
-      "en": "1) Tap any cell and choose a Mac app (.app) to assign.\n2) Drag tiles to swap or move apps between cells.\n3) Extra tabs (Apps1, …) add more pages; some tabs require an active subscription.\n4) If you regenerate the pairing code on the Mac, each iPhone must reconnect with the new code.",
-      "zh-Hans": "1）点按格子并选择要绑定的应用程序（.app）。\n2）拖拽已配置的应用在格子间交换或移动。\n3）多页 Tab（Apps、Apps1…）可扩展更多页面；部分页面可能需要订阅。\n4）在 Mac 上重新生成配对码后，已配对的 iPhone 需用新码重新连接。"
+      "en": "1) Tap the + button (or the dashed + on the honeycomb) to add an app, web shortcut, or system action.\n2) Pinch to zoom, drag to pan; Control-click a tile to remove it.\n3) Free plan includes up to 10 apps; unlock Pro once for unlimited slots.\n4) If you regenerate the pairing code on the Mac, each phone must reconnect with the new code.\n5) Open Settings (gear) for Dynamic Island, Keyboard Launcher, language, and Pro unlock.",
+      "zh-Hans": "1）点按「+」按钮（或蜂巢墙上的虚线 +）添加应用、网页快捷方式或系统操作。\n2）捏合缩放、拖动浏览；Control-点击格子可清除。\n3）免费最多 10 个应用；一次性解锁 Pro 后不限数量。\n4）在 Mac 上重新生成配对码后，已配对手机需用新码重连。\n5）右上角齿轮可开关灵动岛、键盘启动器，以及语言与 Pro 解锁。"
     },
     "guide.title.setup_ios": {
       "en": "After you are paired",
-      "zh-Hans": "连接成功后（iPhone）"
+      "zh-Hans": "连接成功后（手机）"
     },
     "guide.body.setup_ios": {
-      "en": "Use the Apps tab for the live grid. In Settings, rename how your iPhone appears on the Mac, change the backdrop, or swap your one saved photo background.",
-      "zh-Hans": "在「Apps」使用实时九宫格；在「设置」里可修改在 Mac 上显示的设备名、更换界面背景，或替换仅保留一张的相册背景。"
+      "en": "Use the Apps tab for the live honeycomb launcher. In Settings, rename how your phone appears on the Mac, change the backdrop, or swap your one saved photo background.",
+      "zh-Hans": "在「Apps」使用与 Mac 同步的蜂巢启动墙；在「设置」里可修改在 Mac 上显示的设备名、更换界面背景，或替换仅保留一张的相册背景。"
     },
     "guide.title.gestures_ios": {
-      "en": "Show desktop (iPhone)",
-      "zh-Hans": "显示桌面（iPhone）"
+      "en": "Show desktop (phone)",
+      "zh-Hans": "显示桌面（手机）"
     },
     "guide.body.gestures_ios": {
-      "en": "On the Apps grid while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop.",
-      "zh-Hans": "已配对时在 Apps 九宫格上：双指下滑会隐藏 Mac 上全部已打开应用（含 TreeletHub 自身）以显示桌面。"
+      "en": "On the Apps launcher while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop.",
+      "zh-Hans": "已配对时在 Apps 启动墙上：双指下滑会隐藏 Mac 上全部已打开应用（含 TreeletHub 自身）以显示桌面。"
     },
     "guide.nav_title": {
       "en": "User guide",
       "zh-Hans": "使用说明"
+    },
+    "guide.title.island": {
+      "en": "Dynamic Island (Mac · Pro)",
+      "zh-Hans": "Mac 灵动岛（Pro）"
+    },
+    "guide.body.island": {
+      "en": "With Pro unlocked, turn on Dynamic Island in the Mac main window or Settings menu. A floating bar at the top of the screen can show media controls, pairing code / file staging, clipboard history, synced launcher pages, clock, and weather (WeatherKit needs Location).",
+      "zh-Hans": "解锁 Pro 后，在 Mac 主窗口或设置菜单开启「灵动岛」。屏幕顶部浮层可提供媒体控制、配对码 / 文件暂存、剪贴板历史、同步启动墙、时间与天气（WeatherKit 需定位）。"
+    },
+    "guide.title.keyboard_hud": {
+      "en": "Keyboard Launcher (Mac · Pro)",
+      "zh-Hans": "Mac 键盘启动器（Pro）"
+    },
+    "guide.body.keyboard_hud": {
+      "en": "With Pro unlocked, enable Keyboard Launcher on Mac, then allow Input Monitoring when prompted.\n1) Release Control to show the on-screen keymap; press a mapped key to launch, or Esc / click outside to dismiss.\n2) Control + key also toggles the mapped app globally.\n3) First enable auto-fills keys from app name initials; tap empty keys to add, drag to swap.",
+      "zh-Hans": "解锁 Pro 后，在 Mac 开启「键盘启动器」，并按提示允许「输入监控」。\n1）松开 Control 唤出屏幕键位浮层；按已映射键启动，Esc 或点浮层外关闭。\n2）也可随时用 Control + 按键全局唤起 / 隐藏对应应用。\n3）首次开启会按应用名首字母自动填键；点空键添加，拖拽可交换。"
+    },
+    "guide.title.pro": {
+      "en": "Pro unlock",
+      "zh-Hans": "Pro 解锁"
+    },
+    "guide.body.pro": {
+      "en": "Free: up to 10 apps/shortcuts on Mac. One-time Pro unlock ($9.99, not a subscription) removes the limit and unlocks Dynamic Island, Keyboard Launcher, and other Pro features. Purchase on Mac or iPhone via App Store; Mac unlock status syncs to paired phones.",
+      "zh-Hans": "免费：Mac 最多 10 个应用 / 快捷方式。一次性解锁 Pro（$9.99，非订阅）可无限添加，并开启灵动岛、键盘启动器等全部 Pro 功能。可在 Mac 或 iPhone 经 App Store 购买；Mac 解锁状态会同步到已配对手机。"
+    },
+    "intro.title": {
+      "en": "Welcome to TreeletHub",
+      "zh-Hans": "欢迎使用 TreeletHub"
+    },
+    "intro.subtitle": {
+      "en": "A honeycomb launcher on your Mac—pin favorites here, then launch them from your phone on the same Wi‑Fi.",
+      "zh-Hans": "在 Mac 上用蜂巢启动墙收纳常用应用，同一 Wi‑Fi 下可用手机远程唤起。"
+    },
+    "intro.step1.title": {
+      "en": "The Mac is the hub",
+      "zh-Hans": "以 Mac 电脑为中心"
+    },
+    "intro.step1.body": {
+      "en": "Keep TreeletHub open on your Mac. Apps and shortcuts live here; the phone is a remote control, not a standalone launcher.",
+      "zh-Hans": "请在 Mac 上保持 TreeletHub 运行。应用与快捷方式都配置在这里；手机是遥控器，不能单独当启动器。"
+    },
+    "intro.step2.title": {
+      "en": "Pair with the six-digit code",
+      "zh-Hans": "用 6 位码配对手机"
+    },
+    "intro.step2.body": {
+      "en": "Enter the code shown on Mac in the iPhone app (same Wi‑Fi). Allow Local Network when iOS asks.",
+      "zh-Hans": "在 iPhone 端输入 Mac 上显示的配对码（需同一 Wi‑Fi）；系统提示时请允许「本地网络」。"
+    },
+    "intro.step3.title": {
+      "en": "Add apps with +",
+      "zh-Hans": "点 + 添加应用"
+    },
+    "intro.step3.body": {
+      "en": "Tap + (or the dashed + on the honeycomb) to pin apps, web links, or system actions. Pinch to zoom; Control-click to remove.",
+      "zh-Hans": "点按「+」（或蜂巢墙上的虚线 +）添加应用、网页或系统操作。捏合缩放；Control-点击可清除。"
+    },
+    "intro.step4.title": {
+      "en": "Optional Pro extras",
+      "zh-Hans": "可选 Pro 能力"
+    },
+    "intro.step4.body": {
+      "en": "Dynamic Island and Keyboard Launcher are one-time Pro unlocks. Free plan includes up to 10 apps.",
+      "zh-Hans": "灵动岛与键盘启动器属于一次性 Pro 解锁。免费版最多 10 个应用。"
+    },
+    "intro.got_it": {
+      "en": "Get started",
+      "zh-Hans": "开始使用"
+    },
+    "intro.read_full_guide": {
+      "en": "Read full guide",
+      "zh-Hans": "查看完整说明"
     }
   },
   "ios": {
@@ -99,20 +171,20 @@
       "zh-Hans": "使用说明与连接"
     },
     "ios.settings.section_subscription": {
-      "en": "Subscription & extra pages",
-      "zh-Hans": "订阅与多页"
+      "en": "Pro Unlock",
+      "zh-Hans": "Pro 解锁"
     },
     "ios.settings.subscribed_local": {
-      "en": "Pro: Extra hub pages are unlocked on this iPhone.",
-      "zh-Hans": "Pro：本机已解锁多页九宫格（Apps1–Apps4）。"
+      "en": "Pro unlocked on this iPhone.",
+      "zh-Hans": "本机已解锁 Pro。"
     },
     "ios.settings.subscribed_mac": {
-      "en": "Pro: Extra hub pages are included with your Mac subscription.",
-      "zh-Hans": "Pro：已由 Mac 端订阅解锁多页九宫格。"
+      "en": "Pro unlocked via your Mac.",
+      "zh-Hans": "已通过 Mac 解锁 Pro。"
     },
     "ios.settings.subscription_paywall": {
-      "en": "Extra hub tabs (Apps1–Apps4) require either an active TreeletHub subscription on the Mac or an iOS Pro purchase when it is available in your region.",
-      "zh-Hans": "多页 Tab（Apps1–Apps4）需要 Mac 端订阅有效，或在当地商店提供时购买 iOS Pro。"
+      "en": "Free on Mac: up to 10 apps. Unlock Pro once ($9.99) for unlimited apps, Dynamic Island, and desktop shortcuts.",
+      "zh-Hans": "Mac 免费可添加最多 10 个应用。一次性解锁 Pro（$9.99）即可无限添加，并开启灵动岛与桌面快捷键。"
     },
     "ios.settings.restore": {
       "en": "Restore purchases",
@@ -185,6 +257,34 @@
     "ios.connect.wifi_hint": {
       "en": "Stay on the same Wi‑Fi as your Mac. Allow Local Network the first time so discovery can work.",
       "zh-Hans": "请与 Mac 处于同一 Wi‑Fi；首次使用请在系统提示中允许「本地网络」。"
+    },
+    "ios.connect.open_full_guide": {
+      "en": "Full user guide",
+      "zh-Hans": "完整使用说明"
+    },
+    "ios.connect.need_mac.title": {
+      "en": "Install Mac app",
+      "zh-Hans": "安装 Mac 版"
+    },
+    "ios.connect.need_mac.body": {
+      "en": "TreeletHub is a Mac launcher—install it on your Mac as well.",
+      "zh-Hans": "TreeletHub 作为 Mac 启动器，需要在 Mac 上同步安装。"
+    },
+    "ios.connect.need_mac.copy_link": {
+      "en": "Copy Mac download link",
+      "zh-Hans": "复制 Mac 下载链接"
+    },
+    "ios.connect.need_mac.link_copied": {
+      "en": "Link copied — open it in Safari on your Mac",
+      "zh-Hans": "已复制，请在 Mac 的浏览器中打开"
+    },
+    "ios.connect.need_mac.open_site": {
+      "en": "Open guide",
+      "zh-Hans": "打开说明"
+    },
+    "ios.launcher.empty": {
+      "en": "No apps yet. On your Mac, tap + in TreeletHub to add favorites—they’ll appear here.",
+      "zh-Hans": "还没有应用。请在 Mac 上的 TreeletHub 点 + 添加常用应用，添加后会同步到这里。"
     },
     "ios.connect.button.connect": {
       "en": "Connect",
@@ -309,6 +409,10 @@
     "ios.bg.preset.charcoalSilk": {
       "en": "Charcoal",
       "zh-Hans": "炭灰"
+    },
+    "ios.settings.buy_pro_price": {
+      "en": "Unlock Pro — %@",
+      "zh-Hans": "解锁 Pro — %@"
     }
   },
   "mac": {
@@ -317,8 +421,8 @@
       "zh-Hans": "请确保 iPhone 与 Mac 处于同一 Wi‑Fi；在 iPhone 上按提示允许「本地网络」。"
     },
     "mac.island.paywall": {
-      "en": "Dynamic Island mode is part of your subscription. Turn the switch on below to review or purchase plans.",
-      "zh-Hans": "灵动岛模式为订阅功能；打开下方开关可前往订阅管理。"
+      "en": "Dynamic Island is part of the one-time Pro unlock.",
+      "zh-Hans": "灵动岛属于一次性 Pro 解锁内容。"
     },
     "mac.island.permission.message": {
       "en": "Screenshot shortcuts need Screen Recording permission. If the prompt never appeared or access is still off, open Permissions & Privacy here, then enable Screen Recording for TreeletHub in System Settings.",
@@ -361,12 +465,12 @@
       "zh-Hans": "暂无已连接的 iPhone"
     },
     "mac.subscription.benefit_grid_p1": {
-      "en": "Up to %lld pages of apps and shortcuts (Apps, Apps1, …). Without a subscription, only the first page is available.",
-      "zh-Hans": "最多 %lld 页应用与快捷方式（Apps、Apps1…）。未订阅时仅可使用第一页。"
+      "en": "Free includes %lld apps. Pro removes the limit.",
+      "zh-Hans": "免费可添加 %lld 个；Pro 不限数量。"
     },
     "mac.subscription.benefit_island_p1": {
-      "en": "With an active subscription, turn on Dynamic Island mode in the main window for the floating strip along the top of the desktop.",
-      "zh-Hans": "订阅有效时，可在主窗口开启灵动岛模式，在桌面顶部使用悬浮控制条。"
+      "en": "Floating desktop control bar with media, weather, and clipboard.",
+      "zh-Hans": "桌面悬浮控制条：媒体、天气与剪贴板。"
     },
     "mac.subscription.benefit_island_p2": {
       "en": "Includes media shortcuts, clock, location-aware weather (Apple Weather / WeatherKit), clipboard history, staging, AirDrop hand-off, and the same hub grid you see on iPhone.",
@@ -697,12 +801,12 @@
       "zh-Hans": "订阅管理"
     },
     "mac.subscription.title": {
-      "en": "Subscription",
-      "zh-Hans": "订阅管理"
+      "en": "Unlock Pro",
+      "zh-Hans": "解锁 Pro"
     },
     "mac.subscription.subscribe_now": {
-      "en": "Subscribe",
-      "zh-Hans": "立即订阅"
+      "en": "Unlock Pro",
+      "zh-Hans": "解锁 Pro"
     },
     "mac.subscription.restore": {
       "en": "Restore purchases",
@@ -713,12 +817,12 @@
       "zh-Hans": "刷新"
     },
     "mac.subscription.not_subscribed": {
-      "en": "Not subscribed",
-      "zh-Hans": "未订阅"
+      "en": "Locked",
+      "zh-Hans": "未解锁"
     },
     "mac.subscription.subscribed": {
-      "en": "Subscribed",
-      "zh-Hans": "已订阅"
+      "en": "Unlocked",
+      "zh-Hans": "已解锁"
     },
     "mac.subscription.loading": {
       "en": "Loading subscription information…",
@@ -737,28 +841,28 @@
       "zh-Hans": "本期订阅有效期内包含"
     },
     "mac.subscription.includes_desc": {
-      "en": "Everything below stays available for the paid period at the App Store price in your region.",
-      "zh-Hans": "以下功能在付费周期内全部可用；与 App Store 订阅价格对应。"
+      "en": "Pay once. Unlock everything below forever.",
+      "zh-Hans": "一次买断，永久解锁以下全部功能。"
     },
     "mac.subscription.benefit_sync_title": {
-      "en": "Pair with iPhone",
-      "zh-Hans": "与 iPhone 配对同步"
+      "en": "Phone sync",
+      "zh-Hans": "手机同步"
     },
     "mac.subscription.benefit_sync_p1": {
-      "en": "Sync the hub layout to paired iPhones on the same LAN (companion app required) and reflect subscription status on the phone.",
-      "zh-Hans": "通过局域网将布局同步到已配对的 iPhone（若安装配套客户端），并在下发数据中同步订阅解锁状态；移动端具体能力以 iOS 端说明为准。"
+      "en": "Keep hub layout and Pro status in sync on iPhone and Android.",
+      "zh-Hans": "布局与 Pro 状态同步到配对的 iPhone 与 Android。"
     },
     "mac.subscription.benefit_island_title": {
-      "en": "Dynamic Island & desktop tools",
-      "zh-Hans": "灵动岛与桌面控制中心"
+      "en": "Dynamic Island",
+      "zh-Hans": "灵动岛"
     },
     "mac.subscription.auto_renew_legal": {
-      "en": "Subscriptions renew automatically until cancelled in System Settings → Apple Account → Subscriptions. Legal links open in your default browser.",
-      "zh-Hans": "自动续订须遵守相关条款；以下链接将在默认浏览器中打开。"
+      "en": "This is a one-time In-App Purchase, not a subscription. Links open in your browser.",
+      "zh-Hans": "这是一次性内购，不是订阅。链接将在浏览器中打开。"
     },
     "mac.subscription.renewal": {
-      "en": "Plans renew automatically until you cancel them under System Settings → Apple Account → Subscriptions.",
-      "zh-Hans": "订阅将按期自动续费，直至您在系统「设置 › Apple 账户 › 订阅」或 Mac App Store 账户管理中取消为本 App 安排的自动续订。"
+      "en": "One-time purchase. No subscription. No auto-renewal.",
+      "zh-Hans": "一次性买断。无订阅，不自动续费。"
     },
     "mac.subscription.privacy": {
       "en": "Privacy policy",
@@ -781,8 +885,8 @@
       "zh-Hans": "订阅已生效。若未显示到期时间，请点击「刷新」同步 App Store。"
     },
     "mac.subscription.err.no_products": {
-      "en": "Products are unavailable right now. Try again later.",
-      "zh-Hans": "暂未拉取到订阅商品，请稍后重试。"
+      "en": "StoreKit cannot load this product yet. Submit the Pro IAP with your next app version in App Store Connect, then tap Refresh.",
+      "zh-Hans": "商店暂时拉不到该商品。请在 App Store Connect 把 Pro 内购随下一版 App 提交审核，然后点「刷新」。"
     },
     "mac.subscription.err.pending": {
       "en": "Purchase submitted—waiting for Apple to confirm.",
@@ -1061,8 +1165,88 @@
       "zh-Hans": "进程 %lld"
     },
     "mac.subscription.benefit_grid_title": {
-      "en": "Multi-page hub",
-      "zh-Hans": "多页应用网格"
+      "en": "Unlimited apps",
+      "zh-Hans": "无限添加应用"
+    },
+    "mac.subscription.buy_now_price": {
+      "en": "Unlock — %@",
+      "zh-Hans": "解锁 — %@"
+    },
+    "mac.subscription.once_badge": {
+      "en": "One-time purchase",
+      "zh-Hans": "一次性买断"
+    },
+    "mac.subscription.product_fallback_title": {
+      "en": "TreeletHub Pro",
+      "zh-Hans": "TreeletHub Pro"
+    },
+    "mac.launcher.count": {
+      "en": "%lld / %@",
+      "zh-Hans": "%lld / %@"
+    },
+    "mac.launcher.empty": {
+      "en": "Tap the + button to add your first app.",
+      "zh-Hans": "点按 + 号添加第一个应用。"
+    },
+    "mac.launcher.empty_title": {
+      "en": "Your honeycomb is empty",
+      "zh-Hans": "蜂巢启动墙还是空的"
+    },
+    "mac.launcher.empty_body": {
+      "en": "Add a few favorite apps here. They sync to your paired iPhone so you can launch them remotely.",
+      "zh-Hans": "先在这里添加几个常用应用；配对手机后即可远程启动，布局会同步。"
+    },
+    "mac.launcher.empty_cta": {
+      "en": "Add first app",
+      "zh-Hans": "添加第一个应用"
+    },
+    "mac.pairing.next_step": {
+      "en": "Next: open TreeletHub on iPhone and enter this code.",
+      "zh-Hans": "下一步：在 iPhone 打开 TreeletHub，输入此配对码。"
+    },
+    "mac.onboarding.menu": {
+      "en": "Quick intro",
+      "zh-Hans": "功能简介"
+    },
+    "mac.keyboardhud.paywall": {
+      "en": "Desktop shortcuts are part of the one-time Pro unlock.",
+      "zh-Hans": "桌面快捷键属于一次性 Pro 解锁内容。"
+    },
+    "mac.feature.preview.hint": {
+      "en": "Click a photo to enlarge. This is how it looks on the desktop after you turn it on.",
+      "zh-Hans": "点按图片可放大。这是开启后出现在桌面上的效果。"
+    },
+    "mac.feature.preview.enlarge": {
+      "en": "Enlarge preview",
+      "zh-Hans": "放大预览"
+    },
+    "mac.island.preview.apps": {
+      "en": "App launcher at the top of the screen",
+      "zh-Hans": "屏幕顶部的系统应用墙"
+    },
+    "mac.island.preview.apps.short": {
+      "en": "Apps",
+      "zh-Hans": "应用墙"
+    },
+    "mac.island.preview.workspace": {
+      "en": "Workspace · clipboard, weather, and clock",
+      "zh-Hans": "工作台 · 剪贴板 / 天气 / 时钟"
+    },
+    "mac.island.preview.workspace.short": {
+      "en": "Workspace",
+      "zh-Hans": "工作台"
+    },
+    "mac.keyboardhud.preview.overlay": {
+      "en": "Release Control to show this keymap",
+      "zh-Hans": "松开 Control 后出现的键位浮层"
+    },
+    "mac.subscription.benefit_keyboardhud_title": {
+      "en": "Keyboard launcher",
+      "zh-Hans": "键盘启动器"
+    },
+    "mac.subscription.benefit_keyboardhud_p1": {
+      "en": "Hold Control to launch apps from a floating keymap.",
+      "zh-Hans": "按住 Control，用浮动键位快速启动应用。"
     }
   }
 }

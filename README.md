@@ -27,8 +27,8 @@
 | **iPhone / iPad** | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
 | **Android（Play）** | [Google Play — TreeletHub: Desktop Control](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
 | **Android（APK）** | [下载 TreeletHub-Android-1.3.apk](https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk)（当前 **1.3**） |
-| **Mac（App Store）** | [Mac App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) |
-| **Mac（DMG）** | [下载 TreeletHub.dmg](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg)（当前 **1.2.7**） |
+| **Mac（CDN DMG）** | [下载 TreeletHub.dmg](https://models.appda.store/treelethub/TreeletHub.dmg)（`models.appda.store`） |
+| **产品页** | [treelet.us/treelethub](https://treelet.us/treelethub/) |
 
 ### 手机端扫码安装
 
@@ -48,14 +48,13 @@
 
 ### Mac DMG 安装
 
-当前直装包：**macOS 1.2.7**（[版本化下载](https://github.com/shuzhzh/TreeletHub/releases/download/v1.2.7/TreeletHub-Mac-1.2.7.dmg) · [最新 TreeletHub.dmg](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg) · [全部 Releases](https://github.com/shuzhzh/TreeletHub/releases)）
+当前推荐从 [产品页](https://treelet.us/treelethub/) 了解产品，安装包走 Cloudflare CDN：
+[https://models.appda.store/treelethub/TreeletHub.dmg](https://models.appda.store/treelethub/TreeletHub.dmg)（国内可达，不依赖 GitHub）。
 
 1. 下载 DMG，将 App 拖入「应用程序」。
 2. 若系统拦截首次打开：「系统设置 → 隐私与安全性」中允许，或右键 → **打开**。
 3. 允许 **本地网络** 权限，以便与手机配对。
-4. 使用 AI 控制键盘时，再允许 **辅助功能** 与 **自动化**。
-
-也可从 [Mac App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) 安装。
+4. 使用键盘启动器时，再允许 **输入监控**。
 
 ### Android APK 安装
 
@@ -63,7 +62,6 @@
 
 1. 下载 APK；如系统提示，允许「安装未知应用」。
 2. 安装后打开 TreeletHub，与 Mac 同一 Wi‑Fi，输入配对码连接。
-3. 使用 AI 控制键盘听写时，允许 **麦克风** 权限。
 
 也可从 [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) 安装。
 
@@ -79,7 +77,7 @@
 
 ## TreeletHub 是什么
 
-TreeletHub 在 Mac 上把常用应用排成 **九宫格**，同一 Wi‑Fi 下的 **iPhone、iPad 或 Android 手机** 配对后，可远程点按启动 Mac 应用。Mac 与手机端都支持拖拽调整格子顺序。
+TreeletHub 在 Mac 上以 **蜂巢启动墙** 收纳常用应用与快捷方式，同一 Wi‑Fi 下的 **iPhone、iPad 或 Android 手机** 配对后，可远程点按启动。布局在设备间同步。
 
 配对走 **局域网**，用 6 位码连接，不需要注册 TreeletHub 账号。多台手机可同时连一台 Mac。
 
@@ -89,9 +87,9 @@ TreeletHub 在 Mac 上把常用应用排成 **九宫格**，同一 Wi‑Fi 下�
 
 ## 上手
 
-1. Mac 打开 TreeletHub，记下 **6 位配对码**。
+1. **先安装 Mac 版**，打开 TreeletHub，记下 **6 位配对码**。
 2. 手机打开 TreeletHub →「连接 Mac」，输入配对码；首次使用允许 **本地网络**（Android 还需允许网络发现）。
-3. 在 Mac 九宫格绑定 `.app` 或快捷项；手机 **Apps** 页点按即可启动。
+3. 在 Mac 蜂巢启动墙点「+」绑定 `.app` 或快捷项；手机 **Apps** 页点按即可启动。
 
 [完整说明（中文）](docs/USER_GUIDE.zh-CN.md) · [User guide (English)](docs/USER_GUIDE.en.md)
 
@@ -99,36 +97,33 @@ TreeletHub 在 Mac 上把常用应用排成 **九宫格**，同一 Wi‑Fi 下�
 
 ## 主要功能
 
-- **九宫格遥控** — Wi‑Fi 局域网同步，手机一键启动 Mac 应用  
-- **拖拽排序** — Mac 与手机均可改格子顺序  
-- **多页** — Apps、Apps1…（部分页面需订阅）  
+- **蜂巢启动墙** — Wi‑Fi 局域网同步，捏合缩放、拖动浏览，手机一键启动 Mac 应用  
+- **免费 10 个 / Pro 不限** — 一次性 $9.99 买断（非订阅）  
 - **显示桌面** — 已配对时，Apps 页双指下滑可隐藏 Mac 上全部窗口（iPhone / Android）  
-- **左右滑切换 Tab** — 已配对后可左右滑动切换九宫格页与设置  
-- **AI 控制键盘** — 九宫格点按 ChatGPT / Codex / Cursor，用手机遥控 Mac 上对应应用（状态灯、命令键、旋钮、听写写回；详见下方）  
-- **Mac 灵动岛** — 订阅后在 Mac 顶部显示浮层（媒体、剪贴板、天气等，以 Mac 版为准）  
-- **键盘启动器** — 订阅专属：Control 唤出屏幕键盘，把 Mac 应用映射到按键；Control + 键随时唤起/隐藏，首字母自动填充、可拖拽自定义（详见下方）  
+- **Codex 控制** — Android 点按 Codex 可打开控制键盘；ChatGPT / Cursor 仅启动对应 Mac 应用（不再注入按键）  
+- **Mac 灵动岛** — Pro：顶部浮层（媒体、剪贴板、天气、同步启动墙等，以 Mac 版为准）  
+- **键盘启动器** — Pro：Control 唤出屏幕键盘，把 Mac 应用映射到按键；Control + 键随时唤起/隐藏  
 - **多设备** — 一台 Mac 可接多部 iPhone / Android  
+
+当前 **Mac 1.2.8**。[发布说明](docs/release-notes-v1.2.8.md)
 
 ---
 
-## AI 控制键盘（iPhone / Android · ChatGPT / Codex / Cursor）
+## Codex 控制（Mac 1.2.8+）
 
-> **把 AI 应用放进九宫格，点进去就是控制台** — 不只是启动，还能用手机驱动 Mac 上的 ChatGPT、Codex 与 Cursor。
+> **Codex 走深链接 / CLI，不再向其他应用注入按键。** ChatGPT 与 Cursor 在启动墙中只负责启动。
 
 | 能力 | 说明 |
 |------|------|
-| **按应用进入** | 九宫格点按 ChatGPT / Codex / Cursor，直接打开对应控制键盘（无需单独 Tab） |
-| **命令与旋钮** | 状态灯、命令键、技能摇杆、推理旋钮；布局按应用独立保存 |
-| **按住说话** | 手机本机语音识别，松手后文字填入 Mac 输入框；音频不离开手机 |
-| **权限** | Mac 需允许 **辅助功能** 与 **自动化**；首次使用时系统会提示 |
+| **Codex** | Android 可进入控制键盘；Mac 用官方深链接与本机 Codex CLI 驱动 |
+| **ChatGPT / Cursor** | 点按即启动 Mac 上的应用，不再打开控制键盘 |
+| **iPhone** | 与启动墙其他应用相同，点按启动；已移除听写与控制键盘 |
 
-**版本**：Mac **1.2.7+**，搭配 iPhone **1.2.5+** 或 Android **1.3+**。
-
-[使用说明：AI 控制键盘](docs/USER_GUIDE.zh-CN.md#ai-控制键盘iphone--android--chatgpt--codex--cursor) · [AI control pad (English)](docs/USER_GUIDE.en.md#ai-control-pad-iphone--android--chatgpt--codex--cursor) · [macOS 1.2.7 发布说明](docs/release-notes-v1.2.7.md) · [Android 1.3 发布说明](docs/release-notes-android-v1.3.md)
+[使用说明](docs/USER_GUIDE.zh-CN.md#codex-控制android) · [English](docs/USER_GUIDE.en.md#codex-control-android) · [macOS 1.2.8 发布说明](docs/release-notes-v1.2.8.md)
 
 ---
 
-## 键盘启动器（Mac · 订阅）
+## 键盘启动器（Mac · Pro）
 
 > **为键盘党设计的 Mac 原生启动器** — 少点鼠标、少切换上下文，常用应用一次 Control 到位。
 
@@ -136,13 +131,13 @@ TreeletHub 在 Mac 上把常用应用排成 **九宫格**，同一 Wi‑Fi 下�
 |------|------|
 | **Control 唤出** | 松开 Control 弹出键盘浮层；按映射键启动应用，或 Esc / 点击外部关闭 |
 | **全局快捷键** | **Control + 按键** 在任意 App 前台下唤起或隐藏对应应用 |
-| **自动映射** | 首次开启扫描 `/Applications`，按应用名首字母填入键位 |
-| **完全可定制** | 点击键位添加/替换应用，拖拽交换；比 Dock 更适合肌肉记忆 |
-| **订阅门禁** | 与多页网格、灵动岛同属订阅权益；App 内「订阅管理」可查看详情 |
+| **自动映射** | 首次开启按应用名首字母填入键位 |
+| **完全可定制** | 点击键位添加/替换应用，拖拽交换 |
+| **Pro 门禁** | 与无限启动项、灵动岛同属一次性 Pro 权益 |
 
 **权限**：需在「系统设置 → 隐私与安全性 → **输入监控**」中允许 TreeletHub。仅用于监听 Control 与快捷键，**不记录、不上传**按键内容，不向其他 App 注入按键。
 
-[使用说明：键盘启动器](docs/USER_GUIDE.zh-CN.md#mac-键盘启动器订阅) · [Keyboard Launcher (English)](docs/USER_GUIDE.en.md#keyboard-launcher-mac--subscription)
+[使用说明：键盘启动器](docs/USER_GUIDE.zh-CN.md#mac-键盘启动器pro) · [Keyboard Launcher (English)](docs/USER_GUIDE.en.md#keyboard-launcher-mac--pro)
 
 ---
 
@@ -169,6 +164,6 @@ TreeletHub 在 Mac 上把常用应用排成 **九宫格**，同一 Wi‑Fi 下�
   <a href="https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247">App Store (iOS)</a> ·
   <a href="https://play.google.com/store/apps/details?id=com.treelet.treelethub">Google Play (Android)</a> ·
   <a href="https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk">Android APK</a> ·
-  <a href="https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258">Mac App Store</a> ·
-  <a href="https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg">Mac DMG</a>
+  <a href="https://models.appda.store/treelethub/TreeletHub.dmg">Mac DMG</a> ·
+  <a href="https://treelet.us/treelethub/">Product page</a>
 </p>

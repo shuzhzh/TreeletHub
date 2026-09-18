@@ -60,4 +60,11 @@ enum HubKeyboardHUDLayout {
     static let keyNameRowHeight: CGFloat = 13
     /// 单个键帽高度（与 `keyIconDisplaySize` 匹配）。
     static let keyCellHeight: CGFloat = 134
+    /// 与 `HubKeyboardHUDRootView` 布局一致的预估窗口，避免首次显示时先窄后宽。
+    static var estimatedPanelSize: CGSize {
+        // 最宽行为 13 键（Q 行含反斜杠键 88pt），左右 padding 44。
+        let width: CGFloat = 12 * 100 + 88 + 12 * 10 + 88
+        let height: CGFloat = 72 + 72 + 56 + (134 * 4) + 42 + 48
+        return CGSize(width: width, height: height)
+    }
 }

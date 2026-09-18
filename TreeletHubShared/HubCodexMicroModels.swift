@@ -52,17 +52,21 @@ public enum HubCodexRecordingState: String, Codable, Sendable, Equatable {
 }
 
 /// Which Mac app / workflow the virtual pad currently drives.
+/// Wire values for ChatGPT / Cursor remain for decoding older clients; the pad only opens for Codex.
 public enum HubCodexControlTarget: String, Codable, Sendable, Equatable, CaseIterable, Identifiable, Hashable {
-    /// ChatGPT desktop chat workflow — usually `com.openai.codex`.
+    /// ChatGPT desktop chat workflow — usually `com.openai.codex`. (Pad retired; launch only.)
     case chatGPT
-    /// Codex / agent workflow on the unified ChatGPT app — same bundle, different pad layout.
+    /// Codex / agent workflow — deep links + Codex CLI (no Accessibility key injection).
     case codex
-    /// Legacy ChatGPT Classic — `com.openai.chat`
+    /// Legacy ChatGPT Classic — `com.openai.chat` (Pad retired; launch only.)
     case chatGPTClassic
-    /// Cursor IDE — `com.todesktop.230313mzl4w4u92`
+    /// Cursor IDE (Pad retired; launch only.)
     case cursor
 
     public var id: String { rawValue }
+
+    /// Targets that open the virtual control pad.
+    public static let padSupportedTargets: [HubCodexControlTarget] = [.codex]
 
     public var bundleIdentifier: String {
         switch self {
@@ -82,51 +86,29 @@ public enum HubCodexControlTarget: String, Codable, Sendable, Equatable, CaseIte
     }
 
     public var supportsCodexDeepLinks: Bool {
-        self == .chatGPT || self == .codex
+        self == .codex
     }
 
     public var showsAgentKeys: Bool {
-        switch self {
-        case .codex, .chatGPT, .chatGPTClassic: return true
-        case .cursor: return false
-        }
+        self == .codex
     }
 
     public var defaultDialMode: HubCodexDialMode {
-        switch self {
-        case .codex: return .reasoningOnly
-        case .chatGPT, .chatGPTClassic, .cursor: return .composerNavigation
-        }
+        .reasoningOnly
     }
 
-    /// Resolve from a hub grid slot (bundle id + display name).
+    /// Resolve from a hub grid slot. Only Codex opens the control pad.
     public static func resolve(bundleIdentifier: String?, displayName: String?) -> HubCodexControlTarget? {
         let bid = (bundleIdentifier ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let name = (displayName ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
-        if bid == HubCodexControlTarget.cursor.bundleIdentifier
-            || name == "cursor"
-            || name.contains("cursor")
-        {
-            return .cursor
-        }
-        if bid == HubCodexControlTarget.chatGPTClassic.bundleIdentifier
-            || name.contains("classic")
-        {
-            return .chatGPTClassic
-        }
-        if bid == HubCodexControlTarget.chatGPT.bundleIdentifier
-            || bid == "com.openai.chatgpt"
-            || name.contains("chatgpt")
-            || name.contains("chat gpt")
-            || name == "gpt"
-        {
-            // Same bundle can be labeled Codex on the grid.
-            if name.contains("codex") { return .codex }
-            return .chatGPT
-        }
+        // Explicit Codex labeling on the shared OpenAI desktop bundle.
         if name.contains("codex") {
             return .codex
+        }
+        // Bundle alone is ambiguous (ChatGPT vs Codex); require Codex in the name.
+        if bid == HubCodexControlTarget.codex.bundleIdentifier || bid == "com.openai.chatgpt" {
+            return nil
         }
         return nil
     }
@@ -296,67 +278,79 @@ public struct HubCodexMicroMapping: Codable, Sendable, Equatable {
     }
 
     public static func defaultCommandKeys(for target: HubCodexControlTarget) -> [HubCodexMicroAction] {
-        switch target {
-        case .codex:
-            return [.fastMode, .approve, .decline, .continueNewChat, .pushToTalk, .sendMessage]
-        case .chatGPT, .chatGPTClassic:
-            return [.newChat, .pushToTalk, .sendMessage, .openCommandMenu, .toggleSidebar, .openSettings]
-        case .cursor:
-            // PTT + Send first so voice → send works out of the box.
-            return [.pushToTalk, .sendMessage, .focusChatGPT, .openCommandMenu, .approve, .decline]
-        }
+        _ = target
+        // Deep-link / activate only — no Accessibility key injection, no sandboxed CLI.
+        return [
+            .pushToTalk,
+            .newChat,
+            .openSkills,
+            .scheduledTasks,
+            .openSettings,
+            .focusChatGPT
+        ]
     }
 
     public static func defaultJoystick(for target: HubCodexControlTarget) -> [String: HubCodexMicroAction] {
-        switch target {
-        case .codex:
-            return [
-                HubCodexJoystickDirection.up.rawValue: .planMode,
-                HubCodexJoystickDirection.right.rawValue: .historyForward,
-                HubCodexJoystickDirection.down.rawValue: .toggleSidebar,
-                HubCodexJoystickDirection.left.rawValue: .historyBack
-            ]
-        case .chatGPT, .chatGPTClassic:
-            return [
-                HubCodexJoystickDirection.up.rawValue: .newChat,
-                HubCodexJoystickDirection.right.rawValue: .historyForward,
-                HubCodexJoystickDirection.down.rawValue: .toggleSidebar,
-                HubCodexJoystickDirection.left.rawValue: .historyBack
-            ]
-        case .cursor:
-            return [
-                HubCodexJoystickDirection.up.rawValue: .focusChatGPT,
-                HubCodexJoystickDirection.right.rawValue: .reviewChanges,
-                HubCodexJoystickDirection.down.rawValue: .openTerminal,
-                HubCodexJoystickDirection.left.rawValue: .toggleSidebar
-            ]
-        }
+        _ = target
+        return [
+            HubCodexJoystickDirection.up.rawValue: .newChat,
+            HubCodexJoystickDirection.right.rawValue: .openSkills,
+            HubCodexJoystickDirection.down.rawValue: .openSettings,
+            HubCodexJoystickDirection.left.rawValue: .scheduledTasks
+        ]
     }
 
-    /// Actions that make sense to remap for a given target.
+    /// Actions that actually do something under the App Store–safe Codex pad.
+    public static let codexPadSupportedActions: Set<HubCodexMicroAction> = [
+        .none,
+        .pushToTalk,
+        .newChat,
+        .continueNewChat,
+        .openSkills,
+        .scheduledTasks,
+        .openSettings,
+        .focusChatGPT
+    ]
+
+    /// Remap picker — only supported actions.
     public static func remappableActions(for target: HubCodexControlTarget) -> [HubCodexMicroAction] {
-        switch target {
-        case .codex:
-            return [
-                .fastMode, .approve, .decline, .continueNewChat, .pushToTalk, .sendMessage,
-                .newChat, .planMode, .reasoningEffort, .openSkills, .reviewChanges,
-                .gitCommit, .createPullRequest, .attachFiles, .scheduledTasks,
-                .openBrowser, .openTerminal, .historyBack, .historyForward,
-                .toggleSidebar, .openSettings, .openCommandMenu, .focusChatGPT
-            ]
-        case .chatGPT, .chatGPTClassic:
-            return [
-                .newChat, .pushToTalk, .sendMessage, .openCommandMenu, .toggleSidebar,
-                .openSettings, .historyBack, .historyForward, .attachFiles,
-                .focusChatGPT, .continueNewChat
-            ]
-        case .cursor:
-            return [
-                .focusChatGPT, .openCommandMenu, .approve, .decline, .openTerminal,
-                .sendMessage, .reviewChanges, .gitCommit, .createPullRequest,
-                .attachFiles, .toggleSidebar, .openSettings, .newChat, .pushToTalk
-            ]
+        _ = target
+        return [
+            .pushToTalk,
+            .newChat,
+            .continueNewChat,
+            .openSkills,
+            .scheduledTasks,
+            .openSettings,
+            .focusChatGPT,
+            .none
+        ]
+    }
+
+    /// Drop GUI-only / broken bindings from older layouts.
+    public func sanitizedForCodexPad() -> HubCodexMicroMapping {
+        let supported = Self.codexPadSupportedActions
+        let fallback = Self.defaultCommandKeys(for: .codex)
+        var keys = commandKeys
+        while keys.count < 6 { keys.append(.none) }
+        keys = Array(keys.prefix(6)).enumerated().map { index, action in
+            supported.contains(action) ? action : fallback[index]
         }
+        var stick = joystick
+        let defaultStick = Self.defaultJoystick(for: .codex)
+        for direction in HubCodexJoystickDirection.allCases {
+            let key = direction.rawValue
+            let action = stick[key] ?? .none
+            if !supported.contains(action) {
+                stick[key] = defaultStick[key] ?? .focusChatGPT
+            }
+        }
+        var copy = self
+        copy.commandKeys = keys
+        copy.joystick = stick
+        copy.allowsTextAutomation = false
+        copy.dialMode = .reasoningOnly
+        return copy
     }
 }
 
@@ -393,10 +387,10 @@ public struct HubCodexMicroState: Codable, Sendable, Equatable {
         chatGPTBundleId: String? = nil,
         mapping: HubCodexMicroMapping = .default,
         updatedAt: TimeInterval = Date().timeIntervalSince1970,
-        controlTarget: HubCodexControlTarget = .chatGPT,
+        controlTarget: HubCodexControlTarget = .codex,
         targetInstalled: Bool = false,
         targetRunning: Bool = false,
-        targetDisplayName: String = HubCodexControlTarget.chatGPT.displayNameEN,
+        targetDisplayName: String = HubCodexControlTarget.codex.displayNameEN,
         accessibilityGranted: Bool = false,
         automationReady: Bool = false,
         lastControlError: String? = nil,
@@ -424,8 +418,9 @@ public struct HubCodexMicroState: Codable, Sendable, Equatable {
 
     public static let empty = HubCodexMicroState()
 
+    /// Ready when Codex app and/or CLI path is available (`accessibilityGranted` is reused as controlReady on the wire).
     public var canControl: Bool {
-        targetInstalled && accessibilityGranted
+        targetInstalled || accessibilityGranted || automationReady
     }
 }
 

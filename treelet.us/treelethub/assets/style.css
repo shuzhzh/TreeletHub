@@ -165,6 +165,19 @@ header.site {
   margin-bottom: 1.75rem;
 }
 
+.callout {
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  border: 1px solid #cfe0d1;
+  color: var(--text);
+  max-width: 42rem;
+}
+
+#download-mac {
+  scroll-margin-top: 1.5rem;
+}
+
 .cta-row {
   display: flex;
   flex-wrap: wrap;

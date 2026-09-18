@@ -223,25 +223,33 @@ struct HubIslandClockFaceView: View {
     }
 
     var body: some View {
-        Group {
-            switch style {
-            case .digitalWithSeconds:
-                Text(formatHMS(now))
-                    .font(.system(size: 40, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.96))
-            case .digitalCompact:
-                Text(formatHM(now))
-                    .font(.system(size: 46, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.96))
-            case .analog:
-                HubIslandAnalogClockFace(date: now)
-                    .frame(width: 156, height: 156)
+        GeometryReader { geo in
+            let side = max(24, min(geo.size.width, geo.size.height))
+            Group {
+                switch style {
+                case .digitalWithSeconds:
+                    Text(formatHMS(now))
+                        .font(.system(size: max(22, side * 0.28), weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white.opacity(0.96))
+                        .minimumScaleFactor(0.55)
+                        .lineLimit(1)
+                case .digitalCompact:
+                    Text(formatHM(now))
+                        .font(.system(size: max(26, side * 0.34), weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white.opacity(0.96))
+                        .minimumScaleFactor(0.55)
+                        .lineLimit(1)
+                case .analog:
+                    HubIslandAnalogClockFace(date: now)
+                        .frame(width: side, height: side)
+                }
             }
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.vertical, 8)
+        .aspectRatio(style == .analog ? 1 : nil, contentMode: .fit)
     }
 }
 
@@ -250,28 +258,70 @@ private struct HubIslandAnalogClockFace: View {
 
     var body: some View {
         Canvas { context, size in
-            let center = CGPoint(x: size.width / 2, y: size.height / 2)
-            let radius = min(size.width, size.height) / 2 - 2
+            // 始终在可用区域的最大内接正方形内绘制，避免宽高比变化时圆心偏移。
+            let side = min(size.width, size.height)
+            let origin = CGPoint(x: (size.width - side) / 2, y: (size.height - side) / 2)
+            let center = CGPoint(x: origin.x + side / 2, y: origin.y + side / 2)
+            let radius = max(8, side / 2 - 2)
+            let scale = radius / 76
 
             let face = Path { p in
-                p.addEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
+                p.addEllipse(in: CGRect(
+                    x: center.x - radius,
+                    y: center.y - radius,
+                    width: radius * 2,
+                    height: radius * 2
+                ))
             }
             context.fill(face, with: .color(.white.opacity(0.08)))
-            context.stroke(face, with: .color(.white.opacity(0.35)), lineWidth: 1.2)
+            context.stroke(face, with: .color(.white.opacity(0.35)), lineWidth: max(1, 1.2 * scale))
+
+            for tick in 0..<12 {
+                let angle = Double(tick) / 12 * 2 * .pi - .pi / 2
+                let outer = CGPoint(
+                    x: center.x + cos(angle) * radius * 0.92,
+                    y: center.y + sin(angle) * radius * 0.92
+                )
+                let inner = CGPoint(
+                    x: center.x + cos(angle) * radius * (tick % 3 == 0 ? 0.78 : 0.84),
+                    y: center.y + sin(angle) * radius * (tick % 3 == 0 ? 0.78 : 0.84)
+                )
+                var tickPath = Path()
+                tickPath.move(to: inner)
+                tickPath.addLine(to: outer)
+                context.stroke(
+                    tickPath,
+                    with: .color(.white.opacity(tick % 3 == 0 ? 0.55 : 0.28)),
+                    style: StrokeStyle(
+                        lineWidth: max(1, (tick % 3 == 0 ? 2.0 : 1.1) * scale),
+                        lineCap: .round
+                    )
+                )
+            }
 
             let cal = Calendar.current
             let hour = cal.component(.hour, from: date) % 12
             let minute = cal.component(.minute, from: date)
             let second = cal.component(.second, from: date)
 
+            // 0 点在正上方：从 -π/2 起算。
             let hourAngle = (Double(hour) + Double(minute) / 60) / 12 * 2 * .pi - .pi / 2
             let minuteAngle = (Double(minute) + Double(second) / 60) / 60 * 2 * .pi - .pi / 2
             let secondAngle = Double(second) / 60 * 2 * .pi - .pi / 2
 
             func hand(length: CGFloat, width: CGFloat, angle: Double, color: Color) {
                 var seg = Path()
-                seg.move(to: center)
-                seg.addLine(to: CGPoint(x: center.x + cos(angle) * length, y: center.y + sin(angle) * length))
+                let tip = CGPoint(
+                    x: center.x + cos(angle) * length,
+                    y: center.y + sin(angle) * length
+                )
+                // 轻微反向尾部，枢轴仍在圆心。
+                let tail = CGPoint(
+                    x: center.x - cos(angle) * length * 0.12,
+                    y: center.y - sin(angle) * length * 0.12
+                )
+                seg.move(to: tail)
+                seg.addLine(to: tip)
                 context.stroke(
                     seg,
                     with: .color(color),
@@ -279,14 +329,37 @@ private struct HubIslandAnalogClockFace: View {
                 )
             }
 
-            hand(length: radius * 0.52, width: 3.2, angle: hourAngle, color: .white.opacity(0.92))
-            hand(length: radius * 0.72, width: 2.2, angle: minuteAngle, color: .white.opacity(0.85))
-            hand(length: radius * 0.78, width: 1.1, angle: secondAngle, color: Color.orange.opacity(0.95))
+            hand(
+                length: radius * 0.52,
+                width: max(2.2, 3.2 * scale),
+                angle: hourAngle,
+                color: .white.opacity(0.92)
+            )
+            hand(
+                length: radius * 0.72,
+                width: max(1.6, 2.2 * scale),
+                angle: minuteAngle,
+                color: .white.opacity(0.85)
+            )
+            hand(
+                length: radius * 0.82,
+                width: max(1.0, 1.2 * scale),
+                angle: secondAngle,
+                color: Color.orange.opacity(0.95)
+            )
 
-            let dot = Path { p in
-                p.addEllipse(in: CGRect(x: center.x - 3, y: center.y - 3, width: 6, height: 6))
+            let hubR = max(2.5, 3.2 * scale)
+            let hub = Path { p in
+                p.addEllipse(in: CGRect(
+                    x: center.x - hubR,
+                    y: center.y - hubR,
+                    width: hubR * 2,
+                    height: hubR * 2
+                ))
             }
-            context.fill(dot, with: .color(.white.opacity(0.95)))
+            context.fill(hub, with: .color(.white.opacity(0.95)))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .aspectRatio(1, contentMode: .fit)
     }
 }

@@ -8,10 +8,10 @@ struct ContentView: View {
     @EnvironmentObject private var launchAtLogin: HubMacLaunchAtLogin
     @AppStorage("treelethub.island.enabled") private var islandModeEnabled = false
     @AppStorage("treelethub.keyboardhud.enabled") private var keyboardHUDEnabled = false
-    @AppStorage(HubTypingSoundPreset.storageKey) private var typingSoundPresetRaw = HubTypingSoundPreset.none.rawValue
+    @AppStorage("treelethub.onboarding.v1.seen") private var hasSeenOnboarding = false
     @State private var showingRegenerateConfirm = false
     @State private var showingSubscriptionSheet = false
-    @State private var showingUserGuideSheet = false
+    @State private var showingFirstRunIntro = false
     @State private var pendingAddSlot: PendingAddSlot?
     @State private var showingAddTypeSheet = false
     /// 避免与 SwiftUI sheet 同时关闭时立刻 `beginSheetModal`，否则 OpenPanel 会挂在正在消失的 sheet 上并瞬间被取消。
@@ -20,18 +20,6 @@ struct ContentView: View {
     @State private var showingIslandPermissionAlert = false
     @State private var showingIslandPermissionSheet = false
     @State private var showingKeyboardHUDPermissionAlert = false
-    @State private var showingTypingSoundPermissionAlert = false
-
-    private var typingSoundPreset: HubTypingSoundPreset {
-        HubTypingSoundPreset(rawValue: typingSoundPresetRaw) ?? .none
-    }
-
-    private var typingSoundPresetBinding: Binding<HubTypingSoundPreset> {
-        Binding(
-            get: { HubTypingSoundPreset(rawValue: typingSoundPresetRaw) ?? .none },
-            set: { typingSoundPresetRaw = $0.rawValue }
-        )
-    }
 
     private func macL(_ key: String) -> String {
         HubMacL10n.string(key, locale: uiLanguage.locale)
@@ -57,56 +45,47 @@ struct ContentView: View {
                         )
                         .ignoresSafeArea()
 
-                        ScrollView {
-                            VStack(alignment: .leading, spacing: 14) {
-                                pairingSection
-                                islandModeSection
-                                keyboardHUDSection
-                                typingSoundSection
-                                statusSection
-                                pageHeader
-                                if let page = hub.grid.selectedPage {
-                                    LazyVGrid(columns: columns, spacing: 12) {
-                                        ForEach(page.slots) { slot in
-                                            slotCell(slot, pageId: page.id)
-                                                .id(slotCellIdentity(slot, pageId: page.id))
-                                        }
-                                    }
-                                } else {
-                                    ContentUnavailableView {
-                                        Image(systemName: "square.grid.3x3")
-                                            .font(.largeTitle)
-                                        Text(macL("mac.empty.no_page_title"))
-                                    } description: {
-                                        Text(macL("mac.empty.no_page_desc"))
-                                    }
-                                    .frame(maxWidth: .infinity)
+                        VStack(spacing: 0) {
+                            ViewThatFits(in: .vertical) {
+                                macTopSettingsStack
+                                ScrollView {
+                                    macTopSettingsStack
                                 }
-                                Spacer(minLength: 0)
                             }
-                            .padding(20)
+                            .frame(maxHeight: showsFeatureLookPreviews ? 780 : 320)
+
+                            macAddAppRow
+                                .padding(.horizontal, 20)
+                                .padding(.bottom, 4)
+
+                            macHoneycombLauncher
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .padding(.horizontal, 12)
+                                .padding(.bottom, 12)
+                                .padding(.top, 4)
                         }
                     }
                     .navigationTitle(macL("mac.app.name"))
                     .onAppear {
-                        HubTypingSoundPreset.migrateLegacyIfNeeded()
                         hub.server.start()
                         syncIslandPanel()
                         syncKeyboardHUD()
-                        syncTypingSound()
+                        disableTypingSound()
                         launchAtLogin.syncFromSystem()
+                        if !hasSeenOnboarding {
+                            showingFirstRunIntro = true
+                        }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
                         launchAtLogin.syncFromSystem()
                         syncIslandPanel()
                         syncKeyboardHUD()
-                        syncTypingSound()
+                        disableTypingSound()
                         if HubMacPrivacyPermissions.hasScreenCaptureAccess {
                             showingIslandPermissionAlert = false
                         }
                         if HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring {
                             showingKeyboardHUDPermissionAlert = false
-                            showingTypingSoundPermissionAlert = false
                         }
                     }
                     .onDisappear {
@@ -121,17 +100,8 @@ struct ContentView: View {
                     .onChange(of: keyboardHUDEnabled) { wasOn, isOn in
                         syncKeyboardHUD()
                         if isOn && !wasOn, subscription.isSubscribed {
+                            hub.keyboardHUDPresenter.presentIntroPreview()
                             Task { await runKeyboardHUDPermissionGateSequence() }
-                        }
-                    }
-                    .onChange(of: typingSoundPresetRaw) { oldRaw, newRaw in
-                        let oldPreset = HubTypingSoundPreset(rawValue: oldRaw) ?? .none
-                        let newPreset = HubTypingSoundPreset(rawValue: newRaw) ?? .none
-                        syncTypingSound()
-                        guard newPreset != .none else { return }
-                        HubTypingSoundPlayer.playPreview(for: newPreset)
-                        if oldPreset == .none {
-                            Task { await runTypingSoundPermissionGateSequence() }
                         }
                     }
                     .task {
@@ -142,7 +112,7 @@ struct ContentView: View {
                         }
                         syncIslandPanel()
                         syncKeyboardHUD()
-                        syncTypingSound()
+                        disableTypingSound()
                     }
                     .onChange(of: subscription.isSubscribed) { _, isSubscribed in
                         hub.server.publishLayoutToPairedClients()
@@ -152,20 +122,11 @@ struct ContentView: View {
                         }
                         syncIslandPanel()
                         syncKeyboardHUD()
-                        syncTypingSound()
-                        guard !isSubscribed else { return }
-                        let pages = hub.grid.pages
-                        guard let selectedIndex = pages.firstIndex(where: { $0.id == hub.grid.selectedPageId }),
-                              selectedIndex > 0
-                        else { return }
-                        if let first = pages.first {
-                            hub.grid.selectPage(id: first.id)
-                        }
+                        disableTypingSound()
                     }
                     .onChange(of: uiLanguage.localeIdentifier) { _, _ in
                         syncIslandPanel()
                         syncKeyboardHUD()
-                        syncTypingSound()
                     }
                     .toolbar {
                         ToolbarItem(placement: .primaryAction) {
@@ -173,31 +134,24 @@ struct ContentView: View {
                         }
                     }
                 }
-                .frame(minWidth: 420, minHeight: 0)
+                .frame(minWidth: 720, minHeight: 0)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(minWidth: 420, minHeight: 520)
+        .frame(minWidth: 720, minHeight: showsFeatureLookPreviews ? 1240 : 640)
         .sheet(isPresented: $showingSubscriptionSheet) {
             SubscriptionManagementView(manager: subscription)
                 .environment(\.locale, uiLanguage.locale)
                 .environmentObject(uiLanguage)
         }
-        .sheet(isPresented: $showingUserGuideSheet) {
-            NavigationStack {
-                HubUserGuideDetailView()
-                    .environment(\.locale, uiLanguage.locale)
-                    .environmentObject(uiLanguage)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button {
-                                showingUserGuideSheet = false
-                            } label: {
-                                Text(macL("mac.common.close"))
-                            }
-                        }
-                    }
-            }
-            .frame(minWidth: 480, minHeight: 420)
+        .sheet(isPresented: $showingFirstRunIntro, onDismiss: {
+            hasSeenOnboarding = true
+        }) {
+            HubFeatureIntroSheet(
+                onContinue: {
+                    hasSeenOnboarding = true
+                    showingFirstRunIntro = false
+                }
+            )
             .environment(\.locale, uiLanguage.locale)
             .environmentObject(uiLanguage)
         }
@@ -250,29 +204,29 @@ struct ContentView: View {
         } message: {
             Text(macL("mac.keyboardhud.permission.message"))
         }
-        .alert(Text(macL("mac.typingsound.permission.title")), isPresented: $showingTypingSoundPermissionAlert) {
-            Button {
-                HubMacPrivacyPermissions.openKeyboardHUDMonitoringSettings()
-            } label: {
-                Text(macL("mac.permissions.open_settings"))
-            }
-            Button(role: .cancel) {
-                typingSoundPresetRaw = HubTypingSoundPreset.none.rawValue
-            } label: {
-                Text(macL("mac.island.permission.ok"))
-            }
-        } message: {
-            Text(macL("mac.typingsound.permission.message"))
-        }
     }
 
     private var settingsToolbarMenu: some View {
         Menu {
             Button {
-                showingUserGuideSheet = true
+                showingFirstRunIntro = true
             } label: {
-                Label(macL("mac.pairing.user_guide"), systemImage: "book.pages")
+                Label(macL("mac.onboarding.menu"), systemImage: "sparkles")
             }
+
+            Divider()
+
+            Toggle(isOn: islandModeToggleBinding) {
+                Label(macL("mac.island.title"), systemImage: "capsule.portrait.fill")
+            }
+
+            if HubMacFeatureFlags.allowsGlobalInputMonitoring {
+                Toggle(isOn: keyboardHUDToggleBinding) {
+                    Label(macL("mac.keyboardhud.title"), systemImage: "keyboard.fill")
+                }
+            }
+
+            Divider()
 
             Toggle(isOn: Binding(
                 get: { launchAtLogin.isEnabled },
@@ -356,6 +310,15 @@ struct ContentView: View {
     }
 
     private func syncKeyboardHUD() {
+        guard HubMacFeatureFlags.allowsGlobalInputMonitoring else {
+            hub.keyboardHUDPresenter.setEnabled(
+                false,
+                store: hub.keyboardHUDStore,
+                uiLanguage: uiLanguage,
+                disableFeature: { keyboardHUDEnabled = false }
+            )
+            return
+        }
         hub.keyboardHUDPresenter.setEnabled(
             isKeyboardHUDEffectivelyOn,
             store: hub.keyboardHUDStore,
@@ -364,30 +327,11 @@ struct ContentView: View {
         )
     }
 
-    private func syncTypingSound() {
-        HubTypingSoundPlayer.activePreset = typingSoundPreset
-        hub.typingSoundMonitor.setEnabled(typingSoundPreset.isEnabled)
-    }
-
-    @MainActor
-    private func runTypingSoundPermissionGateSequence() async {
-        if HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring {
-            syncTypingSound()
-            return
-        }
-        _ = HubMacPrivacyPermissions.requestKeyboardHUDMonitoringAccess()
-        for delayMs in [500, 1000, 1500] {
-            try? await Task.sleep(for: .milliseconds(delayMs))
-            if HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring {
-                syncTypingSound()
-                return
-            }
-        }
-        if HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring {
-            syncTypingSound()
-            return
-        }
-        showingTypingSoundPermissionAlert = true
+    /// 打字音效暂不开放：强制关闭，避免旧偏好残留继续监听键入。
+    private func disableTypingSound() {
+        HubTypingSoundPlayer.activePreset = .none
+        hub.typingSoundMonitor.setEnabled(false)
+        UserDefaults.standard.set(HubTypingSoundPreset.none.rawValue, forKey: HubTypingSoundPreset.storageKey)
     }
 
     @MainActor
@@ -425,86 +369,98 @@ struct ContentView: View {
         )
     }
 
-    private var keyboardHUDSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 14) {
-                HubSettingsFeatureIcon(
-                    systemName: "keyboard.fill",
-                    tint: Color(red: 0.35, green: 0.55, blue: 0.95)
-                )
+    /// 未开启时展示效果图，方便用户在打开前建立直观印象。
+    private var showsFeatureLookPreviews: Bool {
+        !islandModeEnabled
+            || (HubMacFeatureFlags.allowsGlobalInputMonitoring && !keyboardHUDEnabled)
+    }
 
-                VStack(alignment: .leading, spacing: 4) {
+    /// 配对与功能开关：内容不多时按高度贴合，超出时才滚动，避免把添加按钮顶开。
+    private var macTopSettingsStack: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            pairingSection
+            proFeaturesSection
+            statusSection
+        }
+        .padding(20)
+    }
+
+    /// 主窗口紧凑功能开关（详细说明见设置菜单中的功能简介）。
+    private var proFeaturesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            compactFeatureToggleRow(
+                systemName: "capsule.portrait.fill",
+                tint: Color(red: 0.18, green: 0.78, blue: 0.44),
+                title: macL("mac.island.title"),
+                subtitle: subscription.isSubscribed
+                    ? macL("mac.island.bullet1")
+                    : macL("mac.island.paywall"),
+                locked: !subscription.isSubscribed,
+                isOn: islandModeToggleBinding,
+                previewKind: .island
+            )
+
+            if HubMacFeatureFlags.allowsGlobalInputMonitoring {
+                Divider().opacity(0.45)
+                compactFeatureToggleRow(
+                    systemName: "keyboard.fill",
+                    tint: Color(red: 0.35, green: 0.55, blue: 0.95),
+                    title: macL("mac.keyboardhud.title"),
+                    subtitle: subscription.isSubscribed
+                        ? macL("mac.keyboardhud.bullet1")
+                        : macL("mac.keyboardhud.paywall"),
+                    locked: !subscription.isSubscribed,
+                    isOn: keyboardHUDToggleBinding,
+                    previewKind: .keyboardHUD
+                )
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background { hubSettingsCardBackground() }
+        .animation(.easeInOut(duration: 0.2), value: islandModeEnabled)
+        .animation(.easeInOut(duration: 0.2), value: keyboardHUDEnabled)
+    }
+
+    private func compactFeatureToggleRow(
+        systemName: String,
+        tint: Color,
+        title: String,
+        subtitle: String,
+        locked: Bool,
+        isOn: Binding<Bool>,
+        previewKind: HubFeatureLookKind
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 14) {
+                HubSettingsFeatureIcon(systemName: systemName, tint: tint)
+                VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
-                        Text(macL("mac.keyboardhud.title"))
-                            .font(.headline)
-                        if !subscription.isSubscribed {
+                        Text(title)
+                            .font(.subheadline.weight(.semibold))
+                        if locked {
                             Image(systemName: "lock.fill")
-                                .font(.caption.weight(.semibold))
+                                .font(.caption2.weight(.semibold))
                                 .foregroundStyle(.yellow)
                         }
                     }
-                    Group {
-                        if subscription.isSubscribed {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(macL("mac.keyboardhud.bullet1"))
-                                Text(macL("mac.keyboardhud.bullet2"))
-                                Text(macL("mac.keyboardhud.bullet3"))
-                            }
-                        } else {
-                            Text(macL("mac.keyboardhud.paywall"))
-                        }
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text(subtitle)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-
-                Toggle("", isOn: keyboardHUDToggleBinding)
+                Toggle("", isOn: isOn)
                     .labelsHidden()
                     .toggleStyle(.switch)
             }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background { hubSettingsCardBackground() }
-    }
 
-    private var typingSoundSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 14) {
-                HubSettingsFeatureIcon(
-                    systemName: "speaker.wave.2.fill",
-                    tint: Color(red: 0.95, green: 0.52, blue: 0.28)
-                )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(macL("mac.typingsound.title"))
-                        .font(.headline)
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(macL("mac.typingsound.bullet1"))
-                        Text(macL("mac.typingsound.bullet2"))
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Picker("", selection: typingSoundPresetBinding) {
-                    ForEach(HubTypingSoundPreset.allCases) { preset in
-                        Text(preset.localizedName(locale: uiLanguage.locale))
-                            .tag(preset)
-                    }
-                }
-                .labelsHidden()
-                .pickerStyle(.menu)
-                .frame(minWidth: 148, alignment: .trailing)
+            if !isOn.wrappedValue {
+                HubFeatureLookStrip(kind: previewKind, style: .compact)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background { hubSettingsCardBackground() }
     }
 
     private func devicesCountText(_ count: Int) -> String {
@@ -528,65 +484,152 @@ struct ContentView: View {
         )
     }
 
-    private var islandModeSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 14) {
-                HubSettingsFeatureIcon(
-                    systemName: "capsule.portrait.fill",
-                    tint: Color(red: 0.18, green: 0.78, blue: 0.44)
-                )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        Text(macL("mac.island.title"))
-                            .font(.headline)
-                        if !subscription.isSubscribed {
-                            Image(systemName: "lock.fill")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.yellow)
-                        }
-                    }
-                    Group {
-                        if subscription.isSubscribed {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(macL("mac.island.bullet1"))
-                                Text(macL("mac.island.bullet2"))
-                                Text(macL("mac.island.bullet3"))
-                                Text(macL("mac.island.bullet4"))
-                            }
-                        } else {
-                            Text(macL("mac.island.paywall"))
-                        }
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Toggle("", isOn: islandModeToggleBinding)
-                    .labelsHidden()
-                    .toggleStyle(.switch)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background { hubSettingsCardBackground() }
+    private var macLauncherItems: [HubLauncherItem] {
+        HubLauncherItems.flattenedWithAddAffordance(from: hub.grid.pages)
     }
 
-    private var pageHeader: some View {
-        HubPageTabSegmentControl(
-            pages: hub.grid.pages,
-            selectedPageId: hub.grid.selectedPageId,
-            premiumBadgeA11y: macL("mac.premium.badge_a11y"),
-            onSelect: { page, index in
-                if index > 0, !subscription.isSubscribed {
-                    showingSubscriptionSheet = true
+    private var macConfiguredCount: Int {
+        HubService.configuredSlotCount(in: hub.grid.pages)
+    }
+
+    private var macAddAppRow: some View {
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(macL("mac.launcher.hint"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(
+                    String(
+                        format: macL("mac.launcher.count"),
+                        locale: uiLanguage.locale,
+                        macConfiguredCount,
+                        subscription.isSubscribed ? "∞" : "\(HubService.freeAppLimit)"
+                    )
+                )
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+            }
+            Spacer(minLength: 8)
+            Button {
+                beginAddAppFlow()
+            } label: {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 36))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(Color.accentColor)
+            }
+            .buttonStyle(.plain)
+            .help(macL("mac.slot.add"))
+            .accessibilityLabel(Text(macL("mac.slot.add")))
+        }
+    }
+
+    private var macHoneycombLauncher: some View {
+        HubHoneycombLauncherCanvas(
+            items: macLauncherItems,
+            emptyHint: macL("mac.launcher.empty"),
+            persistenceKey: "treelethub.launcher.mac",
+            baseIconSide: 64,
+            allowsEditing: true,
+            allowsDelete: true,
+            isEditableItem: { !$0.isAddAffordance },
+            editDoneLabel: macL("mac.launcher.edit_done"),
+            icon: { item, side in
+                HubHoneycombRoundIcon(item: item, side: side)
+            },
+            onSelect: { item in
+                if item.isAddAffordance {
+                    beginAddAppFlow()
                 } else {
-                    hub.grid.selectPage(id: page.id)
+                    triggerSlot(item.slot, pageId: item.pageId)
                 }
+            },
+            onSecondarySelect: { item in
+                guard !item.isAddAffordance else { return }
+                hub.grid.clearSlot(page: item.pageId, index: item.slot.id)
+            },
+            onDelete: { item in
+                guard !item.isAddAffordance else { return }
+                hub.grid.clearSlot(page: item.pageId, index: item.slot.id)
+            },
+            onReorder: { from, to in
+                guard !from.isAddAffordance, !to.isAddAffordance else { return }
+                hub.grid.swapSlots(
+                    page: from.pageId,
+                    at: from.slot.id,
+                    withPage: to.pageId,
+                    at: to.slot.id
+                )
+            },
+            itemAccessibilityLabel: { item in
+                if item.isAddAffordance {
+                    return macL("mac.slot.add")
+                }
+                return item.slot.displayName ?? macL("mac.slot.app")
             }
         )
+        .background {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.ultraThinMaterial)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
+        }
+        .overlay(alignment: .top) {
+            if macConfiguredCount == 0 {
+                macEmptyHoneycombWelcome
+                    .padding(16)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: macConfiguredCount == 0)
+    }
+
+    /// 空蜂巢时补一层说明 + CTA（仅有虚线 + 时 emptyHint 不会出现）。
+    private var macEmptyHoneycombWelcome: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(macL("mac.launcher.empty_title"), systemImage: "hexagon.fill")
+                .font(.headline)
+            Text(macL("mac.launcher.empty_body"))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Button {
+                beginAddAppFlow()
+            } label: {
+                Text(macL("mac.launcher.empty_cta"))
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.regular)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(Color.accentColor.opacity(0.18), lineWidth: 1)
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private func beginAddAppFlow() {
+        let count = HubService.configuredSlotCount(in: hub.grid.pages)
+        if count >= HubService.freeAppLimit, !subscription.isSubscribed {
+            showingSubscriptionSheet = true
+            return
+        }
+        guard let target = HubService.firstEmptySlot(in: hub.grid.pages) else {
+            return
+        }
+        hub.grid.selectPage(id: target.pageId)
+        pendingAddSlot = PendingAddSlot(pageId: target.pageId, slotId: target.slotId)
+        showingAddTypeSheet = true
     }
 
     @ViewBuilder
@@ -621,6 +664,12 @@ struct ContentView: View {
                 .fixedSize(horizontal: true, vertical: false)
             }
             connectedDevicesSection
+            if hub.server.connectedDevices.isEmpty {
+                Label(macL("mac.pairing.next_step"), systemImage: "arrow.right.circle")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color.accentColor)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             Text(macL("mac.pairing.wifi_hint"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -675,10 +724,6 @@ struct ContentView: View {
 
     private var statusSection: some View {
         Group {
-            if hub.server.isListening {
-                Label(macL("mac.server.listening"), systemImage: "antenna.radiowaves.left.and.right")
-                    .foregroundStyle(.secondary)
-            }
             if let err = hub.server.lastError {
                 Text(err)
                     .font(.caption)
@@ -918,56 +963,6 @@ private struct HubSettingsFeatureIcon: View {
             }
             .shadow(color: tint.opacity(0.28), radius: 3, y: 1)
             .accessibilityHidden(true)
-    }
-}
-
-/// 无缝拼接的分段 Tab 切换（类似 NSSegmentedControl）。
-private struct HubPageTabSegmentControl: View {
-    let pages: [HubPageConfig]
-    let selectedPageId: Int
-    let premiumBadgeA11y: String
-    let onSelect: (HubPageConfig, Int) -> Void
-
-    var body: some View {
-        HStack(spacing: 0) {
-            ForEach(Array(pages.enumerated()), id: \.element.id) { index, page in
-                let selected = page.id == selectedPageId
-                Button {
-                    onSelect(page, index)
-                } label: {
-                    HStack(spacing: 3) {
-                        Text(page.title)
-                            .font(.system(size: 12, weight: selected ? .semibold : .medium))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.85)
-                        if index > 0 {
-                            Text("V")
-                                .font(.system(size: 9, weight: .heavy, design: .rounded))
-                                .foregroundStyle(Color(red: 1.0, green: 0.78, blue: 0.12))
-                                .accessibilityLabel(Text(premiumBadgeA11y))
-                        }
-                    }
-                    .foregroundStyle(selected ? Color.primary : Color.secondary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 6)
-                    .background {
-                        if selected {
-                            RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                .fill(Color(nsColor: .controlBackgroundColor))
-                                .shadow(color: .black.opacity(0.06), radius: 0.5, y: 0.5)
-                        }
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(2)
-        .background {
-            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(Color.primary.opacity(0.07))
-        }
     }
 }
 

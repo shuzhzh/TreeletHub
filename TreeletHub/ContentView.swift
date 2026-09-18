@@ -8,7 +8,6 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
     @StateObject private var client = HubIOSClient()
-    @StateObject private var iosSubscription = HubIOSSubscriptionManager()
     @StateObject private var customBackgroundStore = HubCustomBackgroundStore()
     @FocusState private var pinFieldFocused: Bool
     @AppStorage("treelethub.bg.preset") private var bgPresetRaw: String = HubBackgroundPreset.system.rawValue
@@ -16,14 +15,14 @@ struct ContentView: View {
     /// 为 true 时用本地缓存的相册图覆盖预设渐变背景。
     @AppStorage("treelethub.bg.useCustom") private var useCustomBackground = false
     @State private var photoPickerItem: PhotosPickerItem?
-    /// 正在播放点击缩放动画的格子 id（仅非空格）。
-    @State private var iconTapAnimatingSlot: Int?
+    /// 正在播放点击缩放动画的启动器条目 id。
+    @State private var iconTapAnimatingItemId: String?
     /// 绑定 Tab 选中，避免 `@AppStorage` / 背景状态变化时重建回到默认页。
-    @State private var pairedTabSelectionTag: String = "page-0"
-    /// Push virtual pad when user taps ChatGPT / Codex / Cursor on the grid.
-    @State private var microControlTarget: HubCodexControlTarget?
-    /// Which app-page NavigationStack owns the current pad push.
-    @State private var microSourcePageId: Int?
+    @State private var pairedTabSelectionTag: String = "apps"
+    /// 音量 / 亮度 / 媒体等需内联控件的快捷方式。
+    @State private var shortcutControlItem: HubLauncherItem?
+    /// 连接页：已复制 Mac 下载链接的短暂确认。
+    @State private var didCopyMacDownloadLink = false
     @EnvironmentObject private var uiLanguage: HubIOSUILanguage
 
     private func iosL(_ key: String) -> String {
@@ -39,36 +38,42 @@ struct ContentView: View {
         HubBackgroundPreset(rawValue: bgPresetRaw) ?? .system
     }
 
-    /// Mac 订阅有效或 iOS 本地 entitlement 有效时解锁多页；否则仅首页 Apps。
-    private var hasPremiumHubPages: Bool {
-        client.serverReportsSubscriptionActive || iosSubscription.isSubscribed
-    }
-
-    /// iOS 系统底部 TabView 超过 5 个会进「更多」；我们改用分页滚动 + 自定义底栏后不再有「更多」，
-    /// 但仍限制应用页数量，避免底栏按钮过挤（设置固定占 1 个）。
-    private var maxAppTabPages: Int {
-        max(1, HubService.maxTabs - 1)
-    }
-
+    /// iOS 无多页 Tab：把 Mac 各页非空槽位展平成一面蜂巢墙；购买与分页仅在 Mac。
     private var pairedAppTabPages: [HubPageConfig] {
         let sorted = client.pages.sorted { $0.id < $1.id }
         guard !sorted.isEmpty else {
             return [HubPageConfig(id: 0, title: "Apps")]
         }
-        if hasPremiumHubPages {
-            return Array(sorted.prefix(maxAppTabPages))
-        }
-        if let home = sorted.first(where: { $0.id == 0 }) {
-            return [home]
-        }
-        return [sorted[0]]
+        return Array(sorted.prefix(HubService.maxTabs))
+    }
+
+    private var launcherItems: [HubLauncherItem] {
+        HubLauncherItems.flattened(from: pairedAppTabPages)
+    }
+
+    private var pairedLauncherScreen: some View {
+        HubWatchStyleLauncherView(
+            items: launcherItems,
+            emptyHint: iosL("ios.launcher.empty"),
+            reduceMotion: accessibilityReduceMotion,
+            animatingItemId: iconTapAnimatingItemId,
+            editDoneLabel: iosL("ios.common.done"),
+            onSelect: handleLauncherSelect,
+            onReorder: { from, to in
+                client.reorder(
+                    page: from.pageId,
+                    from: from.slot.id,
+                    toPage: to.pageId,
+                    to: to.slot.id
+                )
+            }
+        )
     }
 
     private func validatePairedTabSelection() {
-        let displayPages = pairedAppTabPages
-        let validTags = Set(displayPages.map { "page-\($0.id)" } + ["settings"])
+        let validTags: Set<String> = ["apps", "settings"]
         if !validTags.contains(pairedTabSelectionTag) {
-            pairedTabSelectionTag = displayPages.first.map { "page-\($0.id)" } ?? "settings"
+            pairedTabSelectionTag = "apps"
         }
     }
 
@@ -102,22 +107,10 @@ struct ContentView: View {
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 client.reconnectFromCacheIfNeededOnForeground()
-                Task {
-                    await iosSubscription.refreshFromStore()
-                }
             }
         }
         .onChange(of: client.pages) { _, _ in
             validatePairedTabSelection()
-        }
-        .onChange(of: client.serverReportsSubscriptionActive) { _, _ in
-            validatePairedTabSelection()
-        }
-        .onChange(of: iosSubscription.isSubscribed) { _, _ in
-            validatePairedTabSelection()
-        }
-        .task {
-            await iosSubscription.refreshFromStore()
         }
         .alert(
             iosL("ios.alert.disconnect_title"),
@@ -162,40 +155,31 @@ struct ContentView: View {
         }
     }
 
-    // MARK: 已连接：原生分页 TabView（Apps + 设置）+ 底栏
+    // MARK: 已连接：Apps 启动墙 + 设置
 
-    /// 用系统分页 `TabView`（底层 `UIPageViewController`）：手指拖动时相邻页会被拉入视野。
-    /// 不要用水平 `ScrollView` 包多个 `NavigationStack`——会在布局阶段打转并触发 scene-update watchdog（0x8BADF00D）。
-    /// 系统带 `.tabItem` 的底部 TabView 不支持横滑，因此底栏用轻量自定义栏同步选中。
+    /// 底栏切换 Apps / 设置（不用分页横滑，避免与蜂巢墙拖拽抢手势）。
     private var pairedRootTabView: some View {
-        TabView(selection: $pairedTabSelectionTag) {
-            ForEach(pairedAppTabPages) { page in
+        Group {
+            if pairedTabSelectionTag == "settings" {
                 NavigationStack {
                     hubRootWithBackground {
-                        pairedAppsScreen(page: page)
-                    }
-                    .navigationDestination(item: microDestinationBinding(for: page.id)) { target in
-                        hubRootWithBackground {
-                            HubCodexMicroView(client: client, lockedTarget: target)
-                                .environmentObject(uiLanguage)
-                        }
-                        .navigationTitle(target.displayNameEN)
-                        .navigationBarTitleDisplayMode(.inline)
+                        pairedSettingsScreen
                     }
                 }
-                .tag("page-\(page.id)")
-            }
-
-            NavigationStack {
-                hubRootWithBackground {
-                    pairedSettingsScreen
+            } else {
+                NavigationStack {
+                    hubRootWithBackground {
+                        pairedLauncherScreen
+                    }
                 }
             }
-            .tag("settings")
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        .animation(.snappy(duration: 0.28), value: pairedTabSelectionTag)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             pairedCustomTabBar
+        }
+        .sheet(item: $shortcutControlItem) { item in
+            shortcutControlSheet(item: item)
         }
         .background {
             HubMacGestureOverlay(
@@ -207,16 +191,14 @@ struct ContentView: View {
         }
     }
 
-    /// 轻量底栏：外观贴近系统 Tab 栏，选中态驱动上面的分页 TabView。
+    /// 轻量底栏：Apps + 设置。
     private var pairedCustomTabBar: some View {
         HStack(spacing: 0) {
-            ForEach(pairedAppTabPages) { page in
-                pairedTabBarButton(
-                    tag: "page-\(page.id)",
-                    title: page.title,
-                    systemImage: "square.grid.3x3.fill"
-                )
-            }
+            pairedTabBarButton(
+                tag: "apps",
+                title: iosL("ios.tab.apps"),
+                systemImage: "circle.grid.cross.fill"
+            )
             pairedTabBarButton(
                 tag: "settings",
                 title: iosL("ios.tab.settings"),
@@ -236,10 +218,6 @@ struct ContentView: View {
         return Button {
             withAnimation(.snappy(duration: 0.28)) {
                 pairedTabSelectionTag = tag
-            }
-            if microControlTarget != nil {
-                microControlTarget = nil
-                microSourcePageId = nil
             }
             UIImpactFeedbackGenerator(style: .soft).impactOccurred()
         } label: {
@@ -261,175 +239,74 @@ struct ContentView: View {
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
-    private func pairedAppsScreen(page: HubPageConfig) -> some View {
-        GeometryReader { geo in
-            // 避免非有限或负尺寸传入子视图（首帧或过渡时 geo 可能极小，spacing 仍 ≥8 会使 rowH 为负）
-            let width = geo.size.width.isFinite ? max(0, geo.size.width) : 0
-            let height = geo.size.height.isFinite ? max(0, geo.size.height) : 0
-            let horizontalPadding = max(12, min(28, width * 0.05))
-            let verticalPadding = max(8, min(24, height * 0.03))
-            let innerW = max(0, width - horizontalPadding * 2)
-            let innerH = max(0, height - verticalPadding * 2)
-            let spacingCandidate = max(8, min(22, min(innerW, innerH) * 0.03))
-            // 三列/三行各有两条缝：需满足 2*spacing ≤ innerW 且 2*spacing ≤ innerH，否则 cellW/rowH 会为负
-            let spacing = min(spacingCandidate, max(0, innerW / 2), max(0, innerH / 2))
-            let cellW = max(0, (innerW - spacing * 2) / 3)
-            let rowH = max(0, (innerH - spacing * 2) / 3)
-            let cardHPadding: CGFloat = 6
-            let cardVPadding = max(4, min(14, rowH * 0.1))
-            let iconLabelGap = max(4, min(10, rowH * 0.06))
-            let captionH = max(22, min(38, rowH * 0.34))
-            let labelReserve = useCustomBackground ? 0 : (iconLabelGap + captionH)
-            let iconSide = max(
-                32,
-                min(
-                    cellW - cardHPadding * 2 - 4,
-                    rowH - cardVPadding * 2 - labelReserve
-                )
-            )
-            let cardCorner = min(18, max(12, cellW * 0.12))
-            let gridColumns = [
-                GridItem(.flexible(), spacing: spacing),
-                GridItem(.flexible(), spacing: spacing),
-                GridItem(.flexible(), spacing: spacing)
-            ]
+    private func handleLauncherSelect(_ item: HubLauncherItem) {
+        pinFieldFocused = false
+        let slot = item.slot
+        guard !slot.isEmpty else { return }
 
-            VStack(spacing: 12) {
-                LazyVGrid(columns: gridColumns, spacing: spacing) {
-                    ForEach(page.slots) { slot in
-                        slotInteractiveCell(slot: slot, pageId: page.id) {
-                            slotCellContent(slot: slot, pageId: page.id, iconSide: iconSide, iconLabelGap: iconLabelGap, useCustomBackground: useCustomBackground)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.vertical, cardVPadding)
-                            .padding(.horizontal, cardHPadding)
-                            .background {
-                                if !useCustomBackground {
-                                    RoundedRectangle(cornerRadius: cardCorner, style: .continuous)
-                                        .fill(.ultraThinMaterial)
-                                }
-                            }
-                            .frame(height: rowH)
-                        }
-                        .hubGridSlotDragDrop(slotIndex: slot.id, canDrag: !slot.isEmpty && slot.kind == .app) { from, to in
-                            client.reorder(page: page.id, from: from, to: to)
-                        }
-                    }
-                }
-                .frame(maxHeight: .infinity)
-            }
-            // 与 `HubIOSClient.layoutApplyEpoch` 联动：Mac 每次推送 layout 后强制重建网格，避免仅 slot index 不变时子视图被 SwiftUI 缓存。
-            .id("hub-grid-\(page.id)-\(client.layoutApplyEpoch)")
-            .padding(.horizontal, horizontalPadding)
-            .padding(.vertical, verticalPadding)
-            .frame(width: width, height: height, alignment: .center)
+        if item.needsInlineControl {
+            shortcutControlItem = item
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+            return
         }
-        .toolbar(.hidden, for: .navigationBar)
+
+        if slot.kind == .shortcut {
+            client.tap(page: item.pageId, slot: slot.id)
+            playAppIconTapFeedback()
+            pulseLauncherIcon(itemId: item.id)
+            return
+        }
+
+        playAppIconTapFeedback()
+        pulseLauncherIcon(itemId: item.id)
+        client.tap(page: item.pageId, slot: slot.id)
     }
 
-    private func microDestinationBinding(for pageId: Int) -> Binding<HubCodexControlTarget?> {
-        Binding(
-            get: {
-                microSourcePageId == pageId ? microControlTarget : nil
-            },
-            set: { newValue in
-                if let newValue {
-                    microSourcePageId = pageId
-                    microControlTarget = newValue
-                } else if microSourcePageId == pageId {
-                    microSourcePageId = nil
-                    microControlTarget = nil
+    private func pulseLauncherIcon(itemId: String) {
+        guard !accessibilityReduceMotion else { return }
+        withAnimation(.spring(response: 0.24, dampingFraction: 0.62)) {
+            iconTapAnimatingItemId = itemId
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                if iconTapAnimatingItemId == itemId {
+                    iconTapAnimatingItemId = nil
                 }
             }
-        )
+        }
     }
 
     @ViewBuilder
-    private func slotInteractiveCell<Inner: View>(slot: HubSlotConfig, pageId: Int, @ViewBuilder content: () -> Inner) -> some View {
-        if slot.kind == .shortcut, let shortcut = slot.shortcutKind,
-           shortcut == .mediaTransport || shortcut == .brightness || shortcut == .volume
-        {
-            content()
-        } else {
-            Button {
-                pinFieldFocused = false
-                guard !slot.isEmpty else { return }
-                if slot.kind == .shortcut, let shortcut = slot.shortcutKind {
-                    if shortcut == .volume {
-                        client.control(page: pageId, slot: slot.id, command: "toggleMute")
-                    } else {
-                        client.tap(page: pageId, slot: slot.id)
-                    }
-                    return
-                }
-                playAppIconTapFeedback()
-                let slotId = slot.id
-                let openPad = HubCodexControlTarget.resolve(
-                    bundleIdentifier: slot.bundleIdentifier,
-                    displayName: slot.displayName
-                )
-                let activate: () -> Void = {
-                    client.tap(page: pageId, slot: slotId)
-                    if let openPad {
-                        microSourcePageId = pageId
-                        microControlTarget = openPad
-                    }
-                }
-                if accessibilityReduceMotion {
-                    activate()
+    private func shortcutControlSheet(item: HubLauncherItem) -> some View {
+        NavigationStack {
+            Group {
+                if let shortcut = item.slot.shortcutKind {
+                    ShortcutSlotView(
+                        slot: item.slot,
+                        shortcut: shortcut,
+                        onControl: { command, value in
+                            client.control(page: item.pageId, slot: item.slot.id, command: command, value: value)
+                        }
+                    )
+                    .padding(24)
                 } else {
-                    withAnimation(.spring(response: 0.24, dampingFraction: 0.62)) {
-                        iconTapAnimatingSlot = slotId
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                        withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
-                            if iconTapAnimatingSlot == slotId {
-                                iconTapAnimatingSlot = nil
-                            }
-                        }
-                    }
-                    activate()
+                    EmptyView()
                 }
-            } label: {
-                content()
             }
-            .buttonStyle(.plain)
-        }
-    }
-
-    @ViewBuilder
-    private func slotCellContent(slot: HubSlotConfig, pageId: Int, iconSide: CGFloat, iconLabelGap: CGFloat, useCustomBackground: Bool) -> some View {
-        if slot.kind == .shortcut, let shortcut = slot.shortcutKind {
-            ShortcutSlotView(
-                slot: slot,
-                shortcut: shortcut,
-                onControl: { command, value in
-                    client.control(page: pageId, slot: slot.id, command: command, value: value)
-                }
-            )
-        } else {
-            VStack(spacing: useCustomBackground ? 0 : iconLabelGap) {
-                if useCustomBackground {
-                    Spacer(minLength: 0)
-                }
-                SlotAppIconView(
-                    iconPNG: slot.iconPNG,
-                    isEmptySlot: slot.isEmpty,
-                    iconSide: iconSide
-                )
-                .scaleEffect(iconTapAnimatingSlot == slot.id ? 1.14 : 1.0)
-                if !useCustomBackground {
-                    Text(slot.displayName ?? (slot.isEmpty ? iosL("ios.slot.empty") : iosL("ios.slot.app")))
-                        .font(.caption)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.72)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.primary)
-                }
-                if useCustomBackground {
-                    Spacer(minLength: 0)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.ultraThinMaterial)
+            .navigationTitle(item.slot.displayName ?? iosL("ios.tab.apps"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(iosL("ios.common.done")) {
+                        shortcutControlItem = nil
+                    }
                 }
             }
         }
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
     }
 
     private var pairedSettingsScreen: some View {
@@ -447,61 +324,15 @@ struct ContentView: View {
 
             Section {
                 NavigationLink {
-                    HubUserGuideDetailView()
-                } label: {
-                    Label(iosL("ios.settings.guide_link"), systemImage: "book.fill")
-                }
-            }
-
-            Section {
-                Label {
-                    Text(iosL("ios.settings.ai_pad_p1"))
-                        .font(.subheadline)
-                        .fixedSize(horizontal: false, vertical: true)
-                } icon: {
-                    Image(systemName: "keyboard")
-                        .foregroundStyle(.tint)
-                }
-                Label {
-                    Text(iosL("ios.settings.ai_pad_p2"))
-                        .font(.subheadline)
-                        .fixedSize(horizontal: false, vertical: true)
-                } icon: {
-                    Image(systemName: "mic.fill")
-                        .foregroundStyle(.tint)
-                }
-            } header: {
-                Text(iosL("ios.settings.section_ai_pad"))
-            } footer: {
-                Text(iosL("ios.settings.ai_pad_footer"))
-                    .font(.caption)
-            }
-
-            Section {
-                if iosSubscription.isSubscribed {
-                    Label(iosL("ios.settings.subscribed_local"), systemImage: "checkmark.seal.fill")
-                        .foregroundStyle(.secondary)
-                } else if client.serverReportsSubscriptionActive {
-                    Label(iosL("ios.settings.subscribed_mac"), systemImage: "checkmark.seal.fill")
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text(iosL("ios.settings.subscription_paywall"))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Button(iosL("ios.settings.restore")) {
-                        Task {
-                            await iosSubscription.restorePurchases()
-                        }
+                    ScrollView {
+                        HubFeatureIntroBrief(style: .sheet)
+                            .padding(20)
                     }
-                    .disabled(iosSubscription.isLoading)
+                    .navigationTitle(iosL("ios.connect.features_title"))
+                    .navigationBarTitleDisplayMode(.inline)
+                } label: {
+                    Label(iosL("ios.connect.features_title"), systemImage: "sparkles")
                 }
-                if iosSubscription.lastError != nil {
-                    Text(iosSubscription.lastError ?? "")
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                }
-            } header: {
-                Text(iosL("ios.settings.section_subscription"))
             }
 
             Section {
@@ -646,6 +477,8 @@ struct ContentView: View {
     private var connectionScreen: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                macDownloadColdStartCard
+
                 Text(iosL("ios.connect.intro"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -716,14 +549,16 @@ struct ContentView: View {
                 Divider()
                     .padding(.vertical, 4)
 
-                HubUserGuideContent()
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
-                    )
+                VStack(alignment: .leading, spacing: 12) {
+                    HubFeatureIntroBrief(style: .embedded)
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                )
 
                 iosLanguageMenu
                     .padding(16)
@@ -746,6 +581,54 @@ struct ContentView: View {
                 Button(iosL("ios.common.done")) { pinFieldFocused = false }
             }
         }
+    }
+
+    /// 冷启动：纠正「仅装 iOS、当启动器」的误解；引导在 Mac 上下载，不在手机装 .dmg。
+    private var macDownloadColdStartCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label(iosL("ios.connect.need_mac.title"), systemImage: "desktopcomputer")
+                .font(.headline)
+            Text(iosL("ios.connect.need_mac.body"))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(spacing: 10) {
+                Button {
+                    UIPasteboard.general.string = HubDownloadURLs.macDMG.absoluteString
+                    didCopyMacDownloadLink = true
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 2_500_000_000)
+                        didCopyMacDownloadLink = false
+                    }
+                } label: {
+                    Text(
+                        didCopyMacDownloadLink
+                            ? iosL("ios.connect.need_mac.link_copied")
+                            : iosL("ios.connect.need_mac.copy_link")
+                    )
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .disabled(didCopyMacDownloadLink)
+
+                Link(destination: HubDownloadURLs.productPageMacDownload) {
+                    Text(iosL("ios.connect.need_mac.open_site"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.accentColor.opacity(0.10), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color.accentColor.opacity(0.22), lineWidth: 1)
+        )
+        .accessibilityElement(children: .contain)
     }
 
     private var iosLanguageMenu: some View {

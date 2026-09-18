@@ -4,24 +4,21 @@ import StoreKit
 
 @MainActor
 final class HubSubscriptionManager: ObservableObject {
-    nonisolated static let yearlyProductId = "com.treelet.treelethub.mac.pro.yearly"
-    private static let cachedPriceKey = "treelethub.sub.cached.price.v1"
-    private static let cachedTitleKey = "treelethub.sub.cached.title.v1"
-    private static let cachedDescriptionKey = "treelethub.sub.cached.desc.v1"
-    private static let cachedStatusKey = "treelethub.sub.cached.active.v1"
-    private static let cachedExpirationKey = "treelethub.sub.cached.expiration.v1"
-    private static let cachedAtKey = "treelethub.sub.cached.at.v1"
+    /// 一次性解锁 Pro（非消耗型）。
+    nonisolated static let lifetimeProductId = "com.treelet.treelethub.mac.pro.lifetime"
+    /// 旧年付订阅：已购用户继续视为已解锁。
+    nonisolated static let legacyYearlyProductId = "com.treelet.treelethub.mac.pro.yearly"
 
-    private static let expirationCacheFormatter: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withInternetDateTime]
-        return f
-    }()
+    private static let allProductIds: Set<String> = [lifetimeProductId, legacyYearlyProductId]
 
-    @Published private(set) var yearlyProduct: Product?
+    private static let cachedPriceKey = "treelethub.pro.cached.price.v2"
+    private static let cachedTitleKey = "treelethub.pro.cached.title.v2"
+    private static let cachedDescriptionKey = "treelethub.pro.cached.desc.v2"
+    private static let cachedStatusKey = "treelethub.pro.cached.active.v2"
+
+    @Published private(set) var lifetimeProduct: Product?
+    /// 兼容旧命名：表示 Pro 已解锁（一次性或仍有效的旧订阅）。
     @Published private(set) var isSubscribed = false
-    /// 当前有效订阅的到期时间（自动续订成功后会顺延）；未订阅或非订阅类交易为 `nil`。
-    @Published private(set) var subscriptionExpirationDate: Date?
     @Published private(set) var isLoading = false
     @Published private(set) var purchaseInFlight = false
     @Published var lastError: String?
@@ -29,16 +26,19 @@ final class HubSubscriptionManager: ObservableObject {
     @Published private(set) var cachedTitle: String = ""
     @Published private(set) var cachedDescription: String = ""
 
+    /// 商店价；未拉取到时回退展示 $9.99。
     var displayTitle: String {
-        yearlyProduct?.displayName ?? cachedTitle
+        lifetimeProduct?.displayName ?? (cachedTitle.isEmpty ? "" : cachedTitle)
     }
 
     var displayDescription: String {
-        yearlyProduct?.description ?? cachedDescription
+        lifetimeProduct?.description ?? cachedDescription
     }
 
     var displayPrice: String {
-        yearlyProduct?.displayPrice ?? cachedPrice
+        if let price = lifetimeProduct?.displayPrice, !price.isEmpty { return price }
+        if !cachedPrice.isEmpty { return cachedPrice }
+        return "$9.99"
     }
 
     private var updatesTask: Task<Void, Never>?
@@ -60,13 +60,15 @@ final class HubSubscriptionManager: ObservableObject {
         defer { isLoading = false }
         lastError = nil
         do {
-            let products = try await Product.products(for: [Self.yearlyProductId])
-            if let p = products.first(where: { $0.id == Self.yearlyProductId }) {
-                yearlyProduct = p
+            let products = try await Product.products(for: Array(Self.allProductIds))
+            if let p = products.first(where: { $0.id == Self.lifetimeProductId }) {
+                lifetimeProduct = p
                 cachedPrice = p.displayPrice
                 cachedTitle = p.displayName
                 cachedDescription = p.description
                 persistCache()
+            } else {
+                lifetimeProduct = nil
             }
             await refreshEntitlement()
         } catch {
@@ -75,19 +77,21 @@ final class HubSubscriptionManager: ObservableObject {
     }
 
     func refreshEntitlement() async {
-        let snapshot = await currentEntitlementSnapshot()
-        isSubscribed = snapshot.active
-        subscriptionExpirationDate = snapshot.active ? snapshot.expiration : nil
+        isSubscribed = await currentProUnlocked()
         persistCache()
     }
 
-    func purchaseYearly() async {
-        guard let product = yearlyProduct else {
+    func purchasePro() async {
+        if lifetimeProduct == nil {
+            await refreshFromStore()
+        }
+        guard let product = lifetimeProduct else {
             lastError = HubMacL10n.string("mac.subscription.err.no_products")
             return
         }
         purchaseInFlight = true
         defer { purchaseInFlight = false }
+        lastError = nil
         do {
             let result = try await product.purchase()
             switch result {
@@ -110,6 +114,11 @@ final class HubSubscriptionManager: ObservableObject {
         }
     }
 
+    /// 旧调用名，转发到一次性购买。
+    func purchaseYearly() async {
+        await purchasePro()
+    }
+
     func restorePurchases() async {
         isLoading = true
         defer { isLoading = false }
@@ -126,7 +135,7 @@ final class HubSubscriptionManager: ObservableObject {
             for await update in Transaction.updates {
                 guard let self else { return }
                 guard case .verified(let transaction) = update else { continue }
-                if transaction.productID == Self.yearlyProductId {
+                if Self.allProductIds.contains(transaction.productID) {
                     await refreshEntitlement()
                 }
                 await transaction.finish()
@@ -145,15 +154,11 @@ final class HubSubscriptionManager: ObservableObject {
         if let desc = defaults.string(forKey: Self.cachedDescriptionKey), !desc.isEmpty {
             cachedDescription = desc
         }
-        isSubscribed = defaults.bool(forKey: Self.cachedStatusKey)
-        if isSubscribed,
-           let expStr = defaults.string(forKey: Self.cachedExpirationKey),
-           let d = Self.expirationCacheFormatter.date(from: expStr)
-               ?? ISO8601DateFormatter().date(from: expStr)
-        {
-            subscriptionExpirationDate = d
+        // 兼容旧缓存键
+        if defaults.object(forKey: Self.cachedStatusKey) == nil {
+            isSubscribed = defaults.bool(forKey: "treelethub.sub.cached.active.v1")
         } else {
-            subscriptionExpirationDate = nil
+            isSubscribed = defaults.bool(forKey: Self.cachedStatusKey)
         }
     }
 
@@ -163,27 +168,20 @@ final class HubSubscriptionManager: ObservableObject {
         defaults.set(cachedTitle, forKey: Self.cachedTitleKey)
         defaults.set(cachedDescription, forKey: Self.cachedDescriptionKey)
         defaults.set(isSubscribed, forKey: Self.cachedStatusKey)
-        if let subscriptionExpirationDate {
-            defaults.set(Self.expirationCacheFormatter.string(from: subscriptionExpirationDate), forKey: Self.cachedExpirationKey)
-        } else {
-            defaults.removeObject(forKey: Self.cachedExpirationKey)
-        }
-        defaults.set(Date().timeIntervalSince1970, forKey: Self.cachedAtKey)
     }
 
-    /// 汇总当前权益：是否仍在订阅期内、最晚到期时间。
-    private func currentEntitlementSnapshot() async -> (active: Bool, expiration: Date?) {
-        var active = false
-        var latestExpiration: Date?
+    private func currentProUnlocked() async -> Bool {
         for await result in Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
-            guard transaction.productID == Self.yearlyProductId else { continue }
+            guard Self.allProductIds.contains(transaction.productID) else { continue }
             guard transaction.revocationDate == nil else { continue }
-            active = true
-            if let exp = transaction.expirationDate {
-                latestExpiration = latestExpiration.map { max($0, exp) } ?? exp
+            if transaction.productID == Self.legacyYearlyProductId {
+                if let exp = transaction.expirationDate, exp < Date() {
+                    continue
+                }
             }
+            return true
         }
-        return (active, latestExpiration)
+        return false
     }
 }

@@ -72,15 +72,15 @@
     <string name="bg_preset_charcoal_silk">炭灰</string>
 
     <string name="guide_title_what">TreeletHub 是什么？</string>
-    <string name="guide_body_what">TreeletHub 让你在 Mac 上把常用应用摆成九宫格，再在同一个 Wi‑Fi 下的手机上远程点按启动；两端都支持拖拽调整格子顺序。</string>
+    <string name="guide_body_what">TreeletHub 在 Mac 上以蜂巢启动墙收纳常用应用与快捷方式；同一 Wi‑Fi 下的手机配对后可远程启动这些 Mac 应用，布局会在设备间同步。</string>
     <string name="guide_title_scenarios">典型使用场景</string>
-    <string name="guide_body_scenarios">Mac 上常驻 TreeletHub；你在客厅或别的房间，用手机快速唤起已放进九宫格的 Mac 应用。</string>
+    <string name="guide_body_scenarios">Mac 上常驻 TreeletHub；你在客厅或别的房间，用手机快速唤起已放进 Mac 启动墙的应用。</string>
     <string name="guide_title_connect_android">如何从 Android 连接</string>
-    <string name="guide_body_connect_android">1）在 Mac 上打开 TreeletHub，记下界面上的 6 位配对码。\n2）在本应用的「连接 Mac」中输入配对码并点击连接。\n3）若无法发现 Mac，请检查 Wi‑Fi、关闭 VPN，并确保与 Mac 在同一局域网。</string>
+    <string name="guide_body_connect_android">0）请先安装 Mac 版（官网 DMG）——仅装手机端无法启动 Mac 应用。\n1）在 Mac 上打开 TreeletHub，记下界面上的 6 位配对码。\n2）在本应用的「连接 Mac」中输入配对码并点击连接。\n3）若无法发现 Mac，请检查 Wi‑Fi、关闭 VPN，并确保与 Mac 在同一局域网。</string>
     <string name="guide_title_setup_mac">如何在 Mac 上配置</string>
-    <string name="guide_body_setup_mac">1）点按格子并选择要绑定的应用程序（.app）。\n2）拖拽已配置的应用在格子间交换或移动。\n3）多页 Tab（Apps、Apps1…）可扩展更多页面；部分页面可能需要订阅。\n4）在 Mac 上重新生成配对码后，已配对的手机需用新码重新连接。</string>
+    <string name="guide_body_setup_mac">1) Tap + on the Mac (or the dashed + on the honeycomb) to add an app, web shortcut, or system action.\n2) Pinch to zoom, drag to pan; Control-click a tile to remove it.\n3) Free plan includes up to 10 apps; unlock Pro once for unlimited slots.\n4) If you regenerate the pairing code on the Mac, each phone must reconnect with the new code.\n5) On Mac, open Settings (gear) for Dynamic Island, Keyboard Launcher, and Pro unlock.</string>
     <string name="guide_title_setup_phone">连接成功后</string>
-    <string name="guide_body_setup_phone">在「Apps」使用实时九宫格；在「设置」里可修改在 Mac 上显示的设备名、更换界面背景，或替换仅保留一张的相册背景。</string>
+    <string name="guide_body_setup_phone">在「Apps」使用与 Mac 同步的启动墙；在「设置」里可修改在 Mac 上显示的设备名、更换界面背景，或替换仅保留一张的相册背景。</string>
 
     <string name="lang_menu_a11y">语言</string>
     <!-- AI_CONTROL_PAD_STRINGS -->
@@ -115,7 +115,7 @@
     <string name="codex_action_skills">Skills</string>
     <string name="codex_action_terminal">打开终端</string>
     <string name="codex_agent_source">Agent 键跟随</string>
-    <string name="codex_blocked_hint">请安装目标应用，并在 Mac 上为 TreeletHub 开启辅助功能与自动化权限。</string>
+    <string name="codex_blocked_hint">请在 Mac 上安装 Codex 应用或 Codex CLI。</string>
     <string name="codex_brightness">按键亮度</string>
     <string name="codex_cancel">取消</string>
     <string name="codex_chatgpt_connected">已连接 ChatGPT 桌面端</string>
@@ -129,7 +129,7 @@
     <string name="codex_dial_composer">旋钮：编辑器导航</string>
     <string name="codex_dial_mode">旋钮模式</string>
     <string name="codex_dial_reasoning">旋钮：仅调节推理</string>
-    <string name="codex_fix_permission">去授权</string>
+    <string name="codex_fix_permission">查看说明</string>
     <string name="codex_idle_lights_fmt">空闲熄灯：%1$d 秒</string>
     <string name="codex_installed_idle">已安装</string>
     <string name="codex_joy_down">下</string>
@@ -139,7 +139,7 @@
     <string name="codex_joystick">技能摇杆</string>
     <string name="codex_joystick_map">摇杆</string>
     <string name="codex_layer_fmt">图层 %1$d</string>
-    <string name="codex_link_accessibility">Mac 辅助功能</string>
+    <string name="codex_link_accessibility">Codex 就绪</string>
     <string name="codex_link_phone_mac">手机 ↔ Mac</string>
     <string name="codex_link_target_fmt">目标：%1$s</string>
     <string name="codex_not_installed">未安装</string>
@@ -148,7 +148,7 @@
     <string name="codex_palette_hint_body_fmt">请在 Mac 上输入或选择「%1$s」。也可以点下方按钮，让 TreeletHub 自动输入。</string>
     <string name="codex_palette_hint_title">已在 Mac 打开命令菜单</string>
     <string name="codex_processing">识别中</string>
-    <string name="codex_ready_hint">已就绪，可控制所选 Mac 应用。</string>
+    <string name="codex_ready_hint">已就绪：通过 Codex 深链接与 CLI 控制（无需辅助功能）。</string>
     <string name="codex_ready_to_send">可发送</string>
     <string name="codex_reasoning">推理强度</string>
     <string name="codex_recording">录音中</string>
@@ -186,10 +186,16 @@
     <string name="codex_speech_unavailable">当前设备或语言不支持语音识别。</string>
     <string name="codex_empty_transcript">没有识别到语音内容，请靠近麦克风再说一次。</string>
     <string name="guide_title_ai_pad_phone">AI 控制键盘</string>
-    <string name="guide_body_ai_pad_phone">把 ChatGPT、Codex 或 Cursor 放进九宫格，在本机点按它：不只是启动应用，而是进入控制键盘——状态灯、命令键、摇杆与推理旋钮。按住 PTT 用手机麦克风听写，松手后文字填入 Mac 输入框。各应用布局独立保存。Mac 需为 TreeletHub 开启辅助功能与自动化权限。</string>
+    <string name="guide_body_ai_pad_phone">把 ChatGPT、Codex 或 Cursor 放进 Mac 启动墙，在本机点按它：不只是启动应用，而是进入控制键盘——状态灯、命令键、摇杆与推理旋钮。按住 PTT 用手机麦克风听写，松手后文字填入 Mac 输入框。Mac 需为 TreeletHub 开启辅助功能与自动化权限。</string>
     <string name="guide_title_gestures_phone">显示桌面</string>
-    <string name="guide_body_gestures_phone">已配对时在 Apps 九宫格上：双指下滑会隐藏 Mac 上全部已打开应用（含 TreeletHub）以显示桌面。底栏对应页面可左右滑动切换。</string>
+    <string name="guide_body_gestures_phone">已配对时在 Apps 启动墙上：双指下滑会隐藏 Mac 上全部已打开应用（含 TreeletHub）以显示桌面。</string>
     <string name="guide_title_tabs_swipe">左右滑动切换 Tab</string>
     <string name="guide_body_tabs_swipe">已配对后，可在九宫格页与设置页之间左右滑动切换，也可点按底部栏。</string>
     <!-- AI_CONTROL_PAD_STRINGS_END -->
+    <string name="guide_title_island">Mac 灵动岛（Pro）</string>
+    <string name="guide_body_island">在 Mac 解锁 Pro 后，于主窗口或齿轮菜单开启「灵动岛」。屏幕顶部浮层可提供媒体控制、配对码 / 文件暂存、剪贴板、同步启动墙、时间与天气（需定位）。</string>
+    <string name="guide_title_keyboard_hud">Mac 键盘启动器（Pro）</string>
+    <string name="guide_body_keyboard_hud">在 Mac 解锁 Pro 后开启「键盘启动器」，并允许「输入监控」。松开 Control 唤出屏幕键位；Control + 按键可全局启动映射应用。</string>
+    <string name="guide_title_pro">Pro 解锁</string>
+    <string name="guide_body_pro">免费：Mac 最多 10 个应用。一次性解锁 Pro（$9.99，非订阅）可无限添加，并开启灵动岛、键盘启动器等。Mac 解锁状态可同步到已配对手机。</string>
 </resources>

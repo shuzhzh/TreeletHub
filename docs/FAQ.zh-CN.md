@@ -4,7 +4,7 @@
 
 ## 需要账号吗？
 
-不需要。配对与九宫格同步走局域网，不依赖 TreeletHub 云端账号。
+不需要。配对与启动墙同步走局域网，不依赖 TreeletHub 云端账号。
 
 ## 手机找不到 Mac？
 
@@ -16,9 +16,9 @@
 
 ## 各端都要安装吗？
 
-是的。Mac 端配置九宫格并接收指令；手机端是遥控。
+是的。Mac 端配置蜂巢启动墙并接收指令；手机端是遥控。
 
-- Mac：[App Store](https://apps.apple.com/app/treelethub-%E6%A1%8C%E9%9D%A2%E6%95%88%E7%8E%87%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83/id6762348258) 或 [DMG](https://github.com/shuzhzh/TreeletHub/releases/latest/download/TreeletHub.dmg)
+- Mac：[CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg)
 - iPhone / iPad：[App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247)
 - Android：[Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) 或 [APK 1.3](https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk)
 
@@ -26,15 +26,19 @@
 
 可以多部 iPhone / Android 同时配对同一台 Mac。
 
-## DMG 和 Mac App Store 版有什么区别？
+## Mac 版从哪里下载？
 
-功能以各自构建为准。日常建议用 **App Store** 版（自动更新）；DMG 适合无法使用 App Store 的环境。
+从 [产品页](https://treelet.us/treelethub/) 了解产品；安装包请用 Cloudflare CDN：
+[https://models.appda.store/treelethub/TreeletHub.dmg](https://models.appda.store/treelethub/TreeletHub.dmg)（国内可达，不依赖 GitHub / Mac App Store）。
 
-## 订阅怎么算？
+仅安装 iPhone 版无法使用——必须同时安装 Mac 客户端并配对。
 
-- iOS / Mac 通过 **App Store** 购买，可能需分端购买。
-- Android 多页可通过 **Google Play Pro** 或 Mac 端有效订阅解锁（见 Android 设置页）。
-- Mac 订阅状态会同步到已配对的手机。
+## Pro 怎么解锁？灵动岛 / 键盘启动器在哪？
+
+- 免费：Mac 最多 **10** 个应用 / 快捷方式。
+- **一次性 $9.99** 解锁 Pro（非订阅）：无限添加、**灵动岛**、**键盘启动器** 等。
+- 入口：Mac 主窗口配对码下方的开关，或右上角 **齿轮 → 灵动岛 / 键盘启动器**；也可打开「使用说明」。
+- iOS / Mac 经 App Store 内购；Mac 解锁状态会同步到已配对手机。Android 以各端设置页为准。
 
 ## 数据会上传服务器吗？
 

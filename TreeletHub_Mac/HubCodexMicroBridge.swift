@@ -1,21 +1,22 @@
 import AppKit
-import ApplicationServices
 import Combine
 import Foundation
 
-/// Bridges TreeletHub ↔ ChatGPT / Codex / Cursor on Mac.
+/// Bridges TreeletHub ↔ Codex on Mac via deep links + Codex CLI.
+/// Does not use Accessibility, Input Monitoring, or key injection (App Store 2.4.5).
 @MainActor
 final class HubCodexMicroBridge: ObservableObject {
     private static let mappingDefaultsKeyPrefix = "treelethub.codexMicro.mapping."
     private static let targetDefaultsKey = "treelethub.codexMicro.controlTarget"
+    /// Bump to force-reset pad layouts after removing non-functional GUI actions.
+    private static let padLayoutEpochKey = "treelethub.codexMicro.padLayoutEpoch"
+    private static let padLayoutEpoch = 3
     private static let doubleTapWindow: TimeInterval = 0.35
     private static let reasoningLevels = ["minimal", "low", "medium", "high", "xhigh"]
 
     @Published private(set) var state: HubCodexMicroState = .empty
 
-    /// Minimum spacing between two automation bursts; blocks runaway key floods.
     private static let minimumCommandInterval: TimeInterval = 0.25
-    /// If more than this many commands arrive inside `burstWindow`, automation pauses.
     private static let burstLimit = 12
     private static let burstWindow: TimeInterval = 3.0
 
@@ -23,13 +24,17 @@ final class HubCodexMicroBridge: ObservableObject {
     private var stateObservers: [() -> Void] = []
     private var lastAgentTapAt: [Int: Date] = [:]
     private var handsFreeRecording = false
-    private var controlTarget: HubCodexControlTarget = .chatGPT
+    private var controlTarget: HubCodexControlTarget = .codex
     private var lastCommandAt: Date?
     private var recentCommandTimestamps: [Date] = []
     private var isPerformingCommand = false
 
     init() {
         controlTarget = Self.loadTarget()
+        if !HubCodexControlTarget.padSupportedTargets.contains(controlTarget) {
+            controlTarget = .codex
+            Self.saveTarget(.codex)
+        }
         state.mapping = Self.loadMapping(for: controlTarget)
         refreshState()
     }
@@ -62,14 +67,12 @@ final class HubCodexMicroBridge: ObservableObject {
     }
 
     func handle(_ command: HubCodexMicroCommand) async throws {
-        // State reads and mapping edits never touch the target app, so they bypass throttling.
         if Self.isPassiveCommand(command.kind) {
             try await handleInner(command)
             refreshState()
             return
         }
 
-        // PTT lifecycle and transcribed-text insertion must never be throttled or dropped.
         let isPTTBegin = command.kind == HubCodexMicroCommand.kindCommand && command.action == .pushToTalk
         if command.kind == HubCodexMicroCommand.kindPushToTalkEnd
             || command.kind == HubCodexMicroCommand.kindInsertText
@@ -84,10 +87,7 @@ final class HubCodexMicroBridge: ObservableObject {
             return
         }
 
-        guard !isPerformingCommand else {
-            // A previous burst is still running; silently drop instead of queueing.
-            return
-        }
+        guard !isPerformingCommand else { return }
         switch throttleDecision() {
         case .allow:
             break
@@ -141,7 +141,7 @@ final class HubCodexMicroBridge: ObservableObject {
         }
         recentCommandTimestamps.removeAll { now.timeIntervalSince($0) > Self.burstWindow }
         if recentCommandTimestamps.count >= Self.burstLimit {
-            return .reject("指令过于频繁，已暂停自动化以保护目标应用")
+            return .reject("指令过于频繁，已暂停以保护 Codex")
         }
         return .allow
     }
@@ -165,8 +165,12 @@ final class HubCodexMicroBridge: ObservableObject {
             guard let target = command.target else { return }
             setControlTarget(target)
         case HubCodexMicroCommand.kindOpenAccessibilitySettings:
-            _ = HubMacPrivacyPermissions.requestAccessibilityAccess()
-            HubMacPrivacyPermissions.openAccessibilitySettings()
+            // Legacy op: open Codex settings / CLI docs instead of Accessibility.
+            if HubCodexCLI.isCLIAvailable == false {
+                NSWorkspace.shared.open(URL(string: "https://developers.openai.com/codex/cli")!)
+            } else {
+                try? await openCodexDeepLink("codex://settings")
+            }
         case HubCodexMicroCommand.kindAgentTap:
             guard let index = command.agentIndex else { return }
             try await handleAgentTap(index: index, forceFront: false)
@@ -191,7 +195,6 @@ final class HubCodexMicroBridge: ObservableObject {
         case HubCodexMicroCommand.kindDialCancel:
             state.dialCancelArmed = false
             publish()
-            try await sendKeyCode(53) // Escape
         case HubCodexMicroCommand.kindLayerCycle:
             let next = (state.layer % 6) + 1
             state.layer = next
@@ -215,37 +218,24 @@ final class HubCodexMicroBridge: ObservableObject {
     // MARK: - State
 
     private func refreshState() {
-        let availability = HubCodexControlTarget.allCases.map { target -> HubCodexTargetAvailability in
+        let availability = HubCodexControlTarget.padSupportedTargets.map { target -> HubCodexTargetAvailability in
             let installed = NSWorkspace.shared.urlForApplication(withBundleIdentifier: target.bundleIdentifier) != nil
+                || (target == .codex && HubCodexCLI.isCLIAvailable)
             let running = NSWorkspace.shared.runningApplications.contains { $0.bundleIdentifier == target.bundleIdentifier }
             return HubCodexTargetAvailability(target: target, installed: installed, running: running)
         }
 
-        // Auto-pick first installed target if current one is missing.
-        if availability.first(where: { $0.target == controlTarget })?.installed != true {
-            if let fallback = availability.first(where: \.installed)?.target {
-                controlTarget = fallback
-                Self.saveTarget(fallback)
-            }
-        }
-
-        let current = availability.first(where: { $0.target == controlTarget })
+        controlTarget = .codex
+        let current = availability.first(where: { $0.target == .codex })
         let installed = current?.installed == true
         let running = current?.running == true
-        let ax = HubMacPrivacyPermissions.hasAccessibilityAccess
+        let cliOK = HubCodexCLI.isCLIAvailable
+        // Wire field kept for older clients: means “control path ready”, not macOS Accessibility.
+        let controlReady = installed || cliOK
 
-        var agents: [HubCodexAgentSlot]
-        switch controlTarget {
-        case .chatGPT, .chatGPTClassic, .codex:
-            agents = readAgentsFromLocalState()
-            if agents.allSatisfy({ $0.status == .unassigned }), running {
-                agents = heuristicAgentsWhileRunning(title: controlTarget.displayNameEN)
-            }
-        case .cursor:
-            agents = heuristicAgentsWhileRunning(title: running ? "Cursor" : nil)
-            if !running {
-                agents = (0..<6).map { HubCodexAgentSlot(id: $0, status: .unassigned) }
-            }
+        var agents = readAgentsFromLocalState()
+        if agents.allSatisfy({ $0.status == .unassigned }), running || cliOK {
+            agents = heuristicAgentsWhileRunning(title: "Codex")
         }
 
         if let selected = state.selectedAgentIndex, agents.indices.contains(selected) {
@@ -255,14 +245,14 @@ final class HubCodexMicroBridge: ObservableObject {
         }
 
         state.agents = agents
-        state.controlTarget = controlTarget
+        state.controlTarget = .codex
         state.targetInstalled = installed
         state.targetRunning = running
-        state.targetDisplayName = controlTarget.displayNameEN
+        state.targetDisplayName = HubCodexControlTarget.codex.displayNameEN
         state.chatGPTRunning = running
-        state.chatGPTBundleId = controlTarget.bundleIdentifier
-        state.accessibilityGranted = ax
-        state.automationReady = ax
+        state.chatGPTBundleId = HubCodexControlTarget.codex.bundleIdentifier
+        state.accessibilityGranted = controlReady
+        state.automationReady = controlReady
         state.availableTargets = availability
         state.updatedAt = Date().timeIntervalSince1970
         publish()
@@ -275,43 +265,56 @@ final class HubCodexMicroBridge: ObservableObject {
     }
 
     private func applyMapping(_ mapping: HubCodexMicroMapping) {
-        var normalized = mapping
+        var normalized = mapping.sanitizedForCodexPad()
         if normalized.commandKeys.count != 6 {
-            normalized.commandKeys = HubCodexMicroMapping.defaultCommandKeys(for: controlTarget)
+            normalized.commandKeys = HubCodexMicroMapping.defaultCommandKeys(for: .codex)
         }
         if normalized.customAgentThreadIds.count != 6 {
             normalized.customAgentThreadIds = Array(repeating: nil, count: 6)
         }
         state.mapping = normalized
-        Self.saveMapping(normalized, for: controlTarget)
+        Self.saveMapping(normalized, for: .codex)
         publish()
     }
 
     private func setControlTarget(_ target: HubCodexControlTarget) {
-        controlTarget = target
-        Self.saveTarget(target)
-        state.controlTarget = target
-        state.mapping = Self.loadMapping(for: target)
+        // Only Codex is supported; ignore ChatGPT / Cursor requests from older clients.
+        controlTarget = HubCodexControlTarget.padSupportedTargets.contains(target) ? target : .codex
+        Self.saveTarget(controlTarget)
+        state.controlTarget = controlTarget
+        state.mapping = Self.loadMapping(for: controlTarget)
         state.lastControlError = nil
         refreshState()
     }
 
     private static func loadMapping(for target: HubCodexControlTarget) -> HubCodexMicroMapping {
+        if UserDefaults.standard.integer(forKey: padLayoutEpochKey) < padLayoutEpoch {
+            let fresh = HubCodexMicroMapping.default(for: .codex)
+            saveMapping(fresh, for: .codex)
+            UserDefaults.standard.set(padLayoutEpoch, forKey: padLayoutEpochKey)
+            return fresh
+        }
+
         let key = mappingDefaultsKeyPrefix + target.rawValue
+        var mapping: HubCodexMicroMapping
         if let data = UserDefaults.standard.data(forKey: key),
-           let mapping = try? JSONDecoder().decode(HubCodexMicroMapping.self, from: data)
+           let decoded = try? JSONDecoder().decode(HubCodexMicroMapping.self, from: data)
         {
-            return mapping
-        }
-        // Migrate legacy single-mapping store once.
-        if let data = UserDefaults.standard.data(forKey: "treelethub.codexMicro.mapping"),
-           let mapping = try? JSONDecoder().decode(HubCodexMicroMapping.self, from: data),
-           target == .codex
+            mapping = decoded
+        } else if let data = UserDefaults.standard.data(forKey: "treelethub.codexMicro.mapping"),
+                  let decoded = try? JSONDecoder().decode(HubCodexMicroMapping.self, from: data),
+                  target == .codex
         {
+            mapping = decoded
             saveMapping(mapping, for: target)
-            return mapping
+        } else {
+            mapping = .default(for: target)
         }
-        return .default(for: target)
+        let sanitized = mapping.sanitizedForCodexPad()
+        if sanitized != mapping {
+            saveMapping(sanitized, for: target)
+        }
+        return sanitized
     }
 
     private static func saveMapping(_ mapping: HubCodexMicroMapping, for target: HubCodexControlTarget) {
@@ -319,25 +322,12 @@ final class HubCodexMicroBridge: ObservableObject {
         UserDefaults.standard.set(data, forKey: mappingDefaultsKeyPrefix + target.rawValue)
     }
 
-    private static func loadMapping() -> HubCodexMicroMapping {
-        loadMapping(for: .codex)
-    }
-
-    private static func saveMapping(_ mapping: HubCodexMicroMapping) {
-        saveMapping(mapping, for: .codex)
-    }
-
     private static func loadTarget() -> HubCodexControlTarget {
         if let raw = UserDefaults.standard.string(forKey: targetDefaultsKey),
-           let target = HubCodexControlTarget(rawValue: raw)
+           let target = HubCodexControlTarget(rawValue: raw),
+           HubCodexControlTarget.padSupportedTargets.contains(target)
         {
             return target
-        }
-        // Prefer installed unified ChatGPT, then Cursor, then Classic.
-        for target in [HubCodexControlTarget.codex, .chatGPT, .cursor, .chatGPTClassic] {
-            if NSWorkspace.shared.urlForApplication(withBundleIdentifier: target.bundleIdentifier) != nil {
-                return target
-            }
         }
         return .codex
     }
@@ -346,7 +336,7 @@ final class HubCodexMicroBridge: ObservableObject {
         UserDefaults.standard.set(target.rawValue, forKey: targetDefaultsKey)
     }
 
-    // MARK: - Local Codex status
+    // MARK: - Local Codex status (files under real ~/.codex)
 
     private func readAgentsFromLocalState() -> [HubCodexAgentSlot] {
         let unread = readUnreadThreadIds()
@@ -356,9 +346,7 @@ final class HubCodexMicroBridge: ObservableObject {
 
         var chosen: [(id: String, title: String)] = []
         switch source {
-        case .mostRecent:
-            chosen = recent.prefix(6).map { ($0.id, $0.title) }
-        case .pinned:
+        case .mostRecent, .pinned:
             chosen = recent.prefix(6).map { ($0.id, $0.title) }
         case .priority:
             let mapped = recent.map { ($0.id, $0.title) }
@@ -413,7 +401,7 @@ final class HubCodexMicroBridge: ObservableObject {
     }
 
     private func readUnreadThreadIds() -> Set<String> {
-        let url = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".codex/.codex-global-state.json")
+        let url = HubCodexCLI.codexHomeDirectory.appendingPathComponent(".codex-global-state.json")
         guard let data = try? Data(contentsOf: url),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let atom = root["electron-persisted-atom-state"] as? [String: Any],
@@ -431,7 +419,7 @@ final class HubCodexMicroBridge: ObservableObject {
     }
 
     private func readRecentThreadSummaries() -> [(id: String, title: String, modified: Date)] {
-        let sessionsRoot = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".codex/sessions")
+        let sessionsRoot = HubCodexCLI.codexHomeDirectory.appendingPathComponent("sessions", isDirectory: true)
         guard let enumerator = FileManager.default.enumerator(
             at: sessionsRoot,
             includingPropertiesForKeys: [.contentModificationDateKey],
@@ -510,43 +498,18 @@ final class HubCodexMicroBridge: ObservableObject {
         publish()
 
         let bringFront = forceFront || isDouble
-        switch controlTarget {
-        case .chatGPT, .codex:
-            let threadId = state.agents.indices.contains(index) ? state.agents[index].threadId : nil
-            if let threadId, !threadId.isEmpty {
-                try await openCodexDeepLink("codex://threads/\(threadId)", activate: bringFront)
-            } else if state.mapping.agentSource == .custom {
-                try await openCodexDeepLink("codex://threads/new", activate: bringFront)
-            } else {
-                try await activateTarget(bringToFront: bringFront)
-            }
-        case .chatGPTClassic:
-            try await activateTarget(bringToFront: true)
-            // Cycle chats as best-effort.
-            for _ in 0..<max(0, index) {
-                try await sendKeyCode(30, using: [.command, .shift]) // ]
-            }
-        case .cursor:
-            try await activateTarget(bringToFront: true)
-            if index == 0 {
-                try await sendKeyCode(37, using: [.command]) // Cmd+L chat
-            } else {
-                try await sendKeyCode(34, using: [.command]) // Cmd+I composer/agent
-            }
+        let threadId = state.agents.indices.contains(index) ? state.agents[index].threadId : nil
+        if let threadId, !threadId.isEmpty {
+            try await openCodexDeepLink("codex://threads/\(threadId)", activate: bringFront)
+        } else {
+            // Empty agent slot → create a new Codex chat (not merely activate the app).
+            try await openCodexDeepLink("codex://threads/new", activate: bringFront)
         }
     }
 
     // MARK: - Dial
 
-    /// Turning only moves the local selection. Nothing is sent to the target app until
-    /// the dial is pressed, so scrubbing can never spam the composer.
     private func handleDialTurn(steps: Int) async throws {
-        guard state.mapping.dialMode == .reasoningOnly else {
-            // Composer navigation still needs arrow keys, but one per committed step.
-            try await activateTarget(bringToFront: true)
-            try await sendKeyCode(steps > 0 ? 125 : 126)
-            return
-        }
         let delta = steps > 0 ? 1 : -1
         state.reasoningLevel = max(0, min(Self.reasoningLevels.count - 1, state.reasoningLevel + delta))
         state.dialCancelArmed = false
@@ -554,201 +517,100 @@ final class HubCodexMicroBridge: ObservableObject {
     }
 
     private func handleDialPress() async throws {
-        try await activateTarget(bringToFront: true)
-        switch controlTarget {
-        case .chatGPT, .chatGPTClassic, .codex:
-            if state.mapping.dialMode == .reasoningOnly {
-                let level = Self.reasoningLevels[max(0, min(Self.reasoningLevels.count - 1, state.reasoningLevel))]
-                try await runCommandPalette("reasoning \(level)")
-            } else {
-                try await sendKeyCode(36)
-            }
-        case .cursor:
-            try await sendKeyCode(34, using: [.command]) // Cmd+I
-        }
+        // Reasoning dial is display-only without CLI/key injection; open Settings instead.
+        try await openCodexDeepLink("codex://settings")
+        state.lastControlError = "请在 Codex 设置中调节推理强度。"
+        publish()
     }
 
-    // MARK: - Actions
+    // MARK: - Actions (deep link / activate only)
 
     private func perform(_ action: HubCodexMicroAction, handsFree: Bool = false) async throws {
+        // Ignore legacy GUI actions still present on older phone builds.
+        guard HubCodexMicroMapping.codexPadSupportedActions.contains(action) else {
+            state.lastControlError = "该按键在当前版本不可用，请到设置中重新映射。"
+            publish()
+            return
+        }
+
         switch action {
         case .none:
             return
         case .focusChatGPT:
             try await activateTarget(bringToFront: true)
-            return
+            state.lastControlError = nil
+            publish()
         case .pushToTalk:
-            // Begin owns activation so the mic can start before the target app comes forward.
             try await beginPushToTalk(handsFree: handsFree)
-            return
-        default:
-            break
-        }
-
-        try await activateTarget(bringToFront: true)
-
-        switch controlTarget {
-        case .chatGPT, .codex:
-            try await performChatGPTAction(action, handsFree: handsFree, allowDeepLinks: true)
-        case .chatGPTClassic:
-            try await performChatGPTAction(action, handsFree: handsFree, allowDeepLinks: false)
-        case .cursor:
-            try await performCursorAction(action, handsFree: handsFree)
-        }
-    }
-
-    private func performChatGPTAction(_ action: HubCodexMicroAction, handsFree: Bool, allowDeepLinks: Bool) async throws {
-        switch action {
-        case .fastMode:
-            try await runCommandPalette("fast mode")
-        case .approve:
-            try await runCommandPalette("approve")
-        case .decline:
-            try await runCommandPalette("decline")
         case .continueNewChat, .newChat:
-            if allowDeepLinks {
-                try await openCodexDeepLink("codex://threads/new")
-            } else {
-                try await sendKeyCode(45, using: [.command]) // Cmd+N
-            }
-        case .pushToTalk:
-            try await beginPushToTalk(handsFree: handsFree)
-        case .sendMessage:
-            try await sendComposerMessage()
-        case .openBrowser:
-            try await runCommandPalette("browser")
-        case .openTerminal:
-            try await sendKeyCode(50, using: [.control]) // Ctrl+`
-        case .reviewChanges:
-            try await sendKeyCode(5, using: [.control, .shift]) // Ctrl+Shift+G
-        case .gitCommit:
-            try await runCommandPalette("commit")
-        case .createPullRequest:
-            try await runCommandPalette("pull request")
-        case .attachFiles:
-            try await sendKeyCode(31, using: [.command]) // Cmd+O
+            try await openCodexDeepLink("codex://threads/new")
+            state.lastControlError = nil
+            publish()
         case .scheduledTasks:
-            if allowDeepLinks {
-                try await openCodexDeepLink("codex://automations")
-            } else {
-                try await runCommandPalette("scheduled")
-            }
-        case .reasoningEffort:
-            try await handleDialPress()
+            try await openCodexDeepLink("codex://automations")
+            state.lastControlError = nil
+            publish()
         case .openSkills:
-            if allowDeepLinks {
-                try await openCodexDeepLink("codex://skills")
-            } else {
-                try await runCommandPalette("skills")
-            }
-        case .planMode:
-            try await runCommandPalette("plan mode")
-        case .historyBack:
-            try await sendKeyCode(33, using: [.command]) // Cmd+[
-        case .historyForward:
-            try await sendKeyCode(30, using: [.command]) // Cmd+]
-        case .toggleSidebar:
-            try await sendKeyCode(11, using: [.command]) // Cmd+B
+            try await openCodexDeepLink("codex://skills")
+            state.lastControlError = nil
+            publish()
         case .openSettings:
-            if allowDeepLinks {
-                try await openCodexDeepLink("codex://settings")
-            } else {
-                try await sendKeyCode(43, using: [.command]) // Cmd+,
-            }
-        case .openCommandMenu:
-            try await sendKeyCode(40, using: [.command]) // Cmd+K
-        case .focusChatGPT, .none:
-            break
-        }
-    }
-
-    private func performCursorAction(_ action: HubCodexMicroAction, handsFree: Bool) async throws {
-        switch action {
-        case .fastMode, .planMode, .reasoningEffort:
-            try await sendKeyCode(35, using: [.command, .shift]) // Cmd+Shift+P
-        case .approve:
-            try await sendKeyCode(36, using: [.command]) // Cmd+Return accept
-        case .decline:
-            try await sendKeyCode(53) // Escape
-        case .continueNewChat, .newChat:
-            try await sendKeyCode(37, using: [.command]) // Cmd+L
-            try? await Task.sleep(nanoseconds: 120_000_000)
-            try await sendKeyCode(45, using: [.command]) // Cmd+N in chat when possible
-        case .pushToTalk:
-            try await beginPushToTalk(handsFree: handsFree)
-        case .sendMessage:
-            try await sendComposerMessage()
-        case .openBrowser:
-            try await sendKeyCode(35, using: [.command, .shift])
-            try? await Task.sleep(nanoseconds: 150_000_000)
-            try await typeTextViaSystemEvents("Simple Browser")
-            try await sendKeyCode(36)
-        case .openTerminal:
-            try await sendKeyCode(50, using: [.control]) // Ctrl+`
-        case .reviewChanges:
-            try await sendKeyCode(5, using: [.control, .shift]) // source control-ish
-        case .gitCommit:
-            try await sendKeyCode(5, using: [.control, .shift])
-        case .createPullRequest:
-            try await sendKeyCode(35, using: [.command, .shift])
-            try? await Task.sleep(nanoseconds: 150_000_000)
-            try await typeTextViaSystemEvents("Create Pull Request")
-            try await sendKeyCode(36)
-        case .attachFiles:
-            try await sendKeyCode(31, using: [.command])
-        case .scheduledTasks, .openSkills:
-            try await sendKeyCode(35, using: [.command, .shift])
-        case .historyBack:
-            try await sendKeyCode(33, using: [.command])
-        case .historyForward:
-            try await sendKeyCode(30, using: [.command])
-        case .toggleSidebar:
-            try await sendKeyCode(11, using: [.command])
-        case .openSettings:
-            try await sendKeyCode(43, using: [.command])
-        case .openCommandMenu:
-            try await sendKeyCode(35, using: [.command, .shift])
-        case .focusChatGPT:
-            try await sendKeyCode(37, using: [.command]) // Cmd+L
-        case .none:
-            break
+            try await openCodexDeepLink("codex://settings")
+            state.lastControlError = nil
+            publish()
+        case .sendMessage, .fastMode, .approve, .decline, .planMode, .reasoningEffort,
+             .openCommandMenu, .openBrowser, .openTerminal, .reviewChanges, .gitCommit,
+             .createPullRequest, .attachFiles, .historyBack, .historyForward, .toggleSidebar:
+            // Unreachable when guarded by codexPadSupportedActions; keep for exhaustiveness.
+            return
         }
     }
 
     private func beginPushToTalk(handsFree: Bool) async throws {
-        // Cancel any leftover session, then start local mic STT immediately so short holds still capture audio.
-        // Recording happens on the iPhone; the Mac just mirrors the state and pre-focuses the composer.
         state.recording = .recording
         state.lastControlError = nil
         handsFreeRecording = handsFree
         publish()
-
         try? await activateTarget(bringToFront: true)
-        try? await focusComposerForDictation()
     }
 
     private func endPushToTalk() async throws {
-        // iOS sends the transcribed text separately via kindInsertText; end just clears the badge.
         guard state.recording == .recording else { return }
         state.recording = .idle
         handsFreeRecording = false
         publish()
     }
 
-    /// iOS finished on-device speech recognition — paste the text into the target composer.
     private func insertTranscribedText(_ text: String) async throws {
         state.recording = .processing
         publish()
 
         do {
-            try await activateTarget(bringToFront: true)
-            try await focusComposerForDictation()
-            try? await Task.sleep(nanoseconds: 120_000_000)
-            try await pasteTextIntoComposer(text)
+            let sessionId: String? = {
+                if let idx = state.selectedAgentIndex,
+                   state.agents.indices.contains(idx),
+                   let tid = state.agents[idx].threadId,
+                   !tid.isEmpty
+                {
+                    return tid
+                }
+                return nil
+            }()
+
+            // App Sandbox blocks Codex CLI from reading ~/.codex — do not use Process/CLI here.
+            // Official deep link fills the composer without Accessibility / Input Monitoring.
+            try await openCodexWithPrompt(text, sessionId: sessionId)
+
             state.recording = .ready
-            state.lastControlError = nil
             handsFreeRecording = false
+            state.lastControlError = "已在 Codex 填入听写内容，请按回车发送。"
             publish()
+            try? await Task.sleep(nanoseconds: 900_000_000)
+            if state.recording == .ready {
+                state.recording = .idle
+                state.lastControlError = nil
+                publish()
+            }
         } catch {
             state.recording = .idle
             handsFreeRecording = false
@@ -758,74 +620,99 @@ final class HubCodexMicroBridge: ObservableObject {
         }
     }
 
-    /// Best-effort: put keyboard focus into the chat/composer so pasted text lands correctly.
-    private func focusComposerForDictation() async throws {
-        switch controlTarget {
-        case .chatGPT, .chatGPTClassic, .codex:
-            // Do not send Escape — it often blurs the composer. Activation is usually enough.
-            try? await Task.sleep(nanoseconds: 80_000_000)
-        case .cursor:
-            try await sendKeyCode(37, using: [.command]) // Cmd+L chat
-            try? await Task.sleep(nanoseconds: 150_000_000)
+    /// Opens Codex with composer prefilled via `codex://…?prompt=` (no CLI, no key injection).
+    private func openCodexWithPrompt(_ text: String, sessionId: String?) async throws {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        // Prefer documented forms:
+        //   codex://threads/new?prompt=
+        //   codex://new?prompt=
+        var opened = false
+        if let sessionId, !sessionId.isEmpty,
+           let resume = Self.codexURL(host: "threads", path: "/\(sessionId)", prompt: trimmed)
+        {
+            opened = (try? await openCodexURLReturningSuccess(resume, activate: true)) == true
         }
+        if !opened, let neu = Self.codexURL(host: "threads", path: "/new", prompt: trimmed) {
+            opened = (try? await openCodexURLReturningSuccess(neu, activate: true)) == true
+        }
+        if !opened, let neu = Self.codexURL(host: "new", path: nil, prompt: trimmed) {
+            opened = (try? await openCodexURLReturningSuccess(neu, activate: true)) == true
+        }
+        if opened { return }
+
+        // Last resort: open thread/app and leave text on pasteboard (manual ⌘V).
+        try await pasteboardHandoff(
+            text: trimmed,
+            sessionId: sessionId,
+            note: "已打开 Codex 并复制文本到剪贴板，请粘贴后回车发送。"
+        )
     }
 
-    private func pasteTextIntoComposer(_ text: String) async throws {
+    private static func codexURL(host: String, path: String?, prompt: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = "codex"
+        components.host = host
+        if let path, !path.isEmpty {
+            components.path = path.hasPrefix("/") ? path : "/" + path
+        }
+        components.queryItems = [URLQueryItem(name: "prompt", value: prompt)]
+        return components.url
+    }
+
+    private func pasteboardHandoff(text: String, sessionId: String?, note: String) async throws {
         let board = NSPasteboard.general
-        let previous = board.string(forType: .string)
         board.clearContents()
         board.setString(text, forType: .string)
-        try await sendKeyCode(9, using: [.command]) // Cmd+V
-        try? await Task.sleep(nanoseconds: 80_000_000)
-        if let previous {
-            board.clearContents()
-            board.setString(previous, forType: .string)
+        if let sessionId, !sessionId.isEmpty {
+            try await openCodexDeepLink("codex://threads/\(sessionId)")
+        } else {
+            try await openCodexDeepLink("codex://threads/new")
         }
+        state.lastControlError = note
+        publish()
     }
 
-    private func sendComposerMessage() async throws {
-        try await sendKeyCode(36, using: [.command])
-        try? await Task.sleep(nanoseconds: 40_000_000)
-        try await sendKeyCode(36)
-        if state.recording == .ready || state.recording == .processing {
-            state.recording = .idle
-            publish()
-        }
-    }
-
-    // MARK: - Target I/O
+    // MARK: - Target I/O (no Accessibility)
 
     private func activateTarget(bringToFront: Bool) async throws {
-        let bundleId = controlTarget.bundleIdentifier
-        guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId) != nil else {
+        let bundleId = HubCodexControlTarget.codex.bundleIdentifier
+        let hasApp = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId) != nil
+        if !hasApp {
             throw NSError(
                 domain: "TreeletHub",
                 code: 3101,
-                userInfo: [NSLocalizedDescriptionKey: "未安装 \(controlTarget.displayNameEN)"]
+                userInfo: [NSLocalizedDescriptionKey: "未安装 Codex / ChatGPT 桌面应用"]
             )
         }
         if bringToFront {
             try await MacAppActivator.launchOrActivateApplication(bundleIdentifier: bundleId, bookmarkURL: nil)
-            try? await Task.sleep(nanoseconds: 220_000_000)
-            try? await bringProcessFrontmost(bundleId: bundleId)
+            try? await Task.sleep(nanoseconds: 180_000_000)
         } else if NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == bundleId }) == false {
             try await MacAppActivator.launchOrActivateApplication(bundleIdentifier: bundleId, bookmarkURL: nil)
-            try? await Task.sleep(nanoseconds: 220_000_000)
+            try? await Task.sleep(nanoseconds: 180_000_000)
         }
     }
 
     private func openCodexDeepLink(_ string: String, activate: Bool = true) async throws {
-        guard controlTarget.supportsCodexDeepLinks else {
-            try await activateTarget(bringToFront: true)
-            return
+        guard let url = URL(string: string) else {
+            throw NSError(domain: "TreeletHub", code: 3102, userInfo: [NSLocalizedDescriptionKey: "无效的 Codex 链接"])
         }
+        try await openCodexURL(url, activate: activate)
+    }
+
+    @discardableResult
+    private func openCodexURLReturningSuccess(_ url: URL, activate: Bool) async throws -> Bool {
+        try await openCodexURL(url, activate: activate)
+        return true
+    }
+
+    private func openCodexURL(_ url: URL, activate: Bool) async throws {
         if activate {
             try await activateTarget(bringToFront: true)
         }
-        // Prefer opening against the selected app explicitly.
-        if let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: controlTarget.bundleIdentifier),
-           let url = URL(string: string)
-        {
+        if let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: HubCodexControlTarget.codex.bundleIdentifier) {
             let config = NSWorkspace.OpenConfiguration()
             config.activates = true
             do {
@@ -835,175 +722,13 @@ final class HubCodexMicroBridge: ObservableObject {
                 // Fall through to generic open.
             }
         }
-        guard let url = URL(string: string) else {
-            throw NSError(domain: "TreeletHub", code: 3102, userInfo: [NSLocalizedDescriptionKey: "无效的 Codex 链接"])
-        }
-        if !NSWorkspace.shared.open(url) {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-            process.arguments = ["-b", controlTarget.bundleIdentifier, string]
-            try process.run()
-            process.waitUntilExit()
-        }
-    }
-
-    /// Opens the target's command palette. Typing the query is opt-in because a palette
-    /// that fails to open turns every keystroke into chat input.
-    private func runCommandPalette(_ query: String) async throws {
-        // Official docs: Command menu = Cmd+Shift+P (Cmd+K often maps to search chats).
-        try await sendKeyCode(35, using: [.command, .shift])
-
-        guard state.mapping.allowsTextAutomation else {
+        // Do not spawn `/usr/bin/open` via Process — App Sandbox can SIGABRT the app.
+        guard NSWorkspace.shared.open(url) else {
             throw NSError(
                 domain: "TreeletHub",
-                code: 3106,
-                userInfo: [NSLocalizedDescriptionKey: "hint:palette:\(query)"]
+                code: 3102,
+                userInfo: [NSLocalizedDescriptionKey: "无法打开 Codex 深链接"]
             )
         }
-
-        try? await Task.sleep(nanoseconds: 320_000_000)
-        guard isTargetFrontmost() else {
-            throw NSError(
-                domain: "TreeletHub",
-                code: 3107,
-                userInfo: [NSLocalizedDescriptionKey: "\(controlTarget.displayNameEN) 不在前台，已取消输入以避免误触"]
-            )
-        }
-        try await typeTextViaSystemEvents(query)
-        try? await Task.sleep(nanoseconds: 160_000_000)
-        try await sendKeyCode(36)
-    }
-
-    private func isTargetFrontmost() -> Bool {
-        NSWorkspace.shared.frontmostApplication?.bundleIdentifier == controlTarget.bundleIdentifier
-    }
-
-    private enum KeyModifier {
-        case command, shift, option, control
-    }
-
-    private func sendKeyCode(_ keyCode: Int, using modifiers: [KeyModifier] = []) async throws {
-        ensureControlPermissions()
-        // Prefer System Events — works more reliably from sandboxed apps with Automation.
-        do {
-            try await sendKeyViaSystemEvents(keyCode: keyCode, modifiers: modifiers)
-            return
-        } catch {
-            // Fallback to CGEvent.
-            try await sendKeyViaCGEvent(keyCode: CGKeyCode(keyCode), modifiers: modifiers)
-        }
-    }
-
-    private func ensureControlPermissions() {
-        if !HubMacPrivacyPermissions.hasAccessibilityAccess {
-            _ = HubMacPrivacyPermissions.requestAccessibilityAccess()
-        }
-    }
-
-    private func bringProcessFrontmost(bundleId: String) async throws {
-        let script = """
-        tell application "System Events"
-          set procs to every process whose bundle identifier is "\(bundleId)"
-          if (count of procs) > 0 then
-            set frontmost of item 1 of procs to true
-          end if
-        end tell
-        """
-        _ = try? runAppleScript(script)
-    }
-
-    private func sendKeyViaSystemEvents(keyCode: Int, modifiers: [KeyModifier]) async throws {
-        var usingParts: [String] = []
-        if modifiers.contains(.command) { usingParts.append("command down") }
-        if modifiers.contains(.shift) { usingParts.append("shift down") }
-        if modifiers.contains(.option) { usingParts.append("option down") }
-        if modifiers.contains(.control) { usingParts.append("control down") }
-        let usingClause = usingParts.isEmpty ? "" : " using {\(usingParts.joined(separator: ", "))}"
-        let script = """
-        tell application "System Events"
-          key code \(keyCode)\(usingClause)
-        end tell
-        """
-        try runAppleScript(script)
-        try? await Task.sleep(nanoseconds: 45_000_000)
-    }
-
-    private func typeTextViaSystemEvents(_ text: String) async throws {
-        ensureControlPermissions()
-        guard state.mapping.allowsTextAutomation else {
-            throw NSError(
-                domain: "TreeletHub",
-                code: 3106,
-                userInfo: [NSLocalizedDescriptionKey: "已阻止自动输入文字（可在设置中开启「命令面板自动输入」）"]
-            )
-        }
-        guard isTargetFrontmost() else {
-            throw NSError(
-                domain: "TreeletHub",
-                code: 3107,
-                userInfo: [NSLocalizedDescriptionKey: "\(controlTarget.displayNameEN) 不在前台，已取消输入以避免误触"]
-            )
-        }
-        let escaped = text
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
-        let script = """
-        tell application "System Events"
-          keystroke "\(escaped)"
-        end tell
-        """
-        try runAppleScript(script)
-        try? await Task.sleep(nanoseconds: 40_000_000)
-    }
-
-    private func sendKeyViaCGEvent(keyCode: CGKeyCode, modifiers: [KeyModifier]) async throws {
-        guard HubMacPrivacyPermissions.hasAccessibilityAccess else {
-            throw NSError(
-                domain: "TreeletHub",
-                code: 3103,
-                userInfo: [NSLocalizedDescriptionKey: "需要在 Mac「系统设置 → 隐私与安全性 → 辅助功能」中允许 TreeletHub"]
-            )
-        }
-        var flags: CGEventFlags = []
-        if modifiers.contains(.command) { flags.insert(.maskCommand) }
-        if modifiers.contains(.shift) { flags.insert(.maskShift) }
-        if modifiers.contains(.option) { flags.insert(.maskAlternate) }
-        if modifiers.contains(.control) { flags.insert(.maskControl) }
-        let src = CGEventSource(stateID: .hidSystemState)
-        let down = CGEvent(keyboardEventSource: src, virtualKey: keyCode, keyDown: true)
-        let up = CGEvent(keyboardEventSource: src, virtualKey: keyCode, keyDown: false)
-        down?.flags = flags
-        up?.flags = flags
-        down?.post(tap: .cghidEventTap)
-        up?.post(tap: .cghidEventTap)
-        try? await Task.sleep(nanoseconds: 40_000_000)
-    }
-
-    @discardableResult
-    private func runAppleScript(_ source: String) throws -> NSAppleEventDescriptor? {
-        var error: NSDictionary?
-        let script = NSAppleScript(source: source)
-        let result = script?.executeAndReturnError(&error)
-        if let error {
-            let message = (error[NSAppleScript.errorMessage] as? String)
-                ?? String(describing: error)
-            // Common first-run: user must approve Automation for System Events.
-            if message.localizedCaseInsensitiveContains("not allowed")
-                || message.localizedCaseInsensitiveContains("没有权限")
-                || message.localizedCaseInsensitiveContains("(-1743)")
-            {
-                throw NSError(
-                    domain: "TreeletHub",
-                    code: 3104,
-                    userInfo: [NSLocalizedDescriptionKey: "请在 Mac「系统设置 → 隐私与安全性 → 自动化」中允许 TreeletHub 控制「系统事件」和目标 App"]
-                )
-            }
-            throw NSError(
-                domain: "TreeletHub",
-                code: 3105,
-                userInfo: [NSLocalizedDescriptionKey: "控制失败：\(message)"]
-            )
-        }
-        return result
     }
 }
