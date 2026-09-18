@@ -110,7 +110,7 @@ Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）
 |------|------|
 | **Mac 1.3.0** | [CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg)（国内直装） |
 | **iPhone / iPad** | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
-| **Android** | [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) · [APK 1.3](https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk) |
+| **Android 1.3.1** | [CDN APK](https://models.appda.store/treelethub/TreeletHub.apk)（国内直装） · [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
 | **产品页** | [treelet.us/treelethub](https://treelet.us/treelethub/) |
 
 <p align="center">
@@ -151,6 +151,7 @@ Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）
 | 版本 | 日期 | 摘要 |
 |------|------|------|
 | **[Mac 1.3.0](https://github.com/shuzhzh/TreeletHub/releases/tag/v1.3.0)** | 2026-09-18 | 灵动岛、键盘启动器、蜂巢启动墙、一次性 Pro |
+| [Android 1.3.1](https://github.com/shuzhzh/TreeletHub/releases/tag/android-v1.3.1) | 2026-09-18 | 蜂巢启动墙、对齐 iOS |
 | [Android 1.3](https://github.com/shuzhzh/TreeletHub/releases/tag/android-v1.3) | 2026-07-26 | 控制键盘、PTT、显示桌面 |
 | [Mac 1.2.7](https://github.com/shuzhzh/TreeletHub/releases/tag/v1.2.7) | 2026-07-26 | 控制键盘桥接（1.3.0 起改为深链接 / 仅启动） |
 

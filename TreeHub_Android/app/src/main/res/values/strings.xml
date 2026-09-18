@@ -1,10 +1,24 @@
 <resources>
     <string name="app_name">TreeletHub</string>
 
+    <string name="tab_apps">Apps</string>
     <string name="tab_settings">Settings</string>
+    <string name="launcher_empty">Pin apps on your Mac—they’ll show up here.</string>
+    <string name="common_done">Done</string>
     <string name="alert_disconnect_title">Disconnected</string>
     <string name="common_ok">OK</string>
     <string name="common_cancel">Cancel</string>
+    <string name="intro_title">Welcome to TreeletHub</string>
+    <string name="intro_subtitle">A honeycomb launcher on your Mac—pin favorites there, then launch them from this phone on the same Wi‑Fi.</string>
+    <string name="intro_step1_title">The Mac is the hub</string>
+    <string name="intro_step1_body">Keep TreeletHub open on your Mac. Apps and shortcuts live there; the phone is a remote control, not a standalone launcher.</string>
+    <string name="intro_step2_title">Pair with the six-digit code</string>
+    <string name="intro_step2_body">Enter the code shown on Mac in this app (same Wi‑Fi). Allow network discovery when Android asks.</string>
+    <string name="intro_step3_title">Add apps with +</string>
+    <string name="intro_step3_body">On the Mac, tap + (or the dashed + on the honeycomb) to pin apps, web links, or system actions. Pinch to zoom on phone or Mac.</string>
+    <string name="intro_step4_title">Optional Pro extras</string>
+    <string name="intro_step4_body">Dynamic Island and Keyboard Launcher are one-time Pro unlocks on Mac. Free plan includes up to 10 apps.</string>
+    <string name="intro_features_title">Feature overview</string>
     <string name="disconnect_server_message">The connection from your Mac was closed.</string>
 
     <string name="connect_title">Connect to Mac</string>
@@ -25,12 +39,6 @@
     <string name="settings_guide_link">User guide</string>
     <string name="guide_nav_title">User guide</string>
     <string name="common_back">Back</string>
-    <string name="settings_section_subscription">Subscription &amp; extra pages</string>
-    <string name="settings_subscribed_local">Pro: Extra hub pages are unlocked on this phone.</string>
-    <string name="settings_subscribed_mac">Pro: Extra hub pages are included with your Mac subscription.</string>
-    <string name="settings_subscription_paywall">Extra hub tabs (Apps1–Apps4) require either an active TreeletHub subscription on the Mac or a Google Play Pro purchase when available in your region.</string>
-    <string name="settings_restore">Restore purchases</string>
-    <string name="settings_subscribe">Subscribe</string>
     <string name="settings_section_background">Appearance</string>
     <string name="settings_background_footer">One custom photo is kept at a time—use “+” to pick or replace it. Tap the thumbnail to use it as the background.</string>
     <string name="settings_disconnect">Disconnect from Mac</string>
@@ -80,7 +88,7 @@
     <string name="guide_title_setup_mac">Set up the Mac hub</string>
     <string name="guide_body_setup_mac">1) Tap + on the Mac (or the dashed + on the honeycomb) to add an app, web shortcut, or system action.\n2) Pinch to zoom, drag to pan; Control-click a tile to remove it.\n3) Free plan includes up to 10 apps; unlock Pro once for unlimited slots.\n4) If you regenerate the pairing code on the Mac, each phone must reconnect with the new code.\n5) On Mac, open Settings (gear) for Dynamic Island, Keyboard Launcher, and Pro unlock.</string>
     <string name="guide_title_setup_phone">After you are paired</string>
-    <string name="guide_body_setup_phone">Use the Apps tab for the live launcher synced from the Mac. In Settings, rename how your phone appears on the Mac, change the backdrop, or swap your one saved photo background.</string>
+    <string name="guide_body_setup_phone">Use the Apps tab for the honeycomb launcher synced from the Mac (pinch to zoom, drag to pan, long-press to reorder). In Settings, rename how your phone appears on the Mac, change the backdrop, or swap your one saved photo background.</string>
 
     <string name="lang_menu_a11y">Language</string>
     <!-- AI_CONTROL_PAD_STRINGS -->
@@ -188,9 +196,7 @@
     <string name="guide_title_ai_pad_phone">AI control keyboard</string>
     <string name="guide_body_ai_pad_phone">Put ChatGPT, Codex, or Cursor into the Mac launcher, then tap it on this phone: instead of only launching the app, you open a control pad—status lights, command keys, joystick, and reasoning dial. Hold PTT to dictate on the phone; release to fill the Mac composer. Mac needs Accessibility and Automation for TreeletHub.</string>
     <string name="guide_title_gestures_phone">Show desktop</string>
-    <string name="guide_body_gestures_phone">On the Apps launcher while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop.</string>
-    <string name="guide_title_tabs_swipe">Swipe between tabs</string>
-    <string name="guide_body_tabs_swipe">While paired, swipe left or right across the hub pages (and Settings) to switch tabs, or tap the bottom bar.</string>
+    <string name="guide_body_gestures_phone">On the Apps honeycomb while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop.</string>
     <!-- AI_CONTROL_PAD_STRINGS_END -->
     <string name="guide_title_island">Dynamic Island (Mac · Pro)</string>
     <string name="guide_body_island">With Pro unlocked on Mac, turn on Dynamic Island in the main window or gear menu. The floating strip can show media, pairing code / file staging, clipboard, synced launcher, clock, and weather (needs Location).</string>

@@ -20,7 +20,7 @@
 
 - Mac：[CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg)
 - iPhone / iPad：[App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247)
-- Android：[Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) 或 [APK 1.3](https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk)
+- Android：[CDN APK](https://models.appda.store/treelethub/TreeletHub.apk) 或 [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub)
 
 ## 一台 Mac 能连几部手机？
 

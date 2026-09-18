@@ -1,6 +1,17 @@
 # 发布 Mac DMG / Android APK 到 GitHub Releases
 
-本仓库通过 **GitHub Releases** 分发 Mac 与 Android 直装包。
+本仓库通过 **GitHub Releases** 分发 Mac 与 Android 直装包。Mac 还有第二条通道：**Mac App Store 合规包**，不要和 DMG 混打。
+
+## Mac 双分发（必读）
+
+| 通道 | Xcode Scheme | Configuration | 键盘启动器 | 产物 |
+|------|----------------|---------------|------------|------|
+| 官网 / GitHub DMG | `TreeletHub_Mac` | `Debug` / `Release` | 有（输入监控） | `./scripts/package-mac-dmg.sh` 或 `TreeletHub_Mac_release/build-dmg.sh` |
+| App Store Connect | `TreeletHub_Mac_AppStore` | `AppStore` | 无 | `fastlane mac beta` / `mac release` |
+
+编译条件 `APP_STORE` 只加在 `AppStore` configuration。日常开发请继续用 `TreeletHub_Mac`，不要改 `HubMacFeatureFlags` 里的手写开关。
+
+审核包会：去掉键盘启动器入口与 Input Monitoring 用途说明；灵动岛不再申请屏幕录制（截图快捷方式用时再申请）。
 
 ## Mac DMG
 
@@ -40,19 +51,31 @@ DMG 放在 `releases/TreeletHub.dmg`，推送 **版本 tag**（如 `v1.2.7`）�
 
 1. 在 Android Studio 生成签名 APK，复制为：
    ```bash
-   cp TreeHub_Android/app/release/TreeletHubX.Y.apk releases/TreeletHub-Android-X.Y.apk
+   cp TreeHub_Android/app/release/treelethubX.Y.Z.apk releases/TreeletHub-Android-X.Y.Z.apk
+   cp TreeHub_Android/app/release/treelethubX.Y.Z.apk releases/TreeletHub.apk
    ```
-2. 编写 `docs/release-notes-android-vX.Y.md`，并更新 README / SUPPORT 下载链接。
-3. 创建 **非 Latest** Release（保留 Mac `latest`）：
+2. 编写 `docs/release-notes-android-vX.Y.Z.md`，并更新 README / SUPPORT / USER_GUIDE 下载链接。
+3. 上传 Cloudflare CDN（与 Mac 同一桶，对象键固定）：
    ```bash
-   gh release create android-vX.Y \
-     --title "TreeletHub vX.Y for Android" \
-     --notes-file docs/release-notes-android-vX.Y.md \
-     --latest=false \
-     releases/TreeletHub-Android-X.Y.apk
+   UPLOAD_TOKEN="$(cat /path/to/model-cdn/.upload_token)" \
+   node /path/to/model-cdn/scripts/upload-r2-multipart.mjs \
+     --file releases/TreeletHub.apk \
+     --key treelethub/TreeletHub.apk \
+     --base https://models.appda.store \
+     --version X.Y.Z
    ```
-4. 直链示例：
-   `https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk`
+   国内直链：`https://models.appda.store/treelethub/TreeletHub.apk`
+4. 创建 **非 Latest** Release（保留 Mac `latest`）：
+   ```bash
+   gh release create android-vX.Y.Z \
+     --title "TreeletHub vX.Y.Z for Android" \
+     --notes-file docs/release-notes-android-vX.Y.Z.md \
+     --latest=false \
+     releases/TreeletHub-Android-X.Y.Z.apk
+   ```
+5. 直链示例：
+   - CDN：`https://models.appda.store/treelethub/TreeletHub.apk`
+   - GitHub：`https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3.1/TreeletHub-Android-1.3.1.apk`
 
 ## iOS 二维码
 

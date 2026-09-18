@@ -1,10 +1,13 @@
 import Foundation
 
 /// 对外分发链接（官网文案 / iOS 冷启动「复制链接」共用）。
-/// Mac 直装走 Cloudflare 自定义域名 `models.appda.store`（国内可达），不要用 GitHub / treelet.us。
+/// Mac / Android 直装走 Cloudflare 自定义域名 `models.appda.store`（国内可达），不要用 GitHub / treelet.us。
 enum HubDownloadURLs {
     /// Mac `.dmg`（R2 → treelet-model-cdn）。上传对象键保持 `treelethub/TreeletHub.dmg`。
     static let macDMG = URL(string: "https://models.appda.store/treelethub/TreeletHub.dmg")!
+
+    /// Android `.apk`（同一 CDN）。上传对象键保持 `treelethub/TreeletHub.apk`。
+    static let androidAPK = URL(string: "https://models.appda.store/treelethub/TreeletHub.apk")!
 
     /// 官网落地页（说明与配对引导；treelet.us 本身不托管安装包）。
     static let productPage = URL(string: "https://treelet.us/treelethub/")!

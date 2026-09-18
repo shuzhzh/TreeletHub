@@ -46,9 +46,6 @@ data class HubAndroidUiState(
     val serverDisconnectAlertMessage: String? = null,
     val didLoadCachedPairing: Boolean = false,
     val discoveredServiceNames: List<String> = emptyList(),
-    val codexMicroState: HubCodexMicroState = HubCodexMicroState.empty,
-    val localRecordingPhase: HubCodexRecordingState = HubCodexRecordingState.Idle,
-    val dictationPartial: String = "",
 )
 
 class HubAndroidClient(
@@ -74,8 +71,6 @@ class HubAndroidClient(
     private val lastSilentReceiveReconnectAt = AtomicLong(0L)
 
     private val discoveredByName = ConcurrentHashMap<String, NsdServiceInfo>()
-    private val lastAgentTapAt = ConcurrentHashMap<Int, Long>()
-    val dictation = HubAndroidDictationController(appContext)
 
     private val _state = MutableStateFlow(HubAndroidUiState())
     val state: StateFlow<HubAndroidUiState> = _state.asStateFlow()
@@ -92,7 +87,6 @@ class HubAndroidClient(
 
     companion object {
         const val customDeviceNameKey = "treelethub.device.displayName"
-        private const val AGENT_DOUBLE_TAP_WINDOW_MS = 350L
     }
 
     fun restorePairingFromDiskOnLaunch() {
@@ -199,9 +193,6 @@ class HubAndroidClient(
                 phase = HubClientPhase.Idle,
                 serverDisconnectAlertMessage = null,
                 serverReportsSubscriptionActive = false,
-                codexMicroState = HubCodexMicroState.empty,
-                localRecordingPhase = HubCodexRecordingState.Idle,
-                dictationPartial = "",
             )
         }
         pendingBonjourName = null
@@ -220,9 +211,6 @@ class HubAndroidClient(
                 phase = HubClientPhase.Idle,
                 serverDisconnectAlertMessage = null,
                 serverReportsSubscriptionActive = false,
-                codexMicroState = HubCodexMicroState.empty,
-                localRecordingPhase = HubCodexRecordingState.Idle,
-                dictationPartial = "",
             )
         }
         pendingBonjourName = null
@@ -246,17 +234,70 @@ class HubAndroidClient(
         )
     }
 
-    fun reorder(page: Int, from: Int, to: Int) {
+    /** 与另一格交换位置；可跨页。乐观本地交换后发 wire。 */
+    fun reorder(
+        page: Int,
+        from: Int,
+        toPage: Int? = null,
+        to: Int,
+    ) {
         if (_state.value.phase != HubClientPhase.Paired) return
-        if (from !in 0..8 || to !in 0..8 || from == to) return
+        val pageTo = toPage ?: page
+        if (from !in 0..8 || to !in 0..8) return
+        if (page == pageTo && from == to) return
+
+        applyLocalSwap(pageA = page, from = from, pageB = pageTo, to = to)
+
         sendEnvelope(
             HubWireEnvelope(
                 op = HubWireOps.reorder,
                 page = page,
                 from = from,
                 to = to,
+                pageTo = if (pageTo == page) null else pageTo,
             ),
         )
+    }
+
+    private fun applyLocalSwap(
+        pageA: Int,
+        from: Int,
+        pageB: Int,
+        to: Int,
+    ) {
+        val pages = _state.value.pages.toMutableList()
+        val indexA = pages.indexOfFirst { it.id == pageA }
+        val indexB = pages.indexOfFirst { it.id == pageB }
+        if (indexA < 0 || indexB < 0) return
+
+        fun remapped(source: HubSlotConfig, id: Int): HubSlotConfig =
+            source.copy(id = id)
+
+        if (indexA == indexB) {
+            val slots = pages[indexA].slots.orEmpty().toMutableList()
+            if (from !in slots.indices || to !in slots.indices) return
+            val a = slots[from]
+            val b = slots[to]
+            slots[from] = remapped(b, from)
+            slots[to] = remapped(a, to)
+            pages[indexA] = pages[indexA].copy(slots = slots)
+        } else {
+            val slotsA = pages[indexA].slots.orEmpty().toMutableList()
+            val slotsB = pages[indexB].slots.orEmpty().toMutableList()
+            if (from !in slotsA.indices || to !in slotsB.indices) return
+            val a = slotsA[from]
+            val b = slotsB[to]
+            slotsA[from] = remapped(b, from)
+            slotsB[to] = remapped(a, to)
+            pages[indexA] = pages[indexA].copy(slots = slotsA)
+            pages[indexB] = pages[indexB].copy(slots = slotsB)
+        }
+        update {
+            it.copy(
+                pages = pages,
+                layoutApplyEpoch = it.layoutApplyEpoch + 1,
+            )
+        }
     }
 
     fun control(page: Int, slot: Int, command: String? = null, value: Double? = null) {
@@ -282,255 +323,7 @@ class HubAndroidClient(
         )
     }
 
-    fun requestCodexMicroState() {
-        sendCodexMicro(HubCodexMicroCommand(kind = HubCodexMicroCommand.KIND_REQUEST_STATE))
-    }
-
-    fun codexAgentTap(index: Int) {
-        val now = System.currentTimeMillis()
-        val last = lastAgentTapAt[index]
-        if (last != null && now - last <= AGENT_DOUBLE_TAP_WINDOW_MS) {
-            lastAgentTapAt.remove(index)
-            sendCodexMicro(
-                HubCodexMicroCommand(
-                    kind = HubCodexMicroCommand.KIND_AGENT_DOUBLE_TAP,
-                    agentIndex = index,
-                    bringToFront = true,
-                ),
-            )
-            return
-        }
-        lastAgentTapAt[index] = now
-        sendCodexMicro(
-            HubCodexMicroCommand(
-                kind = HubCodexMicroCommand.KIND_AGENT_TAP,
-                agentIndex = index,
-                bringToFront = false,
-            ),
-        )
-    }
-
-    fun codexCommand(
-        action: HubCodexMicroAction,
-        handsFree: Boolean = false,
-    ) {
-        sendCodexMicro(
-            HubCodexMicroCommand(
-                kind = HubCodexMicroCommand.KIND_COMMAND,
-                action = action,
-                handsFree = handsFree,
-            ),
-        )
-    }
-
-    fun codexJoystick(direction: HubCodexJoystickDirection) {
-        sendCodexMicro(
-            HubCodexMicroCommand(
-                kind = HubCodexMicroCommand.KIND_JOYSTICK,
-                direction = direction,
-            ),
-        )
-    }
-
-    fun codexDialTurn(steps: Int) {
-        sendCodexMicro(
-            HubCodexMicroCommand(
-                kind = HubCodexMicroCommand.KIND_DIAL_TURN,
-                steps = steps,
-            ),
-        )
-    }
-
-    fun codexDialPress() {
-        sendCodexMicro(HubCodexMicroCommand(kind = HubCodexMicroCommand.KIND_DIAL_PRESS))
-    }
-
-    fun codexDialLongPress() {
-        sendCodexMicro(HubCodexMicroCommand(kind = HubCodexMicroCommand.KIND_DIAL_LONG_PRESS))
-    }
-
-    fun codexDialCancel() {
-        sendCodexMicro(HubCodexMicroCommand(kind = HubCodexMicroCommand.KIND_DIAL_CANCEL))
-    }
-
-    fun codexLayerCycle() {
-        sendCodexMicro(HubCodexMicroCommand(kind = HubCodexMicroCommand.KIND_LAYER_CYCLE))
-    }
-
-    fun codexPushToTalkEnd() {
-        sendCodexMicro(HubCodexMicroCommand(kind = HubCodexMicroCommand.KIND_PUSH_TO_TALK_END))
-    }
-
-    fun pttStart() {
-        val phase = _state.value.localRecordingPhase
-        if (phase == HubCodexRecordingState.Recording && dictation.isRecording) return
-        update {
-            it.copy(
-                lastError = null,
-                localRecordingPhase = HubCodexRecordingState.Recording,
-                codexMicroState = it.codexMicroState.copy(lastControlError = null),
-                dictationPartial = "",
-            )
-        }
-        sendCodexMicro(
-            HubCodexMicroCommand(
-                kind = HubCodexMicroCommand.KIND_COMMAND,
-                action = HubCodexMicroAction.PushToTalk,
-            ),
-        )
-        scope.launch {
-            try {
-                dictation.start()
-                while (_state.value.localRecordingPhase == HubCodexRecordingState.Recording) {
-                    update { s -> s.copy(dictationPartial = dictation.partialTranscript) }
-                    delay(120)
-                }
-            } catch (e: HubAndroidDictationController.DictationException) {
-                update {
-                    it.copy(
-                        localRecordingPhase = HubCodexRecordingState.Idle,
-                        codexMicroState =
-                            it.codexMicroState.copy(
-                                lastControlError = dictation.errorMessage(e.error),
-                            ),
-                    )
-                }
-                codexPushToTalkEnd()
-            } catch (e: Exception) {
-                update {
-                    it.copy(
-                        localRecordingPhase = HubCodexRecordingState.Idle,
-                        codexMicroState =
-                            it.codexMicroState.copy(
-                                lastControlError =
-                                    e.message
-                                        ?: dictation.errorMessage(
-                                            HubAndroidDictationController.DictationError.SpeechUnavailable,
-                                        ),
-                            ),
-                    )
-                }
-                codexPushToTalkEnd()
-            }
-        }
-    }
-
-    fun pttStopAndSend() {
-        if (_state.value.localRecordingPhase != HubCodexRecordingState.Recording) return
-        update { it.copy(localRecordingPhase = HubCodexRecordingState.Processing) }
-        scope.launch {
-            val text = dictation.stopAndFinalize()
-            if (text.isEmpty()) {
-                update {
-                    it.copy(
-                        localRecordingPhase = HubCodexRecordingState.Idle,
-                        dictationPartial = "",
-                        codexMicroState =
-                            it.codexMicroState.copy(
-                                lastControlError =
-                                    dictation.errorMessage(
-                                        HubAndroidDictationController.DictationError.EmptyTranscript,
-                                    ),
-                            ),
-                    )
-                }
-                codexPushToTalkEnd()
-                return@launch
-            }
-            sendCodexMicro(
-                HubCodexMicroCommand(
-                    kind = HubCodexMicroCommand.KIND_INSERT_TEXT,
-                    text = text,
-                ),
-            )
-            update {
-                it.copy(
-                    localRecordingPhase = HubCodexRecordingState.Idle,
-                    dictationPartial = "",
-                )
-            }
-        }
-    }
-
-    fun pttCancel() {
-        val wasActive = _state.value.localRecordingPhase != HubCodexRecordingState.Idle
-        dictation.cancel()
-        update {
-            it.copy(
-                localRecordingPhase = HubCodexRecordingState.Idle,
-                dictationPartial = "",
-            )
-        }
-        if (wasActive) {
-            codexPushToTalkEnd()
-        }
-    }
-
-    fun codexSetMapping(mapping: HubCodexMicroMapping) {
-        sendCodexMicro(
-            HubCodexMicroCommand(
-                kind = HubCodexMicroCommand.KIND_SET_MAPPING,
-                mapping = mapping,
-            ),
-        )
-    }
-
-    fun codexEnableTextAutomationAndRetry(action: HubCodexMicroAction?) {
-        val mapping = _state.value.codexMicroState.mapping.copy(allowsTextAutomation = true)
-        codexSetMapping(mapping)
-        update {
-            it.copy(
-                lastError = null,
-                codexMicroState =
-                    it.codexMicroState.copy(
-                        mapping = mapping,
-                        lastControlError = null,
-                    ),
-            )
-        }
-        if (action != null) {
-            scope.launch {
-                delay(350)
-                codexCommand(action)
-            }
-        }
-    }
-
-    fun codexDismissControlHint() {
-        update {
-            it.copy(
-                lastError = null,
-                codexMicroState = it.codexMicroState.copy(lastControlError = null),
-            )
-        }
-    }
-
-    fun codexSetTarget(target: HubCodexControlTarget) {
-        sendCodexMicro(
-            HubCodexMicroCommand(
-                kind = HubCodexMicroCommand.KIND_SET_TARGET,
-                target = target,
-            ),
-        )
-    }
-
-    fun codexOpenAccessibilitySettings() {
-        sendCodexMicro(HubCodexMicroCommand(kind = HubCodexMicroCommand.KIND_OPEN_ACCESSIBILITY_SETTINGS))
-    }
-
-    private fun sendCodexMicro(command: HubCodexMicroCommand) {
-        if (_state.value.phase != HubClientPhase.Paired) return
-        val message = HubCodexMicroWire.encodeCommand(command) ?: return
-        sendEnvelope(
-            HubWireEnvelope(
-                op = HubWireOps.codexMicro,
-                message = message,
-            ),
-        )
-    }
-
     fun onDestroy() {
-        pttCancel()
         cancelHeartbeat()
         tearDownBrowserOnly()
         closeSocket()
@@ -844,37 +637,11 @@ class HubAndroidClient(
                     it.copy(
                         phase = HubClientPhase.Idle,
                         serverReportsSubscriptionActive = false,
-                        codexMicroState = HubCodexMicroState.empty,
-                        localRecordingPhase = HubCodexRecordingState.Idle,
-                        dictationPartial = "",
                     )
                 }
                 pendingBonjourName = null
                 wantsAutoConnectAfterBrowse = false
                 isSilentReconnect = false
-            }
-            HubWireOps.codexMicroState -> {
-                val decoded = HubCodexMicroWire.decodeState(env.message)
-                if (decoded != null) {
-                    update { it.copy(codexMicroState = decoded) }
-                } else {
-                    val agents = env.slots?.mapIndexed { index, slot ->
-                        HubCodexAgentSlot(
-                            id = index,
-                            title = slot.displayName,
-                        )
-                    }
-                    if (agents != null) {
-                        update {
-                            it.copy(
-                                codexMicroState =
-                                    it.codexMicroState.copy(
-                                        agents = agents,
-                                    ),
-                            )
-                        }
-                    }
-                }
             }
         }
     }

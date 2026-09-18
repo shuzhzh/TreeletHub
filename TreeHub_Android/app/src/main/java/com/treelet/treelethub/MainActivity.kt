@@ -32,7 +32,6 @@ class MainActivity : ComponentActivity() {
                     LifecycleEventObserver { _, event ->
                         if (event == Lifecycle.Event.ON_START) {
                             vm.client.reconnectFromCacheIfNeededOnForeground()
-                            vm.billing.refreshFromStore()
                         }
                     }
                 owner.addObserver(obs)

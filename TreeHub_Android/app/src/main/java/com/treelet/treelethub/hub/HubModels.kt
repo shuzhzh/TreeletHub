@@ -7,6 +7,8 @@ import kotlinx.serialization.json.Json
 object HubService {
     const val bonjourType = "_treelethub._tcp."
     const val maxTabs = 5
+    /** 免费版 Mac 端最多 10 个应用；手机只镜像布局，不在此裁切。 */
+    const val freeAppLimit = 10
 }
 
 object HubWireOps {
@@ -38,6 +40,8 @@ data class HubWireEnvelope(
     val message: String? = null,
     val from: Int? = null,
     val to: Int? = null,
+    /** 跨页 reorder 时的目标页；同页可省略。 */
+    val pageTo: Int? = null,
     val command: String? = null,
     val value: Double? = null,
     val subscriptionActive: Boolean? = null,

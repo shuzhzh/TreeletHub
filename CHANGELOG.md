@@ -2,6 +2,16 @@
 
 本文件记录 TreeletHub 面向用户的版本变化。GitHub 仓库首页可直接打开本页；安装包说明也在 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
 
+## [1.3.1] — 2026-09-18（Android）
+
+与 iPhone 对齐：蜂巢启动墙、移除本机 AI 控制键盘与订阅门控。
+
+- Apps 改为蜂巢启动墙（捏合 / 平移 / 长按换位）。
+- 点按仅启动 Mac 应用；双指下滑显示桌面。
+- 国内 CDN：https://models.appda.store/treelethub/TreeletHub.apk
+
+详细说明：[docs/release-notes-android-v1.3.1.md](docs/release-notes-android-v1.3.1.md) · [Release](https://github.com/shuzhzh/TreeletHub/releases/tag/android-v1.3.1)
+
 ## [1.3.0] — 2026-09-18（macOS，当前）
 
 正式 Mac 直装包。蜂巢启动墙、一次性 Pro、灵动岛与键盘启动器一并发布。

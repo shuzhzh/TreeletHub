@@ -16,8 +16,8 @@ android {
         applicationId = "com.treelet.treelethub"
         minSdk = 24
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.3"
+        versionCode = 6
+        versionName = "1.3.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -59,7 +59,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.billing.ktx)
     implementation(libs.coil.compose)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
