@@ -54,12 +54,14 @@ public struct HubFeatureIntroBrief: View {
                 introRow(
                     symbol: "capsule.portrait.fill",
                     title: L("intro.step4.title"),
-                    body: L("intro.step4.body")
+                    body: L(HubDistribution.includesKeyboardLauncher ? "intro.step4.body" : "intro.step4.body_appstore")
                 )
                 #if os(macOS)
                 VStack(alignment: .leading, spacing: 12) {
                     HubFeatureLookStrip(kind: .island, style: .featured)
-                    HubFeatureLookStrip(kind: .keyboardHUD, style: .featured)
+                    if HubDistribution.includesKeyboardLauncher {
+                        HubFeatureLookStrip(kind: .keyboardHUD, style: .featured)
+                    }
                 }
                 .padding(.leading, 40)
                 #endif

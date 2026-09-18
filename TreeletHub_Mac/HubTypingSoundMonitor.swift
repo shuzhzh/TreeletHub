@@ -28,6 +28,9 @@ final class HubTypingSoundMonitor {
             return event
         }
 
+        #if APP_STORE
+        isMonitoringGlobally = false
+        #else
         guard HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring else {
             isMonitoringGlobally = false
             return
@@ -35,9 +38,9 @@ final class HubTypingSoundMonitor {
 
         globalKeyMonitor = NSEvent.addGlobalMonitorForEvents(matching: keyMask) { [weak self] event in
             Task { @MainActor in self?.handleKeyEvent(event) }
-            Task { @MainActor in self?.handleKeyEvent(event) }
         }
         isMonitoringGlobally = globalKeyMonitor != nil
+        #endif
     }
 
     private func stop() {

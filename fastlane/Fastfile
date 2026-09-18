@@ -27,7 +27,11 @@ def ios_scheme
 end
 
 def mac_scheme
-  ENV["FASTLANE_MAC_SCHEME"] || "TreeletHub_Mac"
+  ENV["FASTLANE_MAC_SCHEME"] || "TreeletHub_Mac_AppStore"
+end
+
+def mac_configuration
+  ENV["FASTLANE_MAC_CONFIGURATION"] || "AppStore"
 end
 
 def ios_app_identifier
@@ -184,7 +188,7 @@ platform :mac do
       build_app(
         project: "TreeletHub.xcodeproj",
         scheme: mac_scheme,
-        configuration: "Release",
+        configuration: mac_configuration,
         export_method: "app-store",
         clean: true,
         xcargs: development_team_xcargs
@@ -204,7 +208,7 @@ platform :mac do
     build_app(
       project: "TreeletHub.xcodeproj",
       scheme: mac_scheme,
-      configuration: "Release",
+      configuration: mac_configuration,
       export_method: "app-store",
       clean: true,
       xcargs: development_team_xcargs

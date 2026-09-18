@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# 将 macOS 目标（scheme TreeletHub_Mac）打成 Release 安装包（.dmg）
+# 将 macOS 全功能包（scheme TreeletHub_Mac / Release）打成官网与 GitHub 用的 DMG。
+# App Store 合规包请用 scheme TreeletHub_Mac_AppStore / configuration AppStore（fastlane mac release）。
 # 用法：在项目根目录执行 ./scripts/package-mac-dmg.sh
 # 可选环境变量：
 #   DERIVED_DATA_PATH — 自定义 DerivedData 目录（默认：项目内 build/DerivedData）

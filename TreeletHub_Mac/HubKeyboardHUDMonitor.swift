@@ -44,6 +44,9 @@ final class HubKeyboardHUDMonitor {
 
     private func start() {
         stop()
+        #if APP_STORE
+        return
+        #else
         guard HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring else { return }
 
         let flagsMask: NSEvent.EventTypeMask = [.flagsChanged]
@@ -66,6 +69,7 @@ final class HubKeyboardHUDMonitor {
             let consumed = handleKeyDown(event, consume: true)
             return consumed ? nil : event
         }
+        #endif
     }
 
     private func stop() {

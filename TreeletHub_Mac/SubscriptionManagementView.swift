@@ -97,12 +97,14 @@ struct SubscriptionManagementView: View {
                             detail: L("mac.subscription.benefit_island_p1"),
                             previewKind: .island
                         )
-                        SubscriptionBenefitBlock(
-                            icon: "keyboard",
-                            title: L("mac.subscription.benefit_keyboardhud_title"),
-                            detail: L("mac.subscription.benefit_keyboardhud_p1"),
-                            previewKind: .keyboardHUD
-                        )
+                        if HubMacFeatureFlags.allowsGlobalInputMonitoring {
+                            SubscriptionBenefitBlock(
+                                icon: "keyboard",
+                                title: L("mac.subscription.benefit_keyboardhud_title"),
+                                detail: L("mac.subscription.benefit_keyboardhud_p1"),
+                                previewKind: .keyboardHUD
+                            )
+                        }
                         SubscriptionBenefitBlock(
                             icon: "iphone.and.arrow.forward",
                             title: L("mac.subscription.benefit_sync_title"),

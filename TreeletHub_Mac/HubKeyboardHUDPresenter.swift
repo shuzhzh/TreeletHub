@@ -56,7 +56,8 @@ final class HubKeyboardHUDPresenter: ObservableObject {
             }
         )
 
-        if enabled {
+        let shouldEnable = enabled && HubMacFeatureFlags.allowsGlobalInputMonitoring
+        if shouldEnable {
             monitor.setEnabled(true)
         } else {
             cancelIntroAutoHide()
@@ -67,6 +68,7 @@ final class HubKeyboardHUDPresenter: ObservableObject {
 
     /// 打开开关时在屏幕正中闪现一次，让用户看到开启后的样子；约 3 秒后自动收起。
     func presentIntroPreview() {
+        guard HubMacFeatureFlags.allowsGlobalInputMonitoring else { return }
         guard boundStore != nil, boundUILanguage != nil else { return }
         showHUDIfNeeded()
         scheduleIntroAutoHide()

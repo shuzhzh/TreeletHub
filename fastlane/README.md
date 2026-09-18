@@ -12,7 +12,8 @@
 | `FASTLANE_APP_IDENTIFIER` | iOS Bundle ID | Xcode → TreeletHub target → `com.treelet.TreeletHub` |
 | `FASTLANE_MAC_APP_IDENTIFIER` | Mac Bundle ID（仅 Mac 通道需要） | `com.treelet.TreeletHub-Mac` |
 | `FASTLANE_SCHEME` | iOS Scheme | 默认 `TreeletHub` |
-| `FASTLANE_MAC_SCHEME` | Mac Scheme | 默认 `TreeletHub_Mac` |
+| `FASTLANE_MAC_SCHEME` | Mac Scheme | 默认 `TreeletHub_Mac_AppStore`（合规审核包） |
+| `FASTLANE_MAC_CONFIGURATION` | Mac Configuration | 默认 `AppStore` |
 | `APP_STORE_CONNECT_KEY_ID` | API Key ID | App Store Connect → 用户与访问 → 集成 → App Store Connect API |
 | `APP_STORE_CONNECT_ISSUER_ID` | Issuer ID | 同上 |
 | `APP_STORE_CONNECT_KEY_PATH` | `.p8` 私钥路径 | 下载后放到 `fastlane/keys/`（已在 `.gitignore`） |
@@ -52,7 +53,7 @@ bundle exec fastlane ios metadata_pull --env treelet
 # 将 fastlane/metadata/ios 中的文案推到 ASC（解决 5.2.5 后常用）
 bundle exec fastlane ios metadata_push --env treelet
 
-# Mac → TestFlight / Mac App Store
+# Mac → TestFlight / Mac App Store（合规包，无键盘启动器）
 bundle exec fastlane mac beta --env treelet
 bundle exec fastlane mac release --env treelet
 ```
@@ -88,5 +89,6 @@ fastlane ios beta --env accountB
 
 ## 与脚本的关系
 
-- Mac 本地 `.dmg`：`./scripts/package-mac-dmg.sh`（不经过 Fastlane）
-- 商店分发 Mac：使用 `fastlane mac beta` / `mac release`
+- Mac 官网 / GitHub **全功能** `.dmg`：`./scripts/package-mac-dmg.sh`（scheme `TreeletHub_Mac` / `Release`，含键盘启动器）
+- 商店分发 Mac：**必须**使用 `fastlane mac beta` / `mac release`（默认 scheme `TreeletHub_Mac_AppStore` / configuration `AppStore`）
+- 切勿用全功能 Release 包直接传 App Store Connect

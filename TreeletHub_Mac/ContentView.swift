@@ -17,8 +17,6 @@ struct ContentView: View {
     /// 避免与 SwiftUI sheet 同时关闭时立刻 `beginSheetModal`，否则 OpenPanel 会挂在正在消失的 sheet 上并瞬间被取消。
     @State private var pickAppAfterAddTypeSheetDismisses: PendingAddSlot?
     @State private var showingShortcutSheet = false
-    @State private var showingIslandPermissionAlert = false
-    @State private var showingIslandPermissionSheet = false
     @State private var showingKeyboardHUDPermissionAlert = false
 
     private func macL(_ key: String) -> String {
@@ -67,6 +65,9 @@ struct ContentView: View {
                     }
                     .navigationTitle(macL("mac.app.name"))
                     .onAppear {
+                        if !HubMacFeatureFlags.allowsGlobalInputMonitoring {
+                            keyboardHUDEnabled = false
+                        }
                         hub.server.start()
                         syncIslandPanel()
                         syncKeyboardHUD()
@@ -81,9 +82,6 @@ struct ContentView: View {
                         syncIslandPanel()
                         syncKeyboardHUD()
                         disableTypingSound()
-                        if HubMacPrivacyPermissions.hasScreenCaptureAccess {
-                            showingIslandPermissionAlert = false
-                        }
                         if HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring {
                             showingKeyboardHUDPermissionAlert = false
                         }
@@ -91,11 +89,8 @@ struct ContentView: View {
                     .onDisappear {
                         hub.server.stop()
                     }
-                    .onChange(of: islandModeEnabled) { wasOn, isOn in
+                    .onChange(of: islandModeEnabled) { _, _ in
                         syncIslandPanel()
-                        if isOn && !wasOn, subscription.isSubscribed {
-                            Task { await runIslandPermissionGateSequence() }
-                        }
                     }
                     .onChange(of: keyboardHUDEnabled) { wasOn, isOn in
                         syncKeyboardHUD()
@@ -170,25 +165,6 @@ struct ContentView: View {
                 .frame(minWidth: 460, minHeight: 480)
                 .environment(\.locale, uiLanguage.locale)
                 .environmentObject(uiLanguage)
-        }
-        .sheet(isPresented: $showingIslandPermissionSheet) {
-            HubIslandPermissionsSheet()
-                .frame(minWidth: 460, minHeight: 440)
-                .environment(\.locale, uiLanguage.locale)
-                .environmentObject(uiLanguage)
-        }
-        .alert(Text(macL("mac.island.permission.title")), isPresented: $showingIslandPermissionAlert) {
-            Button {
-                showingIslandPermissionSheet = true
-            } label: {
-                Text(macL("mac.island.permission.view"))
-            }
-            Button(role: .cancel) {
-            } label: {
-                Text(macL("mac.island.permission.ok"))
-            }
-        } message: {
-            Text(islandPermissionAlertMessage)
         }
         .alert(Text(macL("mac.keyboardhud.permission.title")), isPresented: $showingKeyboardHUDPermissionAlert) {
             Button {
@@ -271,22 +247,6 @@ struct ContentView: View {
                 Image(systemName: "checkmark")
             }
         }
-    }
-
-    private var islandPermissionAlertMessage: String {
-        macL("mac.island.permission.message")
-    }
-
-    /// 每次打开灵动岛开关：请求屏幕录制；若仍不足则提示进入应用内「权限与隐私」说明。
-    @MainActor
-    private func runIslandPermissionGateSequence() async {
-        if HubMacPrivacyPermissions.hasScreenCaptureAccess { return }
-        _ = HubMacPrivacyPermissions.requestScreenCaptureAccess()
-        for delayMs in [500, 1000, 1500] {
-            try? await Task.sleep(for: .milliseconds(delayMs))
-            if HubMacPrivacyPermissions.hasScreenCaptureAccess { return }
-        }
-        showingIslandPermissionAlert = true
     }
 
     /// 仅在有有效订阅且用户开启开关时，灵动岛真正生效。
@@ -765,6 +725,7 @@ struct ContentView: View {
                 .padding(8)
 
                 if slot.kind == .app,
+                   HubMacFeatureFlags.allowsGlobalInputMonitoring,
                    let bundleId = slot.bundleIdentifier,
                    !bundleId.isEmpty,
                    hub.keyboardHUDStore.key(forBundleIdentifier: bundleId) != nil {

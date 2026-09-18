@@ -1,12 +1,11 @@
 import CoreLocation
 import SwiftUI
 
-/// 屏幕录制与定位服务说明（灵动岛菜单与主窗口开启灵动岛时共用）。
+/// 灵动岛天气所需的定位说明（截图快捷方式的屏幕录制在真正使用时再申请）。
 struct HubIslandPermissionsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var uiLanguage: HubMacUILanguage
     private var locale: Locale { uiLanguage.locale }
-    @State private var screenOK = HubMacPrivacyPermissions.hasScreenCaptureAccess
     @State private var locationAuth = CLLocationManager().authorizationStatus
 
     var body: some View {
@@ -18,13 +17,6 @@ struct HubIslandPermissionsSheet: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            permissionBlock(
-                titleKey: "mac.permissions.screen",
-                subtitleKey: "mac.permissions.screen_path",
-                ok: screenOK,
-                onOpenSettings: { HubMacPrivacyPermissions.openScreenRecordingSettings() },
-                onRequest: { _ = HubMacPrivacyPermissions.requestScreenCaptureAccess() }
-            )
             permissionBlock(
                 titleKey: "mac.permissions.location",
                 subtitleKey: "mac.permissions.location_path",
@@ -43,7 +35,6 @@ struct HubIslandPermissionsSheet: View {
                 }
                 Spacer()
                 Button {
-                    screenOK = HubMacPrivacyPermissions.hasScreenCaptureAccess
                     locationAuth = CLLocationManager().authorizationStatus
                 } label: {
                     Text(HubMacL10n.string("mac.permissions.refresh", locale: locale))

@@ -1,9 +1,13 @@
 import Foundation
 
-/// Feature switches for Mac capabilities that touch sensitive TCC permissions.
+/// Mac 敏感能力开关。真正的分发差异在编译条件 `APP_STORE`（见 `HubDistribution`）。
+///
+/// 日常开发 / DMG：scheme `TreeletHub_Mac`
+/// App Store 审核包：scheme `TreeletHub_Mac_AppStore`
 enum HubMacFeatureFlags {
     /// 键盘启动器（需 Input Monitoring + Accessibility）。
-    /// 与 AI 控制板无关；AI 控制已改为 Codex 深链接 / CLI，不再键注入。
-    /// 打字音效暂不开放。
-    static let allowsGlobalInputMonitoring = true
+    /// App Store 包为 false，且权限 API 会在编译期剔除。
+    static var allowsGlobalInputMonitoring: Bool {
+        HubDistribution.includesKeyboardLauncher
+    }
 }

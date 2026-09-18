@@ -137,6 +137,9 @@ enum MacAppActivator {
     }
 
     private static func triggerScreenshot(interactiveSelection: Bool) throws {
+        if !HubMacPrivacyPermissions.hasScreenCaptureAccess {
+            _ = HubMacPrivacyPermissions.requestScreenCaptureAccess()
+        }
         let args = interactiveSelection ? ["-i"] : []
         if (try? runScreencapture(executable: "/usr/sbin/screencapture", args: args)) == true { return }
         if (try? runScreencapture(executable: "/usr/bin/screencapture", args: args)) == true { return }
