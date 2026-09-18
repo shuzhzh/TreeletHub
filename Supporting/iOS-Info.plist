@@ -6,7 +6,5 @@
 	<array>
 		<string>_treelethub._tcp</string>
 	</array>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>TreeletHub needs access to your local network to find and connect to your Mac on the same Wi‑Fi, sync the app grid, and launch apps.</string>
 </dict>
 </plist>

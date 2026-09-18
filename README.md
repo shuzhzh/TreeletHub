@@ -105,7 +105,7 @@ TreeletHub 在 Mac 上以 **蜂巢启动墙** 收纳常用应用与快捷方式�
 - **键盘启动器** — Pro：Control 唤出屏幕键盘，把 Mac 应用映射到按键；Control + 键随时唤起/隐藏  
 - **多设备** — 一台 Mac 可接多部 iPhone / Android  
 
-当前 **Mac 1.2.8**。[发布说明](docs/release-notes-v1.2.8.md)
+当前 **Mac 1.3.0**。[发布说明](docs/release-notes-v1.3.0.md)
 
 ---
 
@@ -119,7 +119,7 @@ TreeletHub 在 Mac 上以 **蜂巢启动墙** 收纳常用应用与快捷方式�
 | **ChatGPT / Cursor** | 点按即启动 Mac 上的应用，不再打开控制键盘 |
 | **iPhone** | 与启动墙其他应用相同，点按启动；已移除听写与控制键盘 |
 
-[使用说明](docs/USER_GUIDE.zh-CN.md#codex-控制android) · [English](docs/USER_GUIDE.en.md#codex-control-android) · [macOS 1.2.8 发布说明](docs/release-notes-v1.2.8.md)
+[使用说明](docs/USER_GUIDE.zh-CN.md#codex-控制android) · [English](docs/USER_GUIDE.en.md#codex-control-android) · [macOS 1.3.0 发布说明](docs/release-notes-v1.3.0.md)
 
 ---
 

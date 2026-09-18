@@ -4,7 +4,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-VERSION="${1:-1.2.7}"
+VERSION="${1:-1.3.0}"
 # 卷内始终使用 TreeletHub.app，源目录可以是导出的带版本号目录
 APP_NAME="TreeletHub.app"
 APP_SRC="${ROOT}/TreeletHub-Mac-${VERSION}.app"
@@ -42,6 +42,7 @@ trap cleanup EXIT
 [[ -f "${ROOT}/background.png" ]] || { echo "缺少 background.png" >&2; exit 1; }
 [[ -f "${ROOT}/logo.png" ]] || { echo "缺少 logo.png" >&2; exit 1; }
 [[ -f "${ROOT}/dmg-support/template.applescript" ]] || { echo "缺少 dmg-support/template.applescript" >&2; exit 1; }
+[[ -f "${ROOT}/dmg-support/DS_Store" ]] || { echo "缺少 dmg-support/DS_Store" >&2; exit 1; }
 command -v create-dmg >/dev/null || { echo "请先安装 create-dmg: brew install create-dmg" >&2; exit 1; }
 
 echo "==> 准备 DMG 内容（源: $(basename "${APP_SRC}")）"
@@ -69,8 +70,29 @@ touch "${CDMG_VENDOR}/.this-is-the-create-dmg-repo"
 cp "${CDMG_BIN}" "${CDMG_VENDOR}/create-dmg"
 cp -R "${CDMG_SUPPORT}/." "${CDMG_VENDOR}/support/"
 cp "${ROOT}/dmg-support/template.applescript" "${CDMG_VENDOR}/support/template.applescript"
+chmod u+w "${CDMG_VENDOR}/create-dmg"
 chmod +x "${CDMG_VENDOR}/create-dmg"
+# 当前 macOS Finder 的 AppleScript 不再把 backgroundImageAlias 写入 .DS_Store。
+# 在 convert 之前装入已验证的布局文件，避免二次转换破坏背景。
+python3 - "${CDMG_VENDOR}/create-dmg" <<'PY'
+from pathlib import Path
+import sys
+path = Path(sys.argv[1])
+text = path.read_text()
+needle = 'echo "Fixing permissions..."'
+insert = """
+if [[ -n "${TREELETHUB_DS_STORE:-}" && -f "${TREELETHUB_DS_STORE}" ]]; then
+  echo "Installing Finder .DS_Store for background and icon layout"
+  cp "${TREELETHUB_DS_STORE}" "${MOUNT_DIR}/.DS_Store"
+fi
+
+"""
+if needle not in text:
+    raise SystemExit("create-dmg 脚本缺少 Fixing permissions 锚点，无法注入 .DS_Store")
+path.write_text(text.replace(needle, insert + needle, 1))
+PY
 CREATE_DMG_RUN="${CDMG_VENDOR}/create-dmg"
+export TREELETHUB_DS_STORE="${ROOT}/dmg-support/DS_Store"
 
 OUT_DMG="${ROOT}/${DMG_NAME}"
 echo "==> 使用 create-dmg 生成安装包"
@@ -86,6 +108,7 @@ rm -f "${OUT_DMG}" "${ROOT}/rw."*.dmg 2>/dev/null || true
   --icon "${APP_NAME}" "${APP_X}" "${APP_Y}" \
   --app-drop-link "${APPS_X}" "${APPS_Y}" \
   --hide-extension "${APP_NAME}" \
+  --skip-jenkins \
   --bless \
   --no-internet-enable \
   --format UDZO \

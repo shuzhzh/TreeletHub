@@ -12,7 +12,7 @@
 - Android：[Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub)（二维码：`assets/android-app-qr.png`） · [APK 1.3](https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3/TreeletHub-Android-1.3.apk)
 - Mac DMG（Cloudflare CDN）：[https://models.appda.store/treelethub/TreeletHub.dmg](https://models.appda.store/treelethub/TreeletHub.dmg) · [产品页](https://treelet.us/treelethub/)
 - Mac 全部 Releases（开发备用）：[GitHub Releases](https://github.com/shuzhzh/TreeletHub/releases)
-- 发布说明：[macOS 1.2.8](docs/release-notes-v1.2.8.md)
+- 发布说明：[macOS 1.3.0](docs/release-notes-v1.3.0.md)
 
 ## 演示视频
 
