@@ -28,6 +28,8 @@ public struct HubSlotConfig: Codable, Equatable, Identifiable, Sendable {
     public var shortcutPayload: String?
     /// Mac 端生成的应用图标 PNG（可选）；JSON 中编码为 Base64。
     public var iconPNG: Data?
+    /// Screen Time `ApplicationToken` 的编码，授权后用于显示系统应用图标。
+    public var familyTokenData: Data?
 
     public init(
         id: Int,
@@ -36,7 +38,8 @@ public struct HubSlotConfig: Codable, Equatable, Identifiable, Sendable {
         displayName: String? = nil,
         shortcutKind: HubShortcutKind? = nil,
         shortcutPayload: String? = nil,
-        iconPNG: Data? = nil
+        iconPNG: Data? = nil,
+        familyTokenData: Data? = nil
     ) {
         self.id = id
         self.kind = kind
@@ -45,12 +48,15 @@ public struct HubSlotConfig: Codable, Equatable, Identifiable, Sendable {
         self.shortcutKind = shortcutKind
         self.shortcutPayload = shortcutPayload
         self.iconPNG = iconPNG
+        self.familyTokenData = familyTokenData
     }
 
     public var isEmpty: Bool {
         switch kind {
         case .app:
-            return bundleIdentifier == nil || bundleIdentifier?.isEmpty == true
+            let missingBundle = bundleIdentifier == nil || bundleIdentifier?.isEmpty == true
+            let missingToken = familyTokenData == nil || familyTokenData?.isEmpty == true
+            return missingBundle && missingToken
         case .shortcut:
             return shortcutKind == nil
         }
@@ -64,6 +70,7 @@ public struct HubSlotConfig: Codable, Equatable, Identifiable, Sendable {
         case shortcutKind
         case shortcutPayload
         case iconPNG
+        case familyTokenData
     }
 
     public init(from decoder: Decoder) throws {
@@ -75,6 +82,7 @@ public struct HubSlotConfig: Codable, Equatable, Identifiable, Sendable {
         shortcutKind = try c.decodeIfPresent(HubShortcutKind.self, forKey: .shortcutKind)
         shortcutPayload = try c.decodeIfPresent(String.self, forKey: .shortcutPayload)
         iconPNG = try c.decodeIfPresent(Data.self, forKey: .iconPNG)
+        familyTokenData = try c.decodeIfPresent(Data.self, forKey: .familyTokenData)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -86,6 +94,7 @@ public struct HubSlotConfig: Codable, Equatable, Identifiable, Sendable {
         try c.encodeIfPresent(shortcutKind, forKey: .shortcutKind)
         try c.encodeIfPresent(shortcutPayload, forKey: .shortcutPayload)
         try c.encodeIfPresent(iconPNG, forKey: .iconPNG)
+        try c.encodeIfPresent(familyTokenData, forKey: .familyTokenData)
     }
 }
 
@@ -107,7 +116,8 @@ public struct HubPageConfig: Codable, Equatable, Identifiable, Sendable {
                     displayName: slot.displayName,
                     shortcutKind: slot.shortcutKind,
                     shortcutPayload: slot.shortcutPayload,
-                    iconPNG: slot.iconPNG
+                    iconPNG: slot.iconPNG,
+                    familyTokenData: slot.familyTokenData
                 )
             }
         } else {
@@ -133,11 +143,17 @@ public enum HubService {
 
     /// 按 page id 顺序找第一个空槽。
     public static func firstEmptySlot(in pages: [HubPageConfig]) -> (pageId: Int, slotId: Int)? {
+        emptySlots(in: pages).first
+    }
+
+    /// 按 page / slot id 顺序列出全部空槽。
+    public static func emptySlots(in pages: [HubPageConfig]) -> [(pageId: Int, slotId: Int)] {
+        var result: [(pageId: Int, slotId: Int)] = []
         for page in pages.sorted(by: { $0.id < $1.id }) {
-            if let slot = page.slots.first(where: \.isEmpty) {
-                return (page.id, slot.id)
+            for slot in page.slots.sorted(by: { $0.id < $1.id }) where slot.isEmpty {
+                result.append((page.id, slot.id))
             }
         }
-        return nil
+        return result
     }
 }

@@ -7,10 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		73440B1E305F7F7C007638A3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73440B1D305F7F7C007638A3 /* WidgetKit.framework */; };
+		73440B20305F7F7C007638A3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73440B1F305F7F7C007638A3 /* SwiftUI.framework */; };
+		73440B2B305F7F7D007638A3 /* TreeletHubPhoneWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 73440B1B305F7F7C007638A3 /* TreeletHubPhoneWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		73D149663005DE0400DB565A /* TreeletHubWatchApp Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 73D1495C3005DE0400DB565A /* TreeletHubWatchApp Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		73440B29305F7F7D007638A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 733A367C2F9082F90020D699 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 73440B1A305F7F7C007638A3;
+			remoteInfo = TreeletHubPhoneWidgetExtension;
+		};
 		73D149643005DE0400DB565A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 733A367C2F9082F90020D699 /* Project object */;
@@ -21,6 +31,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		73440B2C305F7F7D007638A3 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				73440B2B305F7F7D007638A3 /* TreeletHubPhoneWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		73D149673005DE0400DB565A /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -37,8 +58,21 @@
 /* Begin PBXFileReference section */
 		733A36842F9082F90020D699 /* TreeletHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TreeletHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		733A36962F9083920020D699 /* TreeletHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TreeletHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		73440B1B305F7F7C007638A3 /* TreeletHubPhoneWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TreeletHubPhoneWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		73440B1D305F7F7C007638A3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
+		73440B1F305F7F7C007638A3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
 		73D1495C3005DE0400DB565A /* TreeletHubWatchApp Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TreeletHubWatchApp Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		73440B30305F7F7D007638A3 /* Exceptions for "TreeletHubPhoneWidget" folder in "TreeletHubPhoneWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 73440B1A305F7F7C007638A3 /* TreeletHubPhoneWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		733A36862F9082F90020D699 /* TreeletHub */ = {
@@ -54,6 +88,14 @@
 		733A36B12F9084000020D699 /* TreeletHubShared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TreeletHubShared;
+			sourceTree = "<group>";
+		};
+		73440B21305F7F7C007638A3 /* TreeletHubPhoneWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				73440B30305F7F7D007638A3 /* Exceptions for "TreeletHubPhoneWidget" folder in "TreeletHubPhoneWidgetExtension" target */,
+			);
+			path = TreeletHubPhoneWidget;
 			sourceTree = "<group>";
 		};
 		73D1495D3005DE0400DB565A /* TreeletHubWatchApp Watch App */ = {
@@ -78,6 +120,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		73440B18305F7F7C007638A3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				73440B20305F7F7C007638A3 /* SwiftUI.framework in Frameworks */,
+				73440B1E305F7F7C007638A3 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		73D149593005DE0400DB565A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -95,6 +146,8 @@
 				733A36972F9083920020D699 /* TreeletHub_Mac */,
 				733A36B12F9084000020D699 /* TreeletHubShared */,
 				73D1495D3005DE0400DB565A /* TreeletHubWatchApp Watch App */,
+				73440B21305F7F7C007638A3 /* TreeletHubPhoneWidget */,
+				73440B1C305F7F7C007638A3 /* Frameworks */,
 				733A36852F9082F90020D699 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -105,8 +158,18 @@
 				733A36842F9082F90020D699 /* TreeletHub.app */,
 				733A36962F9083920020D699 /* TreeletHub.app */,
 				73D1495C3005DE0400DB565A /* TreeletHubWatchApp Watch App.app */,
+				73440B1B305F7F7C007638A3 /* TreeletHubPhoneWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		73440B1C305F7F7C007638A3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				73440B1D305F7F7C007638A3 /* WidgetKit.framework */,
+				73440B1F305F7F7C007638A3 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -120,11 +183,13 @@
 				733A36812F9082F90020D699 /* Frameworks */,
 				733A36822F9082F90020D699 /* Resources */,
 				73D149673005DE0400DB565A /* Embed Watch Content */,
+				73440B2C305F7F7D007638A3 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				73D149653005DE0400DB565A /* PBXTargetDependency */,
+				73440B2A305F7F7D007638A3 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				733A36862F9082F90020D699 /* TreeletHub */,
@@ -160,6 +225,29 @@
 			productReference = 733A36962F9083920020D699 /* TreeletHub.app */;
 			productType = "com.apple.product-type.application";
 		};
+		73440B1A305F7F7C007638A3 /* TreeletHubPhoneWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 73440B31305F7F7D007638A3 /* Build configuration list for PBXNativeTarget "TreeletHubPhoneWidgetExtension" */;
+			buildPhases = (
+				73440B17305F7F7C007638A3 /* Sources */,
+				73440B18305F7F7C007638A3 /* Frameworks */,
+				73440B19305F7F7C007638A3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				733A36B12F9084000020D699 /* TreeletHubShared */,
+				73440B21305F7F7C007638A3 /* TreeletHubPhoneWidget */,
+			);
+			name = TreeletHubPhoneWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = TreeletHubPhoneWidgetExtension;
+			productReference = 73440B1B305F7F7C007638A3 /* TreeletHubPhoneWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		73D1495B3005DE0400DB565A /* TreeletHubWatchApp Watch App */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 73D1496A3005DE0400DB565A /* Build configuration list for PBXNativeTarget "TreeletHubWatchApp Watch App" */;
@@ -190,7 +278,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2660;
+				LastSwiftUpdateCheck = 2700;
 				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					733A36832F9082F90020D699 = {
@@ -198,6 +286,9 @@
 					};
 					733A36952F9083920020D699 = {
 						CreatedOnToolsVersion = 26.4;
+					};
+					73440B1A305F7F7C007638A3 = {
+						CreatedOnToolsVersion = 27.0;
 					};
 					73D1495B3005DE0400DB565A = {
 						CreatedOnToolsVersion = 26.6;
@@ -222,6 +313,7 @@
 				733A36832F9082F90020D699 /* TreeletHub */,
 				733A36952F9083920020D699 /* TreeletHub_Mac */,
 				73D1495B3005DE0400DB565A /* TreeletHubWatchApp Watch App */,
+				73440B1A305F7F7C007638A3 /* TreeletHubPhoneWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -235,6 +327,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		733A36942F9083920020D699 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		73440B19305F7F7C007638A3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -265,6 +364,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		73440B17305F7F7C007638A3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		73D149583005DE0400DB565A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -275,6 +381,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		73440B2A305F7F7D007638A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 73440B1A305F7F7C007638A3 /* TreeletHubPhoneWidgetExtension */;
+			targetProxy = 73440B29305F7F7D007638A3 /* PBXContainerItemProxy */;
+		};
 		73D149653005DE0400DB565A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 73D1495B3005DE0400DB565A /* TreeletHubWatchApp Watch App */;
@@ -410,9 +521,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TreeletHub/TreeletHub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MRD7RUVQBS;
 				ENABLE_APP_SANDBOX = YES;
@@ -448,6 +560,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TreeletHub/TreeletHub-Bridging-Header.h";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -460,9 +573,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TreeletHub/TreeletHub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MRD7RUVQBS;
 				ENABLE_APP_SANDBOX = YES;
@@ -498,6 +612,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TreeletHub/TreeletHub-Bridging-Header.h";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -593,76 +708,122 @@
 			};
 			name = Release;
 		};
-		73D149683005DE0400DB565A /* Debug */ = {
+		73440B2D305F7F7D007638A3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TreeletHubPhoneWidget/TreeletHubPhoneWidget.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 32;
 				DEVELOPMENT_TEAM = MRD7RUVQBS;
-				ENABLE_PREVIEWS = YES;
+				ENABLE_APP_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = TreeletHubWatchApp;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.treelet.TreeletHub;
+				INFOPLIST_FILE = TreeletHubPhoneWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TreeletHub;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub.watchkitapp;
+				MARKETING_VERSION = 1.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub.PhoneWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TreeletHubPhoneWidget/TreeletHubPhoneWidget-Bridging-Header.h";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		73D149693005DE0400DB565A /* Release */ = {
+		73440B2E305F7F7D007638A3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TreeletHubPhoneWidget/TreeletHubPhoneWidget.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 32;
 				DEVELOPMENT_TEAM = MRD7RUVQBS;
-				ENABLE_PREVIEWS = YES;
+				ENABLE_APP_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = TreeletHubWatchApp;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.treelet.TreeletHub;
+				INFOPLIST_FILE = TreeletHubPhoneWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TreeletHub;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub.watchkitapp;
+				MARKETING_VERSION = 1.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub.PhoneWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TreeletHubPhoneWidget/TreeletHubPhoneWidget-Bridging-Header.h";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+		};
+		73440B2F305F7F7D007638A3 /* AppStore */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TreeletHubPhoneWidget/TreeletHubPhoneWidget.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 32;
+				DEVELOPMENT_TEAM = MRD7RUVQBS;
+				ENABLE_APP_SANDBOX = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TreeletHubPhoneWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TreeletHub;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub.PhoneWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TreeletHubPhoneWidget/TreeletHubPhoneWidget-Bridging-Header.h";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = AppStore;
 		};
 		73A110012F9A100100000001 /* AppStore */ = {
 			isa = XCBuildConfiguration;
@@ -726,9 +887,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TreeletHub/TreeletHub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MRD7RUVQBS;
 				ENABLE_APP_SANDBOX = YES;
@@ -764,6 +926,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TreeletHub/TreeletHub-Bridging-Header.h";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -852,6 +1015,77 @@
 			};
 			name = AppStore;
 		};
+		73D149683005DE0400DB565A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MRD7RUVQBS;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TreeletHubWatchApp;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.treelet.TreeletHub;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Debug;
+		};
+		73D149693005DE0400DB565A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MRD7RUVQBS;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TreeletHubWatchApp;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.treelet.TreeletHub;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -881,6 +1115,16 @@
 				733A369F2F9083930020D699 /* Debug */,
 				733A36A02F9083930020D699 /* Release */,
 				73A110012F9A100100000003 /* AppStore */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		73440B31305F7F7D007638A3 /* Build configuration list for PBXNativeTarget "TreeletHubPhoneWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				73440B2D305F7F7D007638A3 /* Debug */,
+				73440B2E305F7F7D007638A3 /* Release */,
+				73440B2F305F7F7D007638A3 /* AppStore */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

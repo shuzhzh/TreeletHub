@@ -134,7 +134,7 @@ public struct HubFeatureIntroSheet: View {
             .padding(.bottom, 20)
         }
         #if os(macOS)
-        .frame(minWidth: 560, idealWidth: 620, minHeight: 640)
+        .frame(minWidth: 520, idealWidth: 600, minHeight: 480, idealHeight: 560)
         #endif
     }
 

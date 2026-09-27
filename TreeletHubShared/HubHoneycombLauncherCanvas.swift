@@ -25,8 +25,11 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
     public let onSelect: (Item) -> Void
     public let onSecondarySelect: ((Item) -> Void)?
     public let onDelete: ((Item) -> Void)?
+    public let onReplace: ((Item) -> Void)?
     public let onReorder: ((Item, Item) -> Void)?
     public let itemAccessibilityLabel: (Item) -> String
+    /// 视口（缩放 / 偏移）落盘时回调；iOS 用它把主应用蜂巢视口同步到桌面小组件。
+    public let onViewportChange: ((_ scale: CGFloat, _ offset: CGSize, _ baseIconSide: CGFloat) -> Void)?
 
     @AppStorage private var storedScale: Double
     @AppStorage private var storedOffsetX: Double
@@ -55,7 +58,9 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
     private let minScale: CGFloat = HubHoneycombLayout.defaultMinScale
     private let maxScale: CGFloat = HubHoneycombLayout.defaultMaxScale
     private let longPressDuration: TimeInterval = 0.48
-    private let moveThreshold: CGFloat = 6
+    /// 真机手指轻点常带 8–14pt 抖动；阈值过低会把点击当成平移，表现为「点了没反应」。
+    private let moveThreshold: CGFloat = 16
+    private let tapSlop: CGFloat = 28
 
     private enum GestureKind {
         case undecided
@@ -78,8 +83,10 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
         onSelect: @escaping (Item) -> Void,
         onSecondarySelect: ((Item) -> Void)? = nil,
         onDelete: ((Item) -> Void)? = nil,
+        onReplace: ((Item) -> Void)? = nil,
         onReorder: ((Item, Item) -> Void)? = nil,
-        itemAccessibilityLabel: @escaping (Item) -> String
+        itemAccessibilityLabel: @escaping (Item) -> String,
+        onViewportChange: ((_ scale: CGFloat, _ offset: CGSize, _ baseIconSide: CGFloat) -> Void)? = nil
     ) {
         self.items = items
         self.emptyHint = emptyHint
@@ -95,8 +102,10 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
         self.onSelect = onSelect
         self.onSecondarySelect = onSecondarySelect
         self.onDelete = onDelete
+        self.onReplace = onReplace
         self.onReorder = onReorder
         self.itemAccessibilityLabel = itemAccessibilityLabel
+        self.onViewportChange = onViewportChange
         _storedScale = AppStorage(wrappedValue: 1.0, "\(persistenceKey).scale")
         _storedOffsetX = AppStorage(wrappedValue: 0.0, "\(persistenceKey).ox")
         _storedOffsetY = AppStorage(wrappedValue: 0.0, "\(persistenceKey).oy")
@@ -400,7 +409,9 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
             return
         }
 
-        if gestureKind == .pan || isPanning || distance > moveThreshold {
+        // 已进入平移，但位移仍在点击容差内：当作轻点（恢复视口，避免图标「跟手滑一下」）。
+        let treatAsTap = distance <= tapSlop && pressCandidate != nil
+        if (gestureKind == .pan || isPanning), !treatAsTap {
             committedOffset = offset
             let predicted = value.predictedEndTranslation
             let velocity = CGSize(
@@ -425,6 +436,10 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
             return
         }
 
+        if treatAsTap, gestureKind == .pan || isPanning {
+            offset = committedOffset
+        }
+
         // 轻点
         if isEditing {
             if allowsDelete,
@@ -432,13 +447,17 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
                 onDelete?(item)
                 return
             }
-            if hitTest(at: value.startLocation, viewport: viewport) == nil {
-                exitEditing()
+            if let item = hitTest(at: value.startLocation, viewport: viewport) {
+                if let onReplace, isEditableItem(item) {
+                    onReplace(item)
+                }
+                return
             }
+            exitEditing()
             return
         }
 
-        if let item = hitTest(at: value.startLocation, viewport: viewport) {
+        if let item = hitTest(at: value.startLocation, viewport: viewport) ?? pressCandidate {
             lastTapAt = nil
             #if os(macOS)
             if NSEvent.modifierFlags.contains(.control)
@@ -620,6 +639,7 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
         storedOffsetY = Double(offset.height)
         hasStoredViewport = true
         storedLayoutRevision = HubHoneycombLayout.layoutRevision
+        onViewportChange?(scale, offset, baseIconSide)
     }
 }
 

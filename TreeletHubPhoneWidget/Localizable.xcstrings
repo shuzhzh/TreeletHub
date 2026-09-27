@@ -1,0 +1,78 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Bundle Identifier" : {
+
+    },
+    "Delta" : {
+
+    },
+    "Factor" : {
+
+    },
+    "ios.widget.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phone-tab honeycomb. Tap an app logo to open it. Use +/- to zoom."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与「手机」页一致的蜂窝启动器。点应用 Logo 即可打开，可用 +/- 缩放。"
+          }
+        }
+      }
+    },
+    "ios.widget.display_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phone Apps"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手机应用"
+          }
+        }
+      }
+    },
+    "ios.widget.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open TreeletHub and add apps on the Phone tab."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开 TreeletHub，在「手机」页添加应用。"
+          }
+        }
+      }
+    },
+    "Launch Installed App" : {
+
+    },
+    "Reset Phone Honeycomb" : {
+
+    },
+    "Rotate Phone Honeycomb" : {
+
+    },
+    "Zoom Phone Honeycomb" : {
+
+    }
+  },
+  "version" : "1.0"
+}

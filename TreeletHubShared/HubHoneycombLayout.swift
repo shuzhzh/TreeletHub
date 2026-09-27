@@ -1,5 +1,8 @@
 import CoreGraphics
 import Foundation
+#if os(iOS)
+import SwiftUI
+#endif
 
 /// 蜂巢螺旋坐标与 Watch App View 风格的视口缩放参数。
 public enum HubHoneycombLayout {
@@ -104,3 +107,41 @@ public enum HubHoneycombLayout {
         return CGSize(width: 0, height: -viewport.height * 0.045)
     }
 }
+
+#if os(iOS)
+/// 用 `Layout.place` 给出真实 frame。小组件里 `.position()` 的热区会叠在一起，点按只能打开宿主 App。
+public struct HubHoneycombPlacedLayout: Layout {
+    public var positions: [CGPoint]
+    public var scale: CGFloat
+    public var offset: CGSize
+    public var sides: [CGFloat]
+
+    public init(positions: [CGPoint], scale: CGFloat, offset: CGSize, sides: [CGFloat]) {
+        self.positions = positions
+        self.scale = scale
+        self.offset = offset
+        self.sides = sides
+    }
+
+    public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        proposal.replacingUnspecifiedDimensions()
+    }
+
+    public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        for (index, subview) in subviews.enumerated() {
+            guard index < positions.count else { break }
+            let side = index < sides.count ? max(22, sides[index]) : 44
+            let pos = positions[index]
+            let origin = CGPoint(
+                x: bounds.midX + pos.x * scale + offset.width - side * 0.5,
+                y: bounds.midY + pos.y * scale + offset.height - side * 0.5
+            )
+            subview.place(
+                at: origin,
+                anchor: .topLeading,
+                proposal: ProposedViewSize(width: side, height: side)
+            )
+        }
+    }
+}
+#endif

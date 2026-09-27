@@ -2,9 +2,79 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.treelet.TreeletHub</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>treelethub</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>weixin</string>
+		<string>wechat</string>
+		<string>mqq</string>
+		<string>mqqapi</string>
+		<string>alipay</string>
+		<string>alipays</string>
+		<string>taobao</string>
+		<string>tbopen</string>
+		<string>dingtalk</string>
+		<string>snssdk1128</string>
+		<string>aweme</string>
+		<string>douyin</string>
+		<string>xhsdiscover</string>
+		<string>xiaohongshu</string>
+		<string>bilibili</string>
+		<string>orpheus</string>
+		<string>kugou</string>
+		<string>qqmusic</string>
+		<string>baiduboxapp</string>
+		<string>imeituan</string>
+		<string>diditaxi</string>
+		<string>openapp.jdmobile</string>
+		<string>sinaweibo</string>
+		<string>tg</string>
+		<string>whatsapp</string>
+		<string>instagram</string>
+		<string>tiktok</string>
+		<string>googlechrome</string>
+		<string>googlegmail</string>
+		<string>comgooglemaps</string>
+		<string>spotify</string>
+		<string>twitter</string>
+		<string>fb</string>
+		<string>snapchat</string>
+		<string>wxwork</string>
+		<string>pinduoduo</string>
+		<string>fleamarket</string>
+		<string>amapuri</string>
+		<string>zhihu</string>
+		<string>youtube</string>
+		<string>zoomus</string>
+		<string>discord</string>
+		<string>kwai</string>
+		<string>eleme</string>
+		<string>tmall</string>
+		<string>cainiao</string>
+		<string>iting</string>
+		<string>keep</string>
+		<string>notion</string>
+		<string>slack</string>
+	</array>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_treelethub._tcp</string>
 	</array>
+	<key>NSContactsUsageDescription</key>
+	<string>TreeletHub uses your contacts so you can add people to the honeycomb and call them in one tap.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>TreeletHub opens the system camera so you can take a photo. Photos you take are saved to your library.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>TreeletHub saves photos you take with the system camera to your library.</string>
 </dict>
 </plist>

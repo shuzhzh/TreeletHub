@@ -63,6 +63,8 @@ final class HubIOSWatchBridge: NSObject, ObservableObject {
         guard WCSession.isSupported() else { return }
         let session = WCSession.default
         guard session.activationState == .activated else { return }
+        // 未安装 Watch App 时 updateApplicationContext 会刷屏报错，直接跳过。
+        guard session.isWatchAppInstalled else { return }
         guard let client else { return }
 
         let meta = makeMetaSnapshot(from: client)

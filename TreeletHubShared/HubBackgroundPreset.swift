@@ -1,8 +1,11 @@
 import SwiftUI
-import UIKit
 
-/// iOS 主界面背景预设：系统默认或带微妙渐变的纯色感背景。
-enum HubBackgroundPreset: String, CaseIterable, Identifiable {
+#if canImport(UIKit)
+import UIKit
+#endif
+
+/// 跨主应用与桌面小组件共用的背景预设。
+public enum HubBackgroundPreset: String, CaseIterable, Identifiable, Sendable {
     case system
     case porcelainLight
     case dawnBlush
@@ -11,14 +14,14 @@ enum HubBackgroundPreset: String, CaseIterable, Identifiable {
     case royalPlum
     case charcoalSilk
 
-    var id: String { rawValue }
+    public var id: String { rawValue }
 
-    func displayName(locale: Locale) -> String {
-        HubBundleLocalizedString.localized("ios.bg.preset.\(rawValue)", locale: locale, bundle: .main)
+    public func displayName(locale: Locale, bundle: Bundle = .main) -> String {
+        HubBundleLocalizedString.localized("ios.bg.preset.\(rawValue)", locale: locale, bundle: bundle)
     }
 
     /// 深色渐变预设强制使用深色界面，保证主副标题对比度。
-    var preferredColorScheme: ColorScheme? {
+    public var preferredColorScheme: ColorScheme? {
         switch self {
         case .deepAzure, .royalPlum, .charcoalSilk: return .dark
         default: return nil
@@ -26,10 +29,16 @@ enum HubBackgroundPreset: String, CaseIterable, Identifiable {
     }
 
     @ViewBuilder
-    var backgroundView: some View {
+    public var backgroundView: some View {
         switch self {
         case .system:
+            #if os(iOS) || os(tvOS) || os(visionOS)
             Color(UIColor.systemGroupedBackground)
+            #elseif os(macOS)
+            Color(nsColor: .windowBackgroundColor)
+            #else
+            Color.gray.opacity(0.12)
+            #endif
         default:
             LinearGradient(
                 colors: gradientColors,
@@ -105,7 +114,7 @@ enum HubBackgroundPreset: String, CaseIterable, Identifiable {
 
 extension View {
     @ViewBuilder
-    func treeletHubPreferredColorScheme(_ scheme: ColorScheme?) -> some View {
+    public func treeletHubPreferredColorScheme(_ scheme: ColorScheme?) -> some View {
         if let scheme {
             self.preferredColorScheme(scheme)
         } else {

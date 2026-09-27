@@ -3,12 +3,14 @@ import PhotosUI
 import SwiftUI
 import AudioToolbox
 import UIKit
+import WidgetKit
 
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
     @StateObject private var client = HubIOSClient()
     @StateObject private var customBackgroundStore = HubCustomBackgroundStore()
+    @StateObject private var phoneGrid = HubIOSAppGridStore()
     @FocusState private var pinFieldFocused: Bool
     @AppStorage("treelethub.bg.preset") private var bgPresetRaw: String = HubBackgroundPreset.system.rawValue
     @AppStorage(HubIOSClient.customDeviceNameDefaultsKey) private var customDeviceDisplayName: String = ""
@@ -17,12 +19,23 @@ struct ContentView: View {
     @State private var photoPickerItem: PhotosPickerItem?
     /// 正在播放点击缩放动画的启动器条目 id。
     @State private var iconTapAnimatingItemId: String?
+    @State private var phoneTapAnimatingItemId: String?
     /// 绑定 Tab 选中，避免 `@AppStorage` / 背景状态变化时重建回到默认页。
-    @State private var pairedTabSelectionTag: String = "apps"
+    @State private var rootTabSelectionTag: String = "phone"
     /// 音量 / 亮度 / 媒体等需内联控件的快捷方式。
     @State private var shortcutControlItem: HubLauncherItem?
     /// 连接页：已复制 Mac 下载链接的短暂确认。
     @State private var didCopyMacDownloadLink = false
+    /// 手机蜂巢正在添加 / 替换的槽位。
+    @State private var phonePickerSlot: PendingPhoneSlot?
+    @State private var showCatalogAppPicker = false
+    /// 小组件点按经 `treelethub://launch-phone-app` 进来时待启动的应用；等场景激活后再打开，避免冷启动时丢失。
+    @State private var pendingLaunchBundleId: String?
+    /// 手机页无法启动目标 App 时的提示。
+    @State private var phoneLaunchAlertMessage: String?
+    /// 打开系统拍照界面（相机 App 没有公开 URL）。
+    @State private var showSystemCamera = false
+    @State private var showHoneycombContactPicker = false
     @EnvironmentObject private var uiLanguage: HubIOSUILanguage
 
     private func iosL(_ key: String) -> String {
@@ -70,11 +83,24 @@ struct ContentView: View {
         )
     }
 
-    private func validatePairedTabSelection() {
-        let validTags: Set<String> = ["apps", "settings"]
-        if !validTags.contains(pairedTabSelectionTag) {
-            pairedTabSelectionTag = "apps"
+    private func validateRootTabSelection() {
+        let validTags: Set<String> = ["phone", "computer", "settings"]
+        if !validTags.contains(rootTabSelectionTag) {
+            rootTabSelectionTag = "phone"
         }
+    }
+
+    private func syncWidgetAppearance() {
+        let jpeg: Data? = {
+            guard useCustomBackground, let image = customBackgroundStore.image else { return nil }
+            return image.jpegData(compressionQuality: 0.82)
+        }()
+        HubIOSAppGroup.syncAppearance(
+            presetRaw: bgPresetRaw,
+            useCustom: useCustomBackground,
+            customJPEG: jpeg
+        )
+        WidgetCenter.shared.reloadTimelines(ofKind: HubIOSAppGroup.widgetKind)
     }
 
     /// 界面深浅与当前「预设」一致；相册图只替换底层背景，不再整体切换 `colorScheme`，避免设置页布局跳动、与点预设时行为不一致。
@@ -83,17 +109,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        Group {
-            if client.phase == .paired {
-                pairedRootTabView
-            } else {
-                NavigationStack {
-                    hubRootWithBackground {
-                        connectionScreen
-                    }
-                }
-            }
-        }
+        nativeRootTabView
         .treeletHubPreferredColorScheme(effectivePreferredColorScheme)
         .animation(.easeInOut(duration: 0.2), value: client.phase == .paired)
         .onAppear {
@@ -101,16 +117,64 @@ struct ContentView: View {
             if useCustomBackground && customBackgroundStore.image == nil {
                 useCustomBackground = false
             }
+            syncWidgetAppearance()
             HubIOSWatchBridge.shared.attach(client: client)
             client.restorePairingFromDiskOnLaunch()
+            Task { await phoneGrid.refreshInstalledApps() }
+        }
+        .onChange(of: bgPresetRaw) { _, _ in
+            syncWidgetAppearance()
+        }
+        .onChange(of: useCustomBackground) { _, _ in
+            syncWidgetAppearance()
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 client.reconnectFromCacheIfNeededOnForeground()
+                Task { await phoneGrid.refreshInstalledApps() }
+                flushPendingLaunch()
             }
         }
         .onChange(of: client.pages) { _, _ in
-            validatePairedTabSelection()
+            validateRootTabSelection()
+        }
+        .onOpenURL { url in
+            handleIncomingURL(url)
+        }
+        .sheet(isPresented: $showCatalogAppPicker) {
+            HubIOSAppPickerView(
+                copy: HubIOSAppPickerView.Copy(
+                    title: iosL("ios.phone.picker.title"),
+                    cancelTitle: iosL("ios.common.cancel"),
+                    doneTitle: iosL("ios.common.done"),
+                    addCountFormat: iosL("ios.phone.picker.add_count"),
+                    segmentCatalog: iosL("ios.phone.picker.segment_catalog"),
+                    segmentAll: iosL("ios.phone.picker.segment_all"),
+                    searchPlaceholder: iosL("ios.phone.picker.search"),
+                    catalogEmpty: iosL("ios.phone.picker.empty"),
+                    catalogInstalledHeader: iosL("ios.phone.picker.catalog_installed"),
+                    catalogStoreHeader: iosL("ios.phone.picker.catalog_store"),
+                    catalogFooter: iosL("ios.phone.picker.catalog_footer"),
+                    storeSearching: iosL("ios.phone.picker.store_searching"),
+                    suggestedHeader: iosL("ios.phone.picker.suggested"),
+                    alreadyAdded: iosL("ios.phone.picker.already_added"),
+                    searchHint: iosL("ios.phone.picker.search_hint"),
+                    unlaunchableHint: iosL("ios.phone.picker.unlaunchable"),
+                    contactCallsHeader: iosL("ios.phone.picker.contact_calls"),
+                    contactNoPhone: iosL("ios.phone.picker.contact_no_phone")
+                ),
+                occupiedBundleIds: occupiedPhoneBundleIds,
+                onPick: { picks in
+                    applyPhonePicks(picks)
+                    showCatalogAppPicker = false
+                    phonePickerSlot = nil
+                },
+                onCancel: {
+                    showCatalogAppPicker = false
+                    phonePickerSlot = nil
+                }
+            )
+            .environment(\.locale, uiLanguage.locale)
         }
         .alert(
             iosL("ios.alert.disconnect_title"),
@@ -128,6 +192,43 @@ struct ContentView: View {
             }
         } message: {
             Text(client.serverDisconnectAlertMessage ?? iosL("ios.disconnect.server_message"))
+        }
+        .alert(
+            iosL("ios.phone.launch.title"),
+            isPresented: Binding(
+                get: { phoneLaunchAlertMessage != nil },
+                set: { if !$0 { phoneLaunchAlertMessage = nil } }
+            )
+        ) {
+            Button(iosL("ios.common.ok"), role: .cancel) {
+                phoneLaunchAlertMessage = nil
+            }
+        } message: {
+            Text(phoneLaunchAlertMessage ?? "")
+        }
+        .fullScreenCover(isPresented: $showSystemCamera) {
+            HubIOSSystemCameraView {
+                showSystemCamera = false
+            }
+            .ignoresSafeArea()
+        }
+        .sheet(isPresented: $showHoneycombContactPicker) {
+            HubIOSContactCallPicker(
+                onPick: { contacts in
+                    showHoneycombContactPicker = false
+                    let picks = HubIOSContactCall.picks(from: contacts)
+                    if picks.isEmpty {
+                        phoneLaunchAlertMessage = iosL("ios.phone.picker.contact_no_phone")
+                    } else {
+                        applyPhonePicks(picks)
+                    }
+                    phonePickerSlot = nil
+                },
+                onCancel: {
+                    showHoneycombContactPicker = false
+                }
+            )
+            .ignoresSafeArea()
         }
     }
 
@@ -155,88 +256,385 @@ struct ContentView: View {
         }
     }
 
-    // MARK: 已连接：Apps 启动墙 + 设置
+    // MARK: 系统 Tab：手机 / 电脑 / 设置
 
-    /// 底栏切换 Apps / 设置（不用分页横滑，避免与蜂巢墙拖拽抢手势）。
-    private var pairedRootTabView: some View {
+    /// 使用系统 `TabView`（iOS 26 起为液态玻璃底栏），不用自定义条，也不用分页横滑以免和蜂巢抢手势。
+    @ViewBuilder
+    private var nativeRootTabView: some View {
         Group {
-            if pairedTabSelectionTag == "settings" {
-                NavigationStack {
-                    hubRootWithBackground {
-                        pairedSettingsScreen
+            if #available(iOS 18.0, *) {
+                TabView(selection: $rootTabSelectionTag) {
+                    Tab(iosL("ios.tab.phone"), systemImage: "iphone", value: "phone") {
+                        phoneTabRoot
+                    }
+                    Tab(iosL("ios.tab.computer"), systemImage: "desktopcomputer", value: "computer") {
+                        computerTabRoot
+                    }
+                    Tab(iosL("ios.tab.settings"), systemImage: "gearshape", value: "settings") {
+                        settingsTabRoot
                     }
                 }
             } else {
-                NavigationStack {
-                    hubRootWithBackground {
-                        pairedLauncherScreen
-                    }
+                TabView(selection: $rootTabSelectionTag) {
+                    phoneTabRoot
+                        .tabItem { Label(iosL("ios.tab.phone"), systemImage: "iphone") }
+                        .tag("phone")
+                    computerTabRoot
+                        .tabItem { Label(iosL("ios.tab.computer"), systemImage: "desktopcomputer") }
+                        .tag("computer")
+                    settingsTabRoot
+                        .tabItem { Label(iosL("ios.tab.settings"), systemImage: "gearshape") }
+                        .tag("settings")
                 }
             }
         }
-        .animation(.snappy(duration: 0.28), value: pairedTabSelectionTag)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            pairedCustomTabBar
+        .modifier(HubIOSNativeTabBarChrome())
+    }
+
+    private var phoneTabRoot: some View {
+        NavigationStack {
+            hubRootWithBackground {
+                phoneLauncherScreen
+            }
+        }
+    }
+
+    private var computerTabRoot: some View {
+        NavigationStack {
+            hubRootWithBackground {
+                if client.phase == .paired {
+                    pairedLauncherScreen
+                } else {
+                    connectionScreen
+                }
+            }
         }
         .sheet(item: $shortcutControlItem) { item in
             shortcutControlSheet(item: item)
         }
         .background {
-            HubMacGestureOverlay(
-                onTwoFingerSwipeDown: {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    client.gesture(command: .showDesktop)
-                }
-            )
+            if client.phase == .paired {
+                HubMacGestureOverlay(
+                    onTwoFingerSwipeDown: {
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        client.gesture(command: .showDesktop)
+                    }
+                )
+            }
         }
     }
 
-    /// 轻量底栏：Apps + 设置。
-    private var pairedCustomTabBar: some View {
-        HStack(spacing: 0) {
-            pairedTabBarButton(
-                tag: "apps",
-                title: iosL("ios.tab.apps"),
-                systemImage: "circle.grid.cross.fill"
-            )
-            pairedTabBarButton(
-                tag: "settings",
-                title: iosL("ios.tab.settings"),
-                systemImage: "gearshape.fill"
-            )
+    private var settingsTabRoot: some View {
+        NavigationStack {
+            hubRootWithBackground {
+                pairedSettingsScreen
+            }
         }
-        .padding(.top, 6)
-        .padding(.bottom, 4)
-        .background(.ultraThinMaterial)
+    }
+
+    private var phoneLauncherItems: [HubLauncherItem] {
+        HubLauncherItems.flattenedWithAddAffordance(from: phoneGrid.launcherPages)
+    }
+
+    private var phoneConfiguredCount: Int {
+        HubService.configuredSlotCount(in: phoneGrid.pages)
+    }
+
+    /// 已在蜂巢里的应用；替换当前槽位时把它从占用集合里拿掉，方便重选。
+    private var occupiedPhoneBundleIds: Set<String> {
+        var ids = Set(
+            phoneGrid.pages.flatMap { $0.slots.compactMap(\.bundleIdentifier) }.filter { !$0.isEmpty }
+        )
+        if let target = phonePickerSlot,
+           let page = phoneGrid.pages.first(where: { $0.id == target.pageId }),
+           let slot = page.slots.first(where: { $0.id == target.slotId }),
+           let bid = slot.bundleIdentifier {
+            ids.remove(bid)
+        }
+        return ids
+    }
+
+    private var phoneLauncherScreen: some View {
+        HubWatchStyleLauncherView(
+            items: phoneLauncherItems,
+            emptyHint: iosL("ios.phone.empty"),
+            reduceMotion: accessibilityReduceMotion,
+            animatingItemId: phoneTapAnimatingItemId,
+            persistenceKey: "treelethub.launcher.ios.phone",
+            editDoneLabel: iosL("ios.common.done"),
+            allowsDelete: true,
+            onSelect: handlePhoneSelect,
+            onDelete: { item in
+                guard !item.isAddAffordance else { return }
+                phoneGrid.clearSlot(page: item.pageId, index: item.slot.id)
+            },
+            onReplace: { item in
+                guard !item.isAddAffordance else { return }
+                phonePickerSlot = PendingPhoneSlot(pageId: item.pageId, slotId: item.slot.id)
+                presentCatalogPicker()
+            },
+            onReorder: { from, to in
+                guard !from.isAddAffordance, !to.isAddAffordance else { return }
+                phoneGrid.swapSlots(
+                    page: from.pageId,
+                    at: from.slot.id,
+                    withPage: to.pageId,
+                    at: to.slot.id
+                )
+            },
+            onViewportChange: { scale, offset, baseIconSide in
+                // 手机页捏合 / 拖动的结果同步给桌面小组件（小组件本身没有手势，只能按钮步进）。
+                phoneGrid.syncViewportToWidget(scale: scale, offset: offset, baseIconSide: baseIconSide)
+            },
+            iconShape: .iosSquircle
+        )
         .overlay(alignment: .top) {
-            Divider().opacity(0.35)
+            if phoneConfiguredCount == 0 {
+                phoneEmptyHoneycombWelcome
+                    .padding(16)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: phoneConfiguredCount == 0)
+    }
+
+    private var phoneEmptyHoneycombWelcome: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(iosL("ios.phone.empty_title"), systemImage: "hexagon.fill")
+                .font(.headline)
+            Text(iosL("ios.phone.empty_body"))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Button {
+                beginAddPhoneApp()
+            } label: {
+                Text(iosL("ios.phone.empty_cta"))
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.regular)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(Color.accentColor.opacity(0.18), lineWidth: 1)
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private func handlePhoneSelect(_ item: HubLauncherItem) {
+        pinFieldFocused = false
+        if item.isAddAffordance {
+            beginAddPhoneApp()
+            return
+        }
+        guard !item.slot.isEmpty else { return }
+
+        // 先给反馈，避免「点了完全没动静」；真正启动在下一拍异步执行。
+        playAppIconTapFeedback()
+        pulsePhoneLauncherIcon(itemId: item.id)
+
+        let rawId = item.slot.bundleIdentifier.flatMap { $0.isEmpty || $0.hasPrefix("slot.") ? nil : $0 }
+        let bundleId = rawId
+            ?? HubIOSInstalledApps.bundleIdentifier(matchingDisplayName: item.slot.displayName)
+        guard let bundleId, !bundleId.isEmpty else {
+            phoneLaunchAlertMessage = iosL("ios.phone.launch.need_catalog")
+            return
+        }
+        // 以前从「屏幕使用时间」加进来的条目只有 token。对上应用名后补上 bundle id，下次才能直接打开。
+        if rawId == nil {
+            phoneGrid.setSlot(
+                page: item.pageId,
+                index: item.slot.id,
+                bundleIdentifier: bundleId,
+                displayName: item.slot.displayName ?? HubIOSInstalledApps.displayName(for: bundleId),
+                familyTokenData: item.slot.familyTokenData,
+                iconPNG: item.slot.iconPNG
+            )
+        }
+
+        launchPhoneBundle(bundleId, displayName: item.slot.displayName, item: item)
+    }
+
+    private func launchPhoneBundle(_ bundleId: String, displayName: String? = nil, item: HubLauncherItem? = nil) {
+        if HubIOSInstalledApps.needsContactCallSetup(bundleId) {
+            if let item {
+                phonePickerSlot = PendingPhoneSlot(pageId: item.pageId, slotId: item.slot.id)
+            }
+            HubIOSContactCall.requestAccessThen {
+                showHoneycombContactPicker = true
+            }
+            return
+        }
+        if HubIOSInstalledApps.needsSystemCamera(bundleId) {
+            presentSystemCamera()
+            return
+        }
+        HubIOSInstalledApps.open(bundleIdentifier: bundleId) { success in
+            if !success {
+                let name = displayName?.trimmingCharacters(in: .whitespacesAndNewlines)
+                let label = (name?.isEmpty == false) ? name! : bundleId
+                phoneLaunchAlertMessage = String(
+                    format: iosL("ios.phone.launch.failed"),
+                    locale: Locale.current,
+                    label
+                )
+            }
         }
     }
 
-    private func pairedTabBarButton(tag: String, title: String, systemImage: String) -> some View {
-        let selected = pairedTabSelectionTag == tag
-        return Button {
-            withAnimation(.snappy(duration: 0.28)) {
-                pairedTabSelectionTag = tag
-            }
-            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-        } label: {
-            VStack(spacing: 3) {
-                Image(systemName: systemImage)
-                    .font(.system(size: 20, weight: selected ? .semibold : .regular))
-                    .symbolVariant(selected ? .fill : .none)
-                Text(title)
-                    .font(.system(size: 10, weight: selected ? .semibold : .regular))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-            }
-            .foregroundStyle(selected ? Color.accentColor : Color.secondary)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 4)
-            .contentShape(Rectangle())
+    private func presentSystemCamera() {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            phoneLaunchAlertMessage = iosL("ios.phone.launch.camera_unavailable")
+            return
         }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(selected ? .isSelected : [])
+        showSystemCamera = true
+    }
+
+    private func beginAddPhoneApp() {
+        presentCatalogPicker()
+    }
+
+    private func presentCatalogPicker() {
+        if phonePickerSlot == nil {
+            guard let target = HubService.firstEmptySlot(in: phoneGrid.pages) else { return }
+            phonePickerSlot = PendingPhoneSlot(pageId: target.pageId, slotId: target.slotId)
+        }
+        showCatalogAppPicker = true
+    }
+
+    /// 多选结果按顺序写入蜂巢：替换目标槽优先，其余填空位；已在列表中的应用跳过。
+    private func applyPhonePicks(_ picks: [HubIOSFamilyAppPick]) {
+        guard !picks.isEmpty else { return }
+
+        let replaceTarget = phonePickerSlot
+        var occupiedTokens = Set<Data>()
+        var occupiedBundles = Set<String>()
+        for page in phoneGrid.pages {
+            for slot in page.slots {
+                if let replaceTarget,
+                   page.id == replaceTarget.pageId,
+                   slot.id == replaceTarget.slotId {
+                    continue
+                }
+                if let token = slot.familyTokenData { occupiedTokens.insert(token) }
+                if let bid = slot.bundleIdentifier, !bid.isEmpty { occupiedBundles.insert(bid) }
+            }
+        }
+
+        let uniquePicks = picks.filter { pick in
+            if let token = pick.tokenData, occupiedTokens.contains(token) { return false }
+            if let bid = pick.bundleIdentifier, !bid.isEmpty, occupiedBundles.contains(bid) {
+                return false
+            }
+            return true
+        }
+        guard !uniquePicks.isEmpty else { return }
+
+        var usedTargets = Set<String>()
+        func takeHome(preferringPhoneSlots: Bool) -> (pageId: Int, slotId: Int)? {
+            var candidates: [(pageId: Int, slotId: Int)] = []
+            if let replaceTarget {
+                candidates.append((replaceTarget.pageId, replaceTarget.slotId))
+            }
+            if preferringPhoneSlots {
+                candidates.append(contentsOf: unboundPhoneSlots())
+            }
+            candidates.append(contentsOf: HubService.emptySlots(in: phoneGrid.pages))
+            for home in candidates {
+                let key = "\(home.pageId).\(home.slotId)"
+                if usedTargets.insert(key).inserted { return home }
+            }
+            return nil
+        }
+
+        var wroteContact = false
+        for pick in uniquePicks {
+            let isContact = pick.bundleIdentifier.map(HubIOSInstalledApps.isContactCall) == true
+            guard let target = takeHome(preferringPhoneSlots: isContact) else { break }
+            phoneGrid.setSlot(
+                page: target.pageId,
+                index: target.slotId,
+                bundleIdentifier: pick.bundleIdentifier,
+                displayName: pick.displayName,
+                familyTokenData: pick.tokenData,
+                iconPNG: pick.iconPNG,
+                launchURLString: pick.launchURLString,
+                persistNow: false
+            )
+            if isContact { wroteContact = true }
+            if let bid = pick.bundleIdentifier, !bid.isEmpty {
+                occupiedBundles.insert(bid)
+            }
+            if let token = pick.tokenData {
+                occupiedTokens.insert(token)
+            }
+        }
+        if wroteContact {
+            for home in unboundPhoneSlots() {
+                let key = "\(home.pageId).\(home.slotId)"
+                guard !usedTargets.contains(key) else { continue }
+                phoneGrid.clearSlot(page: home.pageId, index: home.slotId)
+            }
+        }
+        phoneGrid.finishBatchUpdate()
+    }
+
+    private func unboundPhoneSlots() -> [(pageId: Int, slotId: Int)] {
+        phoneGrid.pages.flatMap { page in
+            page.slots.compactMap { slot -> (pageId: Int, slotId: Int)? in
+                guard slot.bundleIdentifier == HubIOSContactCall.phoneBundleId else { return nil }
+                return (page.id, slot.id)
+            }
+        }
+    }
+
+    // MARK: 小组件 / 外部深链
+
+    private func handleIncomingURL(_ url: URL) {
+        guard let action = HubIOSInstalledApps.incomingAction(from: url) else { return }
+        rootTabSelectionTag = "phone"
+        switch action {
+        case .showPhoneTab:
+            break
+        case .launchApp(let bundleId):
+            pendingLaunchBundleId = bundleId
+            if scenePhase == .active {
+                flushPendingLaunch()
+            }
+        }
+    }
+
+    /// 冷启动时 `onOpenURL` 早于场景激活，此时 `UIApplication.open` 会被系统忽略；等到 `.active` 再真正打开。
+    private func flushPendingLaunch() {
+        guard let bundleId = pendingLaunchBundleId else { return }
+        pendingLaunchBundleId = nil
+        if let item = phoneLauncherItems.first(where: { $0.slot.bundleIdentifier == bundleId }) {
+            pulsePhoneLauncherIcon(itemId: item.id)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            launchPhoneBundle(bundleId)
+        }
+    }
+
+    private func pulsePhoneLauncherIcon(itemId: String) {
+        guard !accessibilityReduceMotion else { return }
+        withAnimation(.spring(response: 0.24, dampingFraction: 0.62)) {
+            phoneTapAnimatingItemId = itemId
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                if phoneTapAnimatingItemId == itemId {
+                    phoneTapAnimatingItemId = nil
+                }
+            }
+        }
     }
 
     private func handleLauncherSelect(_ item: HubLauncherItem) {
@@ -408,6 +806,7 @@ struct ContentView: View {
                             Button(iosL("ios.settings.delete_photo_bg"), role: .destructive) {
                                 customBackgroundStore.deleteCustomFile()
                                 useCustomBackground = false
+                                syncWidgetAppearance()
                             }
                         }
 
@@ -433,14 +832,16 @@ struct ContentView: View {
                     .font(.caption)
             }
 
-            Section {
-                Button(iosL("ios.settings.disconnect"), role: .destructive) {
-                    client.disconnect()
+            if client.phase == .paired {
+                Section {
+                    Button(iosL("ios.settings.disconnect"), role: .destructive) {
+                        client.disconnect()
+                    }
+                    .listRowBackground(Color.clear)
+                } footer: {
+                    Text(iosL("ios.settings.disconnect_footer"))
+                        .font(.caption)
                 }
-                .listRowBackground(Color.clear)
-            } footer: {
-                Text(iosL("ios.settings.disconnect_footer"))
-                    .font(.caption)
             }
 
             Section {
@@ -456,6 +857,7 @@ struct ContentView: View {
                             customBackgroundStore.saveImageFromPicker(data: data)
                             useCustomBackground = true
                             photoPickerItem = nil
+                            syncWidgetAppearance()
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         }
                     }
@@ -472,7 +874,7 @@ struct ContentView: View {
         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
     }
 
-    // MARK: 未连接：配对
+    // MARK: 电脑 Tab：未配对时的 Mac 引导 + 配对
 
     private var connectionScreen: some View {
         ScrollView {
@@ -864,4 +1266,21 @@ private extension HubShortcutKind {
     ContentView()
         .environmentObject(HubIOSUILanguage())
         .environment(\.locale, Locale(identifier: "en"))
+}
+
+private struct PendingPhoneSlot: Identifiable {
+    let pageId: Int
+    let slotId: Int
+    var id: String { "\(pageId)-\(slotId)" }
+}
+
+/// iOS 26 系统 Tab 为液态玻璃；不覆盖 toolbarBackground，以免把磨砂效果画成自定义条。
+private struct HubIOSNativeTabBarChrome: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.tabBarMinimizeBehavior(.automatic)
+        } else {
+            content
+        }
+    }
 }

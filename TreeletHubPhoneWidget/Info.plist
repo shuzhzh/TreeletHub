@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.widgetkit-extension</string>
+	</dict>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>weixin</string>
+		<string>wechat</string>
+		<string>mqq</string>
+		<string>alipay</string>
+		<string>alipays</string>
+		<string>taobao</string>
+		<string>tbopen</string>
+		<string>dingtalk</string>
+		<string>snssdk1128</string>
+		<string>aweme</string>
+		<string>xhsdiscover</string>
+		<string>bilibili</string>
+		<string>orpheus</string>
+		<string>imeituan</string>
+		<string>pinduoduo</string>
+		<string>amapuri</string>
+		<string>whatsapp</string>
+		<string>instagram</string>
+		<string>tg</string>
+		<string>youtube</string>
+		<string>googlechrome</string>
+		<string>spotify</string>
+		<string>tiktok</string>
+		<string>x-web-search</string>
+		<string>maps</string>
+		<string>music</string>
+		<string>shortcuts</string>
+		<string>photos-redirect</string>
+		<string>itms-apps</string>
+		<string>messages</string>
+		<string>mobilenotes</string>
+		<string>calshow</string>
+	</array>
+</dict>
+</plist>
