@@ -125,6 +125,13 @@ nonisolated public enum HubIOSInstalledApps {
         "com.zhiliaoapp.musically",
         "com.google.Gmail",
         "com.facebook.Facebook",
+        "com.openai.chat",
+        "com.bot.doubao",
+        "com.anthropic.claude",
+        "com.deepseek.chat",
+        "com.google.gemini",
+        "com.moonshot.kimichat",
+        "com.tencent.hunyuan.app.chat",
     ]
 
     /// 把能直接打开的 URL 记到 App Group。只写已知 scheme，不扫 LaunchServices。
@@ -611,6 +618,14 @@ nonisolated public enum HubIOSInstalledApps {
         ("com.zhiliaoapp.musically.go", "TikTok Lite"),
         ("com.linkedin.LinkedIn", "LinkedIn"),
         ("com.atebits.Tweetie2", "X"),
+        ("com.openai.chat", "ChatGPT"),
+        ("com.bot.doubao", "Doubao"),
+        ("com.anthropic.claude", "Claude"),
+        ("com.deepseek.chat", "DeepSeek"),
+        ("com.google.gemini", "Gemini"),
+        ("com.moonshot.kimichat", "Kimi"),
+        ("com.tencent.hunyuan.app.chat", "Yuanbao"),
+        ("com.aliyun.ios.tongyi", "Qwen"),
     ]
 
     private static let zhHansNames: [String: String] = [
@@ -734,6 +749,14 @@ nonisolated public enum HubIOSInstalledApps {
         "notion.id": "Notion",
         "com.burbn.barcelona": "Threads",
         "com.linkedin.LinkedIn": "领英",
+        "com.openai.chat": "ChatGPT",
+        "com.bot.doubao": "豆包",
+        "com.anthropic.claude": "Claude",
+        "com.deepseek.chat": "DeepSeek",
+        "com.google.gemini": "Gemini",
+        "com.moonshot.kimichat": "Kimi",
+        "com.tencent.hunyuan.app.chat": "元宝",
+        "com.aliyun.ios.tongyi": "千问",
     ]
 
     private static func knownURL(for bundleIdentifier: String) -> URL? {
@@ -833,6 +856,14 @@ nonisolated public enum HubIOSInstalledApps {
             "com.ss.iphone.article.News": "snssdk141://",
             "com.linkedin.LinkedIn": "linkedin://",
             "com.burbn.barcelona": "barcelona://",
+            "com.openai.chat": "chatgpt://",
+            "com.bot.doubao": "doubao://",
+            "com.anthropic.claude": "claude://",
+            "com.deepseek.chat": "deepseek://",
+            "com.google.gemini": "googlegemini://",
+            "com.moonshot.kimichat": "kimichat://",
+            "com.tencent.hunyuan.app.chat": "hunyuan://",
+            "com.aliyun.ios.tongyi": "tongyi://",
         ]
         guard let raw = schemes[bundleIdentifier] else { return nil }
         return URL(string: raw)
@@ -859,6 +890,10 @@ nonisolated public enum HubIOSInstalledApps {
             "com.ss.iphone.ugc.Aweme": ["aweme://", "douyin://"],
             "com.xingin.discover": ["xiaohongshu://"],
             "com.tencent.mqq": ["mqqapi://"],
+            "com.openai.chat": ["openai://", "com.openai.chat://"],
+            "com.bot.doubao": ["snssdk3102://"],
+            "com.google.gemini": ["gemini://"],
+            "com.anthropic.claude": ["claude-ai://"],
         ]
         return (extras[bundleIdentifier] ?? []).compactMap(URL.init(string:))
     }

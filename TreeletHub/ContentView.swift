@@ -160,6 +160,7 @@ struct ContentView: View {
                     alreadyAdded: iosL("ios.phone.picker.already_added"),
                     searchHint: iosL("ios.phone.picker.search_hint"),
                     unlaunchableHint: iosL("ios.phone.picker.unlaunchable"),
+                    unlaunchableShort: iosL("ios.phone.picker.unlaunchable_short"),
                     contactCallsHeader: iosL("ios.phone.picker.contact_calls"),
                     contactNoPhone: iosL("ios.phone.picker.contact_no_phone")
                 ),

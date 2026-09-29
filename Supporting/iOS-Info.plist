@@ -70,11 +70,5 @@
 	<array>
 		<string>_treelethub._tcp</string>
 	</array>
-	<key>NSContactsUsageDescription</key>
-	<string>TreeletHub uses your contacts so you can add people to the honeycomb and call them in one tap.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>TreeletHub opens the system camera so you can take a photo. Photos you take are saved to your library.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>TreeletHub saves photos you take with the system camera to your library.</string>
 </dict>
 </plist>

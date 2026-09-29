@@ -2,6 +2,24 @@
 
 本文件记录 TreeletHub 面向用户的版本变化。GitHub 仓库首页可直接打开本页；安装包说明也在 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
 
+## [1.3.1] — 2026-09-29（iOS，当前）
+
+手机端蜂巢启动墙改为 **App Store 审核安全** 路径：只走公开 URL Scheme 与 App Store 图标，不再使用私有 LaunchServices / Family Controls。
+
+### 蜂巢启动
+
+- 添加页支持多选常用应用，并可搜索 App Store；图标走官方 artwork。
+- 点蜂巢或桌面小组件：经 `treelethub://` 回到主应用后再 `open(url)` 启动目标应用。
+- 电话改为选通讯录联系人后一键呼叫；相机走系统拍照界面（系统相机 App 没有公开 URL）。
+- 无公开打开方式的系统应用（如设置）不再出现在可添加列表中。
+
+### 搜索与目录
+
+- 修复搜索被「能否启动」过滤导致搜不到已上架应用的问题（如「豆包」「ChatGPT」）。
+- 扩充可一键打开的目录：豆包、ChatGPT、Claude、DeepSeek、Gemini、Kimi、元宝、千问等。
+- 修正高德 / 京东 / 滴滴 / 喜马拉雅等过时的 bundle id，便于拉到正确图标。
+- 搜到但没有公开 URL Scheme 的结果仍会显示，并标为无法加入蜂巢。
+
 ## [1.3.1] — 2026-09-18（Android）
 
 与 iPhone 对齐：蜂巢启动墙、移除本机 AI 控制键盘与订阅门控。
@@ -12,7 +30,7 @@
 
 详细说明：[docs/release-notes-android-v1.3.1.md](docs/release-notes-android-v1.3.1.md) · [Release](https://github.com/shuzhzh/TreeletHub/releases/tag/android-v1.3.1)
 
-## [1.3.0] — 2026-09-18（macOS，当前）
+## [1.3.0] — 2026-09-18（macOS）
 
 正式 Mac 直装包。蜂巢启动墙、一次性 Pro、灵动岛与键盘启动器一并发布。
 

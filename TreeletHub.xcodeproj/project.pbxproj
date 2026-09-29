@@ -524,7 +524,7 @@
 				CODE_SIGN_ENTITLEMENTS = TreeletHub/TreeletHub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 32;
+				CURRENT_PROJECT_VERSION = 33;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MRD7RUVQBS;
 				ENABLE_APP_SANDBOX = YES;
@@ -534,7 +534,10 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Supporting/iOS-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCameraUsageDescription = "TreeletHub opens the system camera so you can take a photo. Photos you take are saved to your library.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "TreeletHub uses your contacts so you can add people to the honeycomb and call them in one tap.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "TreeletHub needs access to your local network to find and connect to your Mac on the same Wi‑Fi, sync the app grid, and launch apps.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "TreeletHub saves photos you take with the system camera to your library.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -549,7 +552,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.4;
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -576,7 +579,7 @@
 				CODE_SIGN_ENTITLEMENTS = TreeletHub/TreeletHub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 32;
+				CURRENT_PROJECT_VERSION = 33;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MRD7RUVQBS;
 				ENABLE_APP_SANDBOX = YES;
@@ -586,7 +589,10 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Supporting/iOS-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCameraUsageDescription = "TreeletHub opens the system camera so you can take a photo. Photos you take are saved to your library.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "TreeletHub uses your contacts so you can add people to the honeycomb and call them in one tap.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "TreeletHub needs access to your local network to find and connect to your Mac on the same Wi‑Fi, sync the app grid, and launch apps.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "TreeletHub saves photos you take with the system camera to your library.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -601,7 +607,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.4;
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -890,7 +896,7 @@
 				CODE_SIGN_ENTITLEMENTS = TreeletHub/TreeletHub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 32;
+				CURRENT_PROJECT_VERSION = 33;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MRD7RUVQBS;
 				ENABLE_APP_SANDBOX = YES;
@@ -900,7 +906,10 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Supporting/iOS-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCameraUsageDescription = "TreeletHub opens the system camera so you can take a photo. Photos you take are saved to your library.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "TreeletHub uses your contacts so you can add people to the honeycomb and call them in one tap.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "TreeletHub needs access to your local network to find and connect to your Mac on the same Wi‑Fi, sync the app grid, and launch apps.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "TreeletHub saves photos you take with the system camera to your library.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -915,7 +924,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.4;
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.treelet.TreeletHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

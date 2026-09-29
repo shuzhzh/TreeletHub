@@ -24,6 +24,7 @@ struct HubIOSAppPickerView: View {
         var alreadyAdded: String
         var searchHint: String
         var unlaunchableHint: String
+        var unlaunchableShort: String
         var contactCallsHeader: String
         var contactNoPhone: String
     }
@@ -136,15 +137,15 @@ struct HubIOSAppPickerView: View {
 
     private var filteredStoreResults: [HubIOSAppStoreArtwork.StoreApp] {
         let localIds = Set(suggested.map(\.bundleIdentifier) + installed.map(\.bundleIdentifier))
-        return storeResults.filter {
-            !localIds.contains($0.bundleId) && HubIOSInstalledApps.canLaunch($0.bundleId)
-        }
+        // 搜索结果不再按 canLaunch 过滤：否则没进目录的 App Store 应用（豆包、ChatGPT 等）会「搜不到」。
+        return storeResults.filter { !localIds.contains($0.bundleId) }
     }
 
     private var hasUnlaunchableStoreHits: Bool {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty, !isSearchingStore, !storeResults.isEmpty else { return false }
-        return filteredStoreResults.isEmpty && filteredSuggested.isEmpty && filteredInstalled.isEmpty
+        let launchable = filteredStoreResults.filter { HubIOSInstalledApps.canLaunch($0.bundleId) }
+        return launchable.isEmpty && filteredSuggested.isEmpty && filteredInstalled.isEmpty
     }
 
     private func filterRecords(_ records: [HubIOSInstalledApps.Record]) -> [HubIOSInstalledApps.Record] {
@@ -283,9 +284,10 @@ struct HubIOSAppPickerView: View {
 
     private func appCell(_ entry: CatalogEntry) -> some View {
         let isPhoneSetup = HubIOSInstalledApps.needsContactCallSetup(entry.bundleIdentifier)
+        let canOpen = isPhoneSetup || HubIOSInstalledApps.canLaunch(entry.bundleIdentifier)
         let isSelected = selectedCatalog.contains(where: { $0.bundleIdentifier == entry.bundleIdentifier })
         let isOccupied = !isPhoneSetup && occupiedBundleIds.contains(entry.bundleIdentifier)
-        let disabled = isOccupied && !isSelected
+        let disabled = (isOccupied && !isSelected) || (!canOpen && !isPhoneSetup)
         return Button {
             guard !disabled else { return }
             if isPhoneSetup {
@@ -326,7 +328,7 @@ struct HubIOSAppPickerView: View {
         .buttonStyle(.plain)
         .disabled(disabled)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityLabel(entry.displayName)
+        .accessibilityLabel(canOpen ? entry.displayName : "\(entry.displayName), \(copy.unlaunchableShort)")
     }
 
     private func catalogEntry(from record: HubIOSInstalledApps.Record) -> CatalogEntry {

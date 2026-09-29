@@ -3354,13 +3354,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This search result can’t be opened from TreeletHub. iOS only lets us launch apps that publish a URL scheme."
+            "value" : "These App Store hits can’t be opened from TreeletHub. iOS only lets us launch apps that publish a public URL scheme."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "这条搜索结果无法从 TreeletHub 打开。iOS 只允许启动登记了公开打开方式的应用。"
+            "value" : "这些 App Store 结果无法从 TreeletHub 打开。iOS 只允许启动登记了公开打开方式的应用。"
+          }
+        }
+      }
+    },
+    "ios.phone.picker.unlaunchable_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't open"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法打开"
           }
         }
       }
@@ -3388,13 +3405,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap Phone to pick contacts, then one tap calls them. Camera opens the system camera."
+            "value" : "Tap Phone to pick contacts for one-tap calling. Search the App Store for more apps; only ones with a public open URL can be added."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "点「电话」选联系人，添加后一点即可呼叫。相机没有公开 URL，会进入系统拍照界面。"
+            "value" : "点「电话」选联系人可一键呼叫。可用搜索找更多 App Store 应用；只有登记了公开打开方式的才能添加。"
           }
         }
       }
