@@ -41,6 +41,7 @@ data class HubAndroidUiState(
     val pages: List<HubPageConfig> = listOf(HubPageConfig(id = 0, title = "Apps").normalized()),
     val layoutApplyEpoch: Long = 0L,
     val serverReportsSubscriptionActive: Boolean = false,
+    val remoteInputAvailable: Boolean = false,
     val pinInput: String = "",
     val lastError: String? = null,
     val serverDisconnectAlertMessage: String? = null,
@@ -309,6 +310,28 @@ class HubAndroidClient(
                 slot = slot,
                 command = command,
                 value = value,
+            ),
+        )
+    }
+
+    fun sendRemoteInput(
+        command: String,
+        dx: Double? = null,
+        dy: Double? = null,
+        button: String? = null,
+        key: String? = null,
+        message: String? = null,
+    ) {
+        if (_state.value.phase != HubClientPhase.Paired) return
+        sendEnvelope(
+            HubWireEnvelope(
+                op = HubWireOps.input,
+                message = message,
+                command = command,
+                dx = dx,
+                dy = dy,
+                button = button,
+                key = key,
             ),
         )
     }
@@ -596,6 +619,7 @@ class HubAndroidClient(
             }
             HubWireOps.layout -> {
                 val sub = env.subscriptionActive ?: false
+                val remoteInput = env.remoteInputAvailable ?: false
                 val pages =
                     when {
                         !env.pages.isNullOrEmpty() -> env.pages.normalizedPages()
@@ -608,6 +632,7 @@ class HubAndroidClient(
                 update {
                     it.copy(
                         serverReportsSubscriptionActive = sub,
+                        remoteInputAvailable = remoteInput,
                         pages = pages,
                         layoutApplyEpoch = it.layoutApplyEpoch + 1,
                     )
@@ -637,6 +662,7 @@ class HubAndroidClient(
                     it.copy(
                         phase = HubClientPhase.Idle,
                         serverReportsSubscriptionActive = false,
+                        remoteInputAvailable = false,
                     )
                 }
                 pendingBonjourName = null

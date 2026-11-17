@@ -20,7 +20,13 @@ struct TreeletHub_MacApp: App {
                 .environmentObject(uiLanguage)
                 .environmentObject(launchAtLogin)
         }
-        // 首次打开足够大：配对码、未开启时的效果图，以及足够高的蜂巢启动墙。
-        .defaultSize(width: 1080, height: 1380)
+        .windowStyle(.hiddenTitleBar)
+        .windowToolbarStyle(.unified(showsTitle: false))
+        .defaultSize(width: HubMainWindowMetrics.defaultSize.width, height: HubMainWindowMetrics.defaultSize.height)
     }
+}
+
+enum HubMainWindowMetrics {
+    /// 冷启动主窗口。比旧的 980×760 更大，给配对卡和蜂巢留出空间；超出屏幕时会收到可见区域里。
+    static let defaultSize = CGSize(width: 1280, height: 920)
 }

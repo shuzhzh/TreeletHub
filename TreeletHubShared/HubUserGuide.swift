@@ -24,6 +24,7 @@ public struct HubUserGuideContent: View {
                 bodyKey: HubDistribution.includesKeyboardLauncher ? "guide.body.pro" : "guide.body.pro_appstore"
             )
             guideBlock(titleKey: "guide.title.gestures_ios", bodyKey: "guide.body.gestures_ios")
+            guideBlock(titleKey: "guide.title.remote_input", bodyKey: "guide.body.remote_input")
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

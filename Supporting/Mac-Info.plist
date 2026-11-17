@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>TreeletHub</string>
+	<string>TreeletHub Pro</string>
 	<key>CFBundleName</key>
-	<string>TreeletHub</string>
+	<string>TreeletHub Pro</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>NSLocalNetworkUsageDescription</key>

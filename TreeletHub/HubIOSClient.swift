@@ -21,6 +21,8 @@ final class HubIOSClient: ObservableObject {
     @Published private(set) var layoutApplyEpoch: UInt64 = 0
     /// Mac 在 layout 中报告的订阅是否有效（Watch 桥接仍会转发；iOS 自身不再做订阅/多页门控）。
     @Published private(set) var serverReportsSubscriptionActive = false
+    /// 当前已连接的 Mac 是否为可注入键鼠的 TreeletHub Pro。
+    @Published private(set) var remoteInputAvailable = false
     @Published var pinInput: String = ""
     /// 仅在非静默流程下向用户展示（配对界面）。
     @Published var lastError: String?
@@ -329,6 +331,31 @@ final class HubIOSClient: ObservableObject {
         connection?.send(content: data, isComplete: false, completion: .contentProcessed { _ in })
     }
 
+    /// 相对指针、点击、滚动或按键。`text` 放在 `message`。
+    func sendRemoteInput(
+        command: HubRemoteInputCommand,
+        dx: Double? = nil,
+        dy: Double? = nil,
+        button: String? = nil,
+        key: String? = nil,
+        message: String? = nil,
+        value: Double? = nil
+    ) {
+        guard phase == .paired else { return }
+        let env = HubWireEnvelope(
+            op: HubWireEnvelope.opInput,
+            message: message,
+            command: command.rawValue,
+            value: value,
+            dx: dx,
+            dy: dy,
+            button: button,
+            key: key
+        )
+        guard let data = try? HubWireCodec.encodeLine(env) else { return }
+        connection?.send(content: data, isComplete: false, completion: .contentProcessed { _ in })
+    }
+
     /// 多指滑动手势（最小化前台窗口 / 显示桌面等）。
     func gesture(command: HubGestureCommand) {
         guard phase == .paired else { return }
@@ -516,6 +543,7 @@ final class HubIOSClient: ObservableObject {
             }
         case HubWireEnvelope.opLayout:
             serverReportsSubscriptionActive = env.subscriptionActive ?? false
+            remoteInputAvailable = env.remoteInputAvailable ?? false
             if let p = env.pages, !p.isEmpty {
                 pages = normalizePages(p)
             } else if let s = env.slots, s.count == 9 {
@@ -545,6 +573,7 @@ final class HubIOSClient: ObservableObject {
             wantsAutoConnectAfterBrowse = false
             isSilentReconnect = false
             serverReportsSubscriptionActive = false
+            remoteInputAvailable = false
         default:
             break
         }

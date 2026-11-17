@@ -5,8 +5,8 @@
 <h1 align="center">TreeletHub</h1>
 
 <p align="center">
-  <strong>Mac 快捷控制台</strong> — 灵动岛、键盘启动器、蜂巢启动墙，手机也可遥控<br/>
-  <em>Dynamic Island, keyboard launcher, and a honeycomb app wall — plus iPhone &amp; Android remote</em>
+  <strong>Mac 快捷控制台</strong> — 灵动岛、键盘启动器、蜂巢启动墙；手机还可当键鼠遥控<br/>
+  <em>Dynamic Island, keyboard launcher, honeycomb wall — plus phone trackpad &amp; keyboard on Pro</em>
 </p>
 
 <p align="center">
@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  当前 <strong>Mac 1.3.0</strong>
+  当前 <strong>Mac 1.3.1 · TreeletHub Pro</strong>
   · <a href="https://models.appda.store/treelethub/TreeletHub.dmg">下载 DMG</a>
-  · <a href="docs/release-notes-v1.3.0.md">本版说明</a>
+  · <a href="docs/release-notes-v1.3.1.md">本版说明</a>
 </p>
 
 ---
@@ -44,7 +44,7 @@
   </tr>
 </table>
 
-灵动岛与键盘启动器属于 **Pro**（一次性 $9.99，非订阅）。免费版可用蜂巢启动墙（最多 10 个应用），并用手机遥控。
+灵动岛与键盘启动器属于 **Pro**（一次性 $9.99，非订阅）。官网 **TreeletHub Pro** 另支持把手机当键鼠；Mac App Store 版不含键鼠注入。免费版可用蜂巢启动墙（最多 10 个应用），并用手机点按启动。
 
 ---
 
@@ -66,12 +66,13 @@ TreeletHub 把常用 Mac 应用收进三套入口，减少在凌乱桌面和 Doc
 
 | 功能 | 说明 |
 |------|------|
-| **灵动岛** | Pro。贴边收起、悬停展开。系统应用墙 + 工作台（媒体、天气、剪贴板、文件暂存等） |
+| **灵动岛** | Pro。贴边收起、悬停展开；可拖边缘改尺寸。系统应用墙 + 工作台（媒体、天气、剪贴板、文件暂存等） |
 | **键盘启动器** | Pro。松开 Control 唤出浮层；`Control + 键` 全局唤起 / 隐藏 |
 | **蜂巢启动墙** | 捏合缩放、拖动浏览；可加 `.app`、网页快捷方式、系统操作；与手机同步 |
 | **手机遥控** | iPhone / Android 点按启动 Mac 应用；Apps 页双指下滑可显示桌面 |
+| **手机键鼠** | 仅官网 TreeletHub Pro。蜂巢加入「键盘与鼠标」后，手机可当触控板与键盘 |
 | **Apple Watch** | 同一套蜂巢启动墙 |
-| **免费 / Pro** | 免费最多 10 个启动项；一次性 $9.99 解锁无限数量、灵动岛与键盘启动器 |
+| **免费 / Pro** | 免费最多 10 个启动项；一次性 $9.99 解锁无限数量、灵动岛与键盘启动器等 |
 
 详情见 [使用说明](docs/USER_GUIDE.zh-CN.md) · [User guide](docs/USER_GUIDE.en.md)。
 
@@ -82,7 +83,7 @@ TreeletHub 把常用 Mac 应用收进三套入口，减少在凌乱桌面和 Doc
 - **系统应用**：本机已安装应用，可搜索、调节图标大小  
 - **工作台**：媒体控制、天气（WeatherKit，可选定位）、剪贴板历史、文件暂存等  
 
-贴边热区悬停会展开大面板；不挡工作区时可收成顶部细条。
+贴边热区悬停会展开大面板；不挡工作区时可收成顶部细条。展开或贴边时均可 **拖拽边缘** 调整宽高，之后会记住。
 
 ### 键盘启动器（Mac · Pro）
 
@@ -91,16 +92,17 @@ TreeletHub 把常用 Mac 应用收进三套入口，减少在凌乱桌面和 Doc
 3. **Control + 按键** 不必先开浮层，也能唤起或隐藏对应应用。  
 4. 首次开启按应用名首字母自动填键；点击添加 / 替换，拖拽交换。
 
-仅用于监听 Control 与快捷键，**不记录、不上传**按键，也不向其他 App 注入按键。
+仅用于监听 Control 与快捷键，**不记录、不上传**按键。键盘启动器本身不向其他 App 注入按键。
 
 ### 蜂巢启动墙与手机遥控
 
 1. 在 Mac 主窗口或蜂巢墙上点「+」绑定应用。  
 2. 新装为空时会预填常用系统应用（只执行一次）。  
 3. 手机 **Apps** 页与 Mac 同步；点按即在 Mac 上启动。  
-4. 已配对时，Apps 页 **双指下滑** 可隐藏全部窗口并显示桌面。
+4. 已配对时，Apps 页 **双指下滑** 可隐藏全部窗口并显示桌面。  
+5. 官网 **TreeletHub Pro**：在「添加快捷方式」加入 **键盘与鼠标**，手机点该格即可触控板 / 键盘遥控（需 **辅助功能**）。Mac App Store 版无此项。
 
-Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）。ChatGPT、Cursor 以及 iPhone 上的应用都只负责启动，不再注入按键。
+Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）。ChatGPT、Cursor 以及 iPhone 上的应用启动项都只负责启动。
 
 ---
 
@@ -108,7 +110,7 @@ Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）
 
 | 平台 | 链接 |
 |------|------|
-| **Mac 1.3.0** | [CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg)（国内直装） |
+| **Mac 1.3.1 · TreeletHub Pro** | [CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg)（国内直装） |
 | **iPhone / iPad** | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
 | **Android 1.3.1** | [CDN APK](https://models.appda.store/treelethub/TreeletHub.apk)（国内直装） · [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
 | **产品页** | [treelet.us/treelethub](https://treelet.us/treelethub/) |
@@ -129,9 +131,9 @@ Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）
 1. 下载 DMG，把 TreeletHub 拖入「应用程序」。  
 2. 若系统拦截：系统设置 → 隐私与安全性中允许，或右键 → **打开**。  
 3. 允许 **本地网络**，以便与手机配对。  
-4. 使用键盘启动器时，再允许 **输入监控**。灵动岛天气可选定位。
+4. 使用键盘启动器时，再允许 **输入监控**；使用手机键鼠时，再允许 **辅助功能**。灵动岛天气可选定位。
 
-系统要求：macOS 14.6 或更高。
+系统要求：macOS 14.6 或更高。官网直装包显示名为 TreeletHub Pro。
 
 ---
 
@@ -150,10 +152,10 @@ Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）
 
 | 版本 | 日期 | 摘要 |
 |------|------|------|
-| **[Mac 1.3.0](https://github.com/shuzhzh/TreeletHub/releases/tag/v1.3.0)** | 2026-09-18 | 灵动岛、键盘启动器、蜂巢启动墙、一次性 Pro |
+| **[Mac 1.3.1](docs/release-notes-v1.3.1.md)** | 2026-11-17 | 手机键鼠、灵动岛可调尺寸、TreeletHub Pro 品牌 |
+| [iOS 1.3.1](docs/app-store-whats-new-ios-v1.3.1.md) | 2026-09-29 | App Store 安全蜂巢、搜索与呼叫修复 |
+| [Mac 1.3.0](https://github.com/shuzhzh/TreeletHub/releases/tag/v1.3.0) | 2026-09-18 | 灵动岛、键盘启动器、蜂巢启动墙、一次性 Pro |
 | [Android 1.3.1](https://github.com/shuzhzh/TreeletHub/releases/tag/android-v1.3.1) | 2026-09-18 | 蜂巢启动墙、对齐 iOS |
-| [Android 1.3](https://github.com/shuzhzh/TreeletHub/releases/tag/android-v1.3) | 2026-07-26 | 控制键盘、PTT、显示桌面 |
-| [Mac 1.2.7](https://github.com/shuzhzh/TreeletHub/releases/tag/v1.2.7) | 2026-07-26 | 控制键盘桥接（1.3.0 起改为深链接 / 仅启动） |
 
 ---
 

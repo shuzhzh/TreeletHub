@@ -339,6 +339,7 @@ private fun UserGuideCard() {
             GuideBlock(R.string.guide_title_keyboard_hud, R.string.guide_body_keyboard_hud)
             GuideBlock(R.string.guide_title_pro, R.string.guide_body_pro)
             GuideBlock(R.string.guide_title_gestures_phone, R.string.guide_body_gestures_phone)
+            GuideBlock(R.string.guide_title_remote_input, R.string.guide_body_remote_input)
         }
     }
 }
@@ -370,6 +371,7 @@ private fun PairedShell(
     bgStore: HubCustomBackgroundStore,
 ) {
     var selectedTab by remember { mutableStateOf("apps") }
+    var showRemoteInput by remember { mutableStateOf(false) }
     var shortcutItem by remember { mutableStateOf<HubLauncherItem?>(null) }
     var animatingItemId by remember { mutableStateOf<String?>(null) }
     val view = LocalView.current
@@ -392,10 +394,13 @@ private fun PairedShell(
                 sorted.take(HubService.maxTabs)
             }
         }
-    val launcherItems = remember(displayPages, ui.layoutApplyEpoch) {
-        HubLauncherItems.flattened(displayPages)
+    val launcherItems = remember(displayPages, ui.layoutApplyEpoch, ui.remoteInputAvailable) {
+        HubLauncherItems.flattened(displayPages).filter { item ->
+            item.slot.shortcutKind != "remoteInput" || ui.remoteInputAvailable
+        }
     }
 
+    Box(Modifier.fillMaxSize()) {
     Scaffold(
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -447,6 +452,13 @@ private fun PairedShell(
                     onSelect = { item ->
                         val slot = item.slot
                         if (slot.isEmpty) return@HubHoneycombLauncher
+                        if (slot.shortcutKind == "remoteInput") {
+                            if (ui.remoteInputAvailable) {
+                                showRemoteInput = true
+                                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                            }
+                            return@HubHoneycombLauncher
+                        }
                         if (item.needsInlineControl) {
                             shortcutItem = item
                             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -468,6 +480,15 @@ private fun PairedShell(
                 )
             }
         }
+    }
+    if (showRemoteInput) {
+        HubRemoteInputScreen(
+            client = vm.client,
+            available = ui.remoteInputAvailable,
+            lastError = ui.lastError,
+            onDismiss = { showRemoteInput = false },
+        )
+    }
     }
 
     LaunchedEffect(animatingItemId) {
@@ -843,6 +864,7 @@ private fun shortcutTitle(kind: String?): String =
         "copy" -> stringResource(R.string.shortcut_copy)
         "paste" -> stringResource(R.string.shortcut_paste)
         "openURL" -> stringResource(R.string.shortcut_open_url)
+        "remoteInput" -> stringResource(R.string.shortcut_remote_input)
         else -> stringResource(R.string.shortcut_other)
     }
 

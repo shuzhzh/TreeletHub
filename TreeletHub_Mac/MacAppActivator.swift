@@ -101,6 +101,9 @@ enum MacAppActivator {
                 throw NSError(domain: "TreeletHub", code: 1002, userInfo: [NSLocalizedDescriptionKey: HubMacL10n.string("mac.error.invalid_url")])
             }
             NSWorkspace.shared.open(url)
+        case .remoteInput:
+            // 键鼠界面在手机上打开，Mac 格子只是入口，不在本机执行。
+            return
         }
     }
 

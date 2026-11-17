@@ -49,6 +49,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "733A36952F9083920020D699"
             BuildableName = "TreeletHub.app"
+            BlueprintName = "TreeletHub_Mac"
             ReferencedContainer = "container:TreeletHub.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -68,6 +69,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "733A36952F9083920020D699"
             BuildableName = "TreeletHub.app"
+            BlueprintName = "TreeletHub_Mac"
             ReferencedContainer = "container:TreeletHub.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

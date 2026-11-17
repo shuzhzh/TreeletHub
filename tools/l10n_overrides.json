@@ -1248,5 +1248,25 @@
       "en": "Hold Control to launch apps from a floating keymap.",
       "zh-Hans": "按住 Control，用浮动键位快速启动应用。"
     }
+  },
+  "mac.island.menu.reset_size": {
+    "en": "Reset island size",
+    "zh-Hans": "重置灵动岛尺寸"
+  },
+  "mac.island.resize.width_help": {
+    "en": "Drag to resize width. Double-click to reset.",
+    "zh-Hans": "拖拽调整宽度；双击恢复默认"
+  },
+  "mac.island.resize.height_help": {
+    "en": "Drag to resize height. Double-click to reset.",
+    "zh-Hans": "拖拽调整高度；双击恢复默认"
+  },
+  "mac.island.resize.corner_help": {
+    "en": "Drag to resize width and height. Double-click to reset.",
+    "zh-Hans": "拖拽同时调整宽高；双击恢复默认"
+  },
+  "mac.island.dock_help": {
+    "en": "Click the bar or hover the top-center edge to expand. Drag the sides or bottom to resize the collapsed island.",
+    "zh-Hans": "点击贴边条或悬停屏幕顶部中段可展开；拖拽左右或底边可调整收起尺寸"
   }
 }

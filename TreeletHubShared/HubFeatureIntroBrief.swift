@@ -20,14 +20,14 @@ public struct HubFeatureIntroBrief: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: style == .sheet ? 18 : 14) {
             if style == .sheet {
-                Text(L("intro.title"))
+                Text(productTitle)
                     .font(.title2.weight(.semibold))
                 Text(L("intro.subtitle"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                Label(L("intro.title"), systemImage: "sparkles")
+                Label(productTitle, systemImage: "sparkles")
                     .font(.headline)
                 Text(L("intro.subtitle"))
                     .font(.subheadline)
@@ -68,6 +68,15 @@ public struct HubFeatureIntroBrief: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var productTitle: String {
+        #if os(macOS)
+        if !HubDistribution.isAppStoreMacBuild {
+            return L("intro.title.pro")
+        }
+        #endif
+        return L("intro.title")
     }
 
     private func introRow(symbol: String, title: String, body: String) -> some View {

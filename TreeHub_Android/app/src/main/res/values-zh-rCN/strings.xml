@@ -70,6 +70,7 @@
     <string name="shortcut_copy">复制</string>
     <string name="shortcut_paste">粘贴</string>
     <string name="shortcut_open_url">打开链接</string>
+    <string name="shortcut_remote_input">键盘与鼠标</string>
 
     <string name="bg_preset_system">跟随系统</string>
     <string name="bg_preset_porcelain_light">瓷白</string>
@@ -197,6 +198,19 @@
     <string name="guide_body_ai_pad_phone">把 ChatGPT、Codex 或 Cursor 放进 Mac 启动墙，在本机点按它：不只是启动应用，而是进入控制键盘——状态灯、命令键、摇杆与推理旋钮。按住 PTT 用手机麦克风听写，松手后文字填入 Mac 输入框。Mac 需为 TreeletHub 开启辅助功能与自动化权限。</string>
     <string name="guide_title_gestures_phone">显示桌面</string>
     <string name="guide_body_gestures_phone">已配对时在蜂巢启动墙上：双指下滑会隐藏 Mac 上全部已打开应用（含 TreeletHub）以显示桌面。</string>
+    <string name="guide_title_remote_input">键盘与鼠标（TreeletHub Pro）</string>
+    <string name="guide_body_remote_input">配对后，在 TreeletHub Pro 的「添加快捷方式」里加入「键盘与鼠标」，再点这个格子，把这部手机当作触控板和键盘。Mac App Store 版没有这一项，也不能注入指针或键盘。在 Pro 上请于辅助功能中允许 TreeletHub Pro。</string>
+    <string name="input_title">键盘与鼠标</string>
+    <string name="input_open">键盘与鼠标</string>
+    <string name="input_need_pro">当前 Mac 是 App Store 版。键盘与鼠标需要官网下载的 TreeletHub Pro。</string>
+    <string name="input_trackpad_hint">单指移动指针，轻点为左键。双指滚动。</string>
+    <string name="input_right_click">右键</string>
+    <string name="input_text_placeholder">输入后发送</string>
+    <string name="input_send">发送</string>
+    <string name="input_key_esc">Esc</string>
+    <string name="input_key_tab">Tab</string>
+    <string name="input_key_delete">删除</string>
+    <string name="input_key_return">回车</string>
     <!-- AI_CONTROL_PAD_STRINGS_END -->
     <string name="guide_title_island">Mac 灵动岛（Pro）</string>
     <string name="guide_body_island">在 Mac 解锁 Pro 后，于主窗口或齿轮菜单开启「灵动岛」。屏幕顶部浮层可提供媒体控制、配对码 / 文件暂存、剪贴板、同步启动墙、时间与天气（需定位）。</string>

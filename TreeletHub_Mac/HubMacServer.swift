@@ -363,6 +363,38 @@ final class HubMacServer: ObservableObject {
                     }
                 }
             }
+        case HubWireEnvelope.opInput:
+            guard clients[clientId]?.paired == true else {
+                send(.init(op: HubWireEnvelope.opError, message: "未配对"), to: clientId)
+                return
+            }
+            #if APP_STORE
+            send(
+                .init(
+                    op: HubWireEnvelope.opError,
+                    message: HubMacL10n.string("mac.input.app_store_unavailable")
+                ),
+                to: clientId
+            )
+            #else
+            guard isSubscriptionActive() else {
+                send(
+                    .init(
+                        op: HubWireEnvelope.opError,
+                        message: HubMacL10n.string("mac.input.subscription_required")
+                    ),
+                    to: clientId
+                )
+                return
+            }
+            do {
+                try MacRemoteInputInjector.handle(env)
+            } catch {
+                if MacRemoteInputInjector.shouldSurfaceError() {
+                    send(.init(op: HubWireEnvelope.opError, message: error.localizedDescription), to: clientId)
+                }
+            }
+            #endif
         case HubWireEnvelope.opCodexMicro:
             guard clients[clientId]?.paired == true else {
                 send(.init(op: HubWireEnvelope.opError, message: "未配对"), to: clientId)
@@ -403,7 +435,8 @@ final class HubMacServer: ObservableObject {
         let env = HubWireEnvelope(
             op: HubWireEnvelope.opLayout,
             pages: gridStore.pagesForWire(),
-            subscriptionActive: isSubscriptionActive()
+            subscriptionActive: isSubscriptionActive(),
+            remoteInputAvailable: HubDistribution.includesRemoteInput && isSubscriptionActive()
         )
         send(env, to: clientId)
     }
@@ -427,7 +460,8 @@ final class HubMacServer: ObservableObject {
             HubWireEnvelope(
                 op: HubWireEnvelope.opLayout,
                 pages: gridStore.pagesForWire(),
-                subscriptionActive: isSubscriptionActive()
+                subscriptionActive: isSubscriptionActive(),
+                remoteInputAvailable: HubDistribution.includesRemoteInput && isSubscriptionActive()
             )
         ) else { return }
         for id in clients.keys {

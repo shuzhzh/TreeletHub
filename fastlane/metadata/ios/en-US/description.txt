@@ -1,13 +1,17 @@
-TreeletHub is a productivity companion for your home or office network.
+TreeletHub is your Wi‑Fi remote for the apps and shortcuts on your computer.
 
-On your computer, arrange favorite apps, links, and shortcuts in a synced grid. On your phone—on the same trusted Wi‑Fi—tap to launch or switch without walking back to the desk.
+Arrange a honeycomb launcher on the desktop companion, then tap from your phone on the same trusted network—no cloud account needed for core pairing and sync.
 
-Features:
-• Pair with a short code; no cloud account required for core sync
-• Drag-and-drop grid on both sides
-• Optional extra hub pages with subscription
-• Local network only for discovery and control
+What’s new in this release:
+• Honeycomb phone launcher with App Store icons and one-tap open for apps that publish a public URL
+• Home Screen widget that hands off into TreeletHub, then opens the target app
+• One-tap calling: pick contacts, then dial from the honeycomb
+• System camera capture when the Camera app has no public launch URL
+• Search the App Store catalog; only launchable apps can be added
 
-Install the desktop companion from the Mac App Store to use remote launch. This iPhone app is the remote control for that hub.
+Also included:
+• Short pairing code on your local network
+• Synced layout with the desktop companion
+• Local-network discovery and control by default
 
-Privacy: pairing and layout sync stay on your local network unless you use other Treelet services separately.
+Install the desktop companion first, then use this iPhone app as the remote. Pairing and layout sync stay on your LAN unless you use other Treelet services separately.

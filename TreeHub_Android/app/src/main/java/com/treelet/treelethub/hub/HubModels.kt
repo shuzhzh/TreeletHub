@@ -24,6 +24,16 @@ object HubWireOps {
     const val gesture = "gesture"
     const val codexMicro = "codexMicro"
     const val codexMicroState = "codexMicroState"
+    const val input = "input"
+}
+
+object HubRemoteInputCommands {
+    const val move = "move"
+    const val click = "click"
+    const val scroll = "scroll"
+    const val keyDown = "keyDown"
+    const val keyUp = "keyUp"
+    const val text = "text"
 }
 
 @Serializable
@@ -45,6 +55,11 @@ data class HubWireEnvelope(
     val command: String? = null,
     val value: Double? = null,
     val subscriptionActive: Boolean? = null,
+    val dx: Double? = null,
+    val dy: Double? = null,
+    val button: String? = null,
+    val key: String? = null,
+    val remoteInputAvailable: Boolean? = null,
 )
 
 @Serializable

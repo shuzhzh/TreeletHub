@@ -21,6 +21,12 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
     public let allowsDelete: Bool
     public let isEditableItem: (Item) -> Bool
     public let editDoneLabel: String
+    /// 边缘图标高斯模糊强度。1 为默认鱼眼虚化，0 为只缩小不模糊。
+    public let edgeBlurScale: CGFloat
+    /// 图标间距相对默认值的倍率。小于 1 更紧凑。
+    public let iconSpacingFactor: CGFloat
+    /// 相对视口高度的纵向偏移。负值把蜂巢中心上提。
+    public let verticalBias: CGFloat
     public let icon: (Item, CGFloat) -> Icon
     public let onSelect: (Item) -> Void
     public let onSecondarySelect: ((Item) -> Void)?
@@ -79,6 +85,9 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
         allowsDelete: Bool = false,
         isEditableItem: @escaping (Item) -> Bool = { _ in true },
         editDoneLabel: String = "Done",
+        edgeBlurScale: CGFloat = 1,
+        iconSpacingFactor: CGFloat = 1,
+        verticalBias: CGFloat = 0,
         @ViewBuilder icon: @escaping (Item, CGFloat) -> Icon,
         onSelect: @escaping (Item) -> Void,
         onSecondarySelect: ((Item) -> Void)? = nil,
@@ -98,6 +107,9 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
         self.allowsDelete = allowsDelete
         self.isEditableItem = isEditableItem
         self.editDoneLabel = editDoneLabel
+        self.edgeBlurScale = edgeBlurScale
+        self.iconSpacingFactor = iconSpacingFactor
+        self.verticalBias = verticalBias
         self.icon = icon
         self.onSelect = onSelect
         self.onSecondarySelect = onSecondarySelect
@@ -114,7 +126,7 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
     }
 
     private var hexSpacing: CGFloat {
-        HubHoneycombLayout.spacing(forBaseIconSide: baseIconSide)
+        HubHoneycombLayout.spacing(forBaseIconSide: baseIconSide) * iconSpacingFactor
     }
 
     private var positions: [CGPoint] {
@@ -149,7 +161,7 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
                         let side = max(22, baseIconSide * scale * focus)
                         let blurRadius = isDragSource
                             ? 0
-                            : HubHoneycombLayout.focusBlurRadius(focus: focus, baseIconSide: baseIconSide * scale)
+                            : HubHoneycombLayout.focusBlurRadius(focus: focus, baseIconSide: baseIconSide * scale) * edgeBlurScale
                         let isAnimating = animatingItemId == item.id
                         let isDropHighlight = dropTarget?.id == item.id && !isDragSource
                         let screenCenter = CGPoint(
@@ -599,7 +611,7 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
             // Watch 默认：略放大中心簇，光学中心略偏上。
             scale = HubHoneycombLayout.defaultScale
             committedScale = HubHoneycombLayout.defaultScale
-            offset = HubHoneycombLayout.defaultOffset(viewport: size)
+            offset = biasedOffset(viewport: size)
             committedOffset = offset
             persistViewport()
         }
@@ -610,7 +622,7 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
         let apply = {
             scale = HubHoneycombLayout.defaultScale
             committedScale = HubHoneycombLayout.defaultScale
-            offset = HubHoneycombLayout.defaultOffset(viewport: viewportSize)
+            offset = biasedOffset(viewport: viewportSize)
             committedOffset = offset
             persistViewport()
         }
@@ -619,6 +631,12 @@ public struct HubHoneycombLauncherCanvas<Item: Identifiable, Icon: View>: View {
         } else {
             apply()
         }
+    }
+
+    private func biasedOffset(viewport: CGSize) -> CGSize {
+        var offset = HubHoneycombLayout.defaultOffset(viewport: viewport)
+        offset.height += viewport.height * verticalBias
+        return offset
     }
 
     /// 软边界：可略微越界，但不把缩放重置。

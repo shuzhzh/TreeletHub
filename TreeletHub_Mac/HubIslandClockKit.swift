@@ -3,6 +3,22 @@ import AVFoundation
 import Combine
 import SwiftUI
 
+/// 灵动岛展开内容相对设计尺寸的放大倍数。默认 1，岛越大越大。
+struct HubIslandContentScaleKey: EnvironmentKey {
+    static let defaultValue: CGFloat = 1
+}
+
+extension EnvironmentValues {
+    var hubIslandContentScale: CGFloat {
+        get { self[HubIslandContentScaleKey.self] }
+        set { self[HubIslandContentScaleKey.self] = newValue }
+    }
+}
+
+func hubIslandScaled(_ base: CGFloat, scale: CGFloat) -> CGFloat {
+    (base * scale * 10).rounded() / 10
+}
+
 enum HubIslandClockStyle: String, CaseIterable, Identifiable {
     case digitalWithSeconds
     case digitalCompact
@@ -154,6 +170,7 @@ struct HubIslandCollapsedTimeWeatherStrip: View {
 /// 自定义三段样式切换（避免系统 `Picker.segmented` 在深色胶囊上对比度过低）。
 struct HubIslandClockStyleSegmentControl: View {
     @Binding var selectionRaw: String
+    @Environment(\.hubIslandContentScale) private var contentScale
 
     private var selection: HubIslandClockStyle {
         HubIslandClockStyle(rawValue: selectionRaw) ?? .digitalWithSeconds
@@ -165,7 +182,8 @@ struct HubIslandClockStyleSegmentControl: View {
                 HubIslandClockStyleSegmentCell(
                     title: style.title,
                     selected: selection == style,
-                    action: { selectionRaw = style.rawValue }
+                    action: { selectionRaw = style.rawValue },
+                    contentScale: contentScale
                 )
             }
         }
@@ -176,16 +194,17 @@ private struct HubIslandClockStyleSegmentCell: View {
     let title: String
     let selected: Bool
     let action: () -> Void
+    var contentScale: CGFloat = 1
 
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 11, weight: .semibold))
+                .font(.system(size: hubIslandScaled(11, scale: contentScale), weight: .semibold))
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(selected ? Color.black.opacity(0.88) : Color.white.opacity(0.94))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 8)
+                .padding(.horizontal, hubIslandScaled(6, scale: contentScale))
+                .padding(.vertical, hubIslandScaled(8, scale: contentScale))
                 .frame(maxWidth: .infinity)
                 .background(bg)
                 .overlay(outline)

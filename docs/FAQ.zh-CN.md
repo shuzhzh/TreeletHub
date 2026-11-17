@@ -40,6 +40,10 @@
 - 入口：Mac 主窗口配对码下方的开关，或右上角 **齿轮 → 灵动岛 / 键盘启动器**；也可打开「使用说明」。
 - iOS / Mac 经 App Store 内购；Mac 解锁状态会同步到已配对手机。Android 以各端设置页为准。
 
+## 手机键鼠怎么用？为什么看不到「键盘与鼠标」？
+
+仅 **官网 TreeletHub Pro**（CDN DMG）支持。在 Mac「添加快捷方式」加入 **键盘与鼠标**，手机蜂巢点该格即可。Mac App Store 版没有这项，手机上也不会出现对应格子。首次使用请在「系统设置 → 隐私与安全性 → **辅助功能**」允许 TreeletHub Pro。
+
 ## 数据会上传服务器吗？
 
 配对、布局与遥控默认 **仅在局域网**。详见 [隐私政策](https://treelet.us/treelethub/treelet-hub-privacy.html)。

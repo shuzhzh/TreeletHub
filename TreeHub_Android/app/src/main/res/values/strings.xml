@@ -70,6 +70,7 @@
     <string name="shortcut_copy">Copy</string>
     <string name="shortcut_paste">Paste</string>
     <string name="shortcut_open_url">Open link</string>
+    <string name="shortcut_remote_input">Keyboard and mouse</string>
 
     <string name="bg_preset_system">Match system</string>
     <string name="bg_preset_porcelain_light">Porcelain</string>
@@ -197,6 +198,19 @@
     <string name="guide_body_ai_pad_phone">Put ChatGPT, Codex, or Cursor into the Mac launcher, then tap it on this phone: instead of only launching the app, you open a control pad—status lights, command keys, joystick, and reasoning dial. Hold PTT to dictate on the phone; release to fill the Mac composer. Mac needs Accessibility and Automation for TreeletHub.</string>
     <string name="guide_title_gestures_phone">Show desktop</string>
     <string name="guide_body_gestures_phone">On the Apps honeycomb while paired: swipe down with two fingers to hide every open Mac app—including TreeletHub—and show the desktop.</string>
+    <string name="guide_title_remote_input">Keyboard and mouse (TreeletHub Pro)</string>
+    <string name="guide_body_remote_input">While paired, add Keyboard and mouse from Add Shortcut on TreeletHub Pro, then tap that tile on this phone to use it as a trackpad and keyboard. The Mac App Store build does not offer this shortcut and cannot inject the pointer or keyboard. On Pro, allow TreeletHub Pro under Accessibility.</string>
+    <string name="input_title">Keyboard and mouse</string>
+    <string name="input_open">Keyboard and mouse</string>
+    <string name="input_need_pro">This Mac is the App Store build. Keyboard and mouse control needs TreeletHub Pro downloaded from the website.</string>
+    <string name="input_trackpad_hint">One finger moves the pointer and taps to left-click. Two fingers scroll.</string>
+    <string name="input_right_click">Right click</string>
+    <string name="input_text_placeholder">Type, then send</string>
+    <string name="input_send">Send</string>
+    <string name="input_key_esc">Esc</string>
+    <string name="input_key_tab">Tab</string>
+    <string name="input_key_delete">Delete</string>
+    <string name="input_key_return">Return</string>
     <!-- AI_CONTROL_PAD_STRINGS_END -->
     <string name="guide_title_island">Dynamic Island (Mac · Pro)</string>
     <string name="guide_body_island">With Pro unlocked on Mac, turn on Dynamic Island in the main window or gear menu. The floating strip can show media, pairing code / file staging, clipboard, synced launcher, clock, and weather (needs Location).</string>

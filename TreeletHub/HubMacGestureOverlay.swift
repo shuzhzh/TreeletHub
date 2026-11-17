@@ -3,10 +3,11 @@ import UIKit
 
 /// 已配对界面：双指下滑遥控 Mac 隐藏全部应用。手势挂在 `UIWindow` 上。
 struct HubMacGestureOverlay: UIViewRepresentable {
+    var isEnabled: Bool = true
     var onTwoFingerSwipeDown: () -> Void
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(onTwoFingerSwipeDown: onTwoFingerSwipeDown)
+        Coordinator(isEnabled: isEnabled, onTwoFingerSwipeDown: onTwoFingerSwipeDown)
     }
 
     func makeUIView(context: Context) -> InstallerAnchorView {
@@ -19,6 +20,7 @@ struct HubMacGestureOverlay: UIViewRepresentable {
 
     func updateUIView(_ uiView: InstallerAnchorView, context: Context) {
         uiView.coordinator = context.coordinator
+        context.coordinator.isEnabled = isEnabled
         context.coordinator.onTwoFingerSwipeDown = onTwoFingerSwipeDown
     }
 
@@ -43,13 +45,15 @@ struct HubMacGestureOverlay: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        var isEnabled: Bool
         var onTwoFingerSwipeDown: () -> Void
 
         private weak var hostWindow: UIWindow?
         private weak var twoFingerRecognizer: UIPanGestureRecognizer?
         private var lastFireAt: Date?
 
-        init(onTwoFingerSwipeDown: @escaping () -> Void) {
+        init(isEnabled: Bool, onTwoFingerSwipeDown: @escaping () -> Void) {
+            self.isEnabled = isEnabled
             self.onTwoFingerSwipeDown = onTwoFingerSwipeDown
         }
 
@@ -79,7 +83,7 @@ struct HubMacGestureOverlay: UIViewRepresentable {
         }
 
         @objc private func handlePan(_ recognizer: UIPanGestureRecognizer) {
-            guard recognizer === twoFingerRecognizer, recognizer.state == .ended else { return }
+            guard isEnabled, recognizer === twoFingerRecognizer, recognizer.state == .ended else { return }
             let translation = recognizer.translation(in: recognizer.view)
             let distance = hypot(translation.x, translation.y)
             guard distance >= 48 else { return }

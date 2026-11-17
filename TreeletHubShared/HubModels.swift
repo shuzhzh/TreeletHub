@@ -15,6 +15,8 @@ public enum HubShortcutKind: String, Codable, Equatable, Sendable {
     case copy
     case paste
     case openURL
+    /// 手机触控板与键盘。只在 TreeletHub Pro 的快捷方式里提供，App Store 版没有这一项。
+    case remoteInput
 }
 
 /// 九宫格单格配置（0...8）。`bundleIdentifier` 为空表示该格未配置。

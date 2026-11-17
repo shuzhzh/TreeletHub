@@ -35,6 +35,8 @@ struct ContentView: View {
     @State private var phoneLaunchAlertMessage: String?
     /// 打开系统拍照界面（相机 App 没有公开 URL）。
     @State private var showSystemCamera = false
+    /// 已配对时的 Mac 键鼠遥控页。
+    @State private var showRemoteInput = false
     @State private var showHoneycombContactPicker = false
     @EnvironmentObject private var uiLanguage: HubIOSUILanguage
 
@@ -61,7 +63,9 @@ struct ContentView: View {
     }
 
     private var launcherItems: [HubLauncherItem] {
-        HubLauncherItems.flattened(from: pairedAppTabPages)
+        HubLauncherItems.flattened(from: pairedAppTabPages).filter { item in
+            item.slot.shortcutKind != .remoteInput || client.remoteInputAvailable
+        }
     }
 
     private var pairedLauncherScreen: some View {
@@ -313,9 +317,13 @@ struct ContentView: View {
         .sheet(item: $shortcutControlItem) { item in
             shortcutControlSheet(item: item)
         }
+        .fullScreenCover(isPresented: $showRemoteInput) {
+            HubRemoteInputPad(client: client)
+        }
         .background {
             if client.phase == .paired {
                 HubMacGestureOverlay(
+                    isEnabled: !showRemoteInput,
                     onTwoFingerSwipeDown: {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         client.gesture(command: .showDesktop)
@@ -642,6 +650,13 @@ struct ContentView: View {
         pinFieldFocused = false
         let slot = item.slot
         guard !slot.isEmpty else { return }
+
+        if item.slot.shortcutKind == .remoteInput {
+            guard client.remoteInputAvailable else { return }
+            showRemoteInput = true
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+            return
+        }
 
         if item.needsInlineControl {
             shortcutControlItem = item
@@ -1259,6 +1274,7 @@ private extension HubShortcutKind {
         case .copy: return "doc.on.doc.fill"
         case .paste: return "clipboard.fill"
         case .openURL: return "link"
+        case .remoteInput: return "keyboard"
         }
     }
 }

@@ -2,7 +2,26 @@
 
 本文件记录 TreeletHub 面向用户的版本变化。GitHub 仓库首页可直接打开本页；安装包说明也在 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
 
-## [1.3.1] — 2026-09-29（iOS，当前）
+## [1.3.1] — 2026-11-17（macOS · TreeletHub Pro，当前）
+
+官网直装包升至 **1.3.1**，显示名改为 **TreeletHub Pro**（与 Mac App Store 伴侣端区分）。
+
+### 手机键鼠遥控（仅官网 Pro）
+
+- 添加快捷方式「**键盘与鼠标**」后，已配对 iPhone / Android 可把手机当触控板与键盘。
+- 支持相对指针、左/右键、滚动、文字输入、修饰键，以及拖移、捏合、旋转、智能缩放、三指滑动等手势。
+- Mac App Store 构建不含此项；布局同步时带 `remoteInputAvailable`，手机端自动隐藏不可用格子。
+- 首次使用需「辅助功能」授权；注入仅在本机完成。
+
+### 灵动岛
+
+- 展开 / 贴边均可拖拽边缘调整宽高，偏好会持久化。
+- 岛变大后界面元素随比例放大。
+- 输入监控权限探测更可靠；键盘启动器只依赖输入监控。
+
+详细说明：[docs/release-notes-v1.3.1.md](docs/release-notes-v1.3.1.md)
+
+## [1.3.1] — 2026-09-29（iOS）
 
 手机端蜂巢启动墙改为 **App Store 审核安全** 路径：只走公开 URL Scheme 与 App Store 图标，不再使用私有 LaunchServices / Family Controls。
 

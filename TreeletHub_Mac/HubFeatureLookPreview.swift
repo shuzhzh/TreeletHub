@@ -14,6 +14,12 @@ struct HubFeatureLookShot: Identifiable, Hashable {
     let imageName: String
     let captionKey: String
     let shortCaptionKey: String
+    /// 放大并偏向界面本体，裁掉实拍图四周的桌面留白。
+    var focusScale: CGFloat = 1
+    var focusAnchor: UnitPoint = .center
+    /// 压暗过亮的实拍底，让图标和左侧深色预览的视觉重量接近。
+    var brightness: Double = 0
+    var contrast: Double = 1
 }
 
 enum HubFeatureLookCatalog {
@@ -21,19 +27,27 @@ enum HubFeatureLookCatalog {
         id: "island-apps",
         imageName: "HubPreviewIslandApps",
         captionKey: "mac.island.preview.apps",
-        shortCaptionKey: "mac.island.preview.apps.short"
+        shortCaptionKey: "mac.island.preview.apps.short",
+        focusScale: 1.55,
+        focusAnchor: UnitPoint(x: 0.5, y: 0.38)
     )
     static let islandWorkspace = HubFeatureLookShot(
         id: "island-workspace",
         imageName: "HubPreviewIslandWorkspace",
         captionKey: "mac.island.preview.workspace",
-        shortCaptionKey: "mac.island.preview.workspace.short"
+        shortCaptionKey: "mac.island.preview.workspace.short",
+        focusScale: 1.42,
+        focusAnchor: UnitPoint(x: 0.5, y: 0.36)
     )
     static let keyboardOverlay = HubFeatureLookShot(
         id: "keyboard-overlay",
         imageName: "HubPreviewKeyboardHUD",
         captionKey: "mac.keyboardhud.preview.overlay",
-        shortCaptionKey: "mac.keyboardhud.preview.overlay"
+        shortCaptionKey: "mac.keyboardhud.preview.overlay",
+        focusScale: 1.7,
+        focusAnchor: UnitPoint(x: 0.55, y: 0.48),
+        brightness: -0.1,
+        contrast: 1.18
     )
 
     static func shots(for kind: HubFeatureLookKind) -> [HubFeatureLookShot] {
@@ -61,6 +75,9 @@ struct HubFeatureLookStrip: View {
 
     let kind: HubFeatureLookKind
     var style: Style = .compact
+    /// 为 false 时分段控件由外层标题栏绘制，预览框本身保持固定高度。
+    var showsPicker: Bool = true
+    var externalSelection: Binding<String>? = nil
 
     @Environment(\.locale) private var locale
     @State private var selectionID: String = ""
@@ -71,16 +88,17 @@ struct HubFeatureLookStrip: View {
     }
 
     private var selected: HubFeatureLookShot? {
-        shots.first(where: { $0.id == selectionID }) ?? shots.first
+        let current = externalSelection?.wrappedValue ?? selectionID
+        return shots.first(where: { $0.id == current }) ?? shots.first
     }
 
-    /// 预览框高度：保证整块功能 UI 以 fit 方式完整可见，而不是裁切放大。
+    /// 预览框高度。主窗口用 featured，并排时仍要能看清界面本身。
     private var previewHeight: CGFloat {
         switch (kind, style) {
-        case (.island, .compact): return 128
+        case (.island, .compact): return 132
         case (.island, .featured): return 168
-        case (.keyboardHUD, .compact): return 168
-        case (.keyboardHUD, .featured): return 220
+        case (.keyboardHUD, .compact): return 132
+        case (.keyboardHUD, .featured): return 168
         }
     }
 
@@ -89,7 +107,10 @@ struct HubFeatureLookStrip: View {
             EmptyView()
         } else {
             VStack(alignment: .leading, spacing: 8) {
-                if shots.count > 1 {
+                if let selected {
+                    previewButton(selected)
+                }
+                if showsPicker, shots.count > 1 {
                     Picker("", selection: selectionBinding) {
                         ForEach(shots) { shot in
                             Text(L(shot.shortCaptionKey)).tag(shot.id)
@@ -97,11 +118,7 @@ struct HubFeatureLookStrip: View {
                     }
                     .pickerStyle(.segmented)
                     .labelsHidden()
-                    .controlSize(.small)
-                }
-
-                if let selected {
-                    previewButton(selected)
+                    .controlSize(.regular)
                 }
             }
             .accessibilityElement(children: .contain)
@@ -118,7 +135,10 @@ struct HubFeatureLookStrip: View {
     }
 
     private var selectionBinding: Binding<String> {
-        Binding(
+        if let externalSelection {
+            return externalSelection
+        }
+        return Binding(
             get: { selected?.id ?? "" },
             set: { selectionID = $0 }
         )
@@ -128,30 +148,31 @@ struct HubFeatureLookStrip: View {
         Button {
             presentedShot = shot
         } label: {
-            ZStack(alignment: .bottomTrailing) {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color(nsColor: .controlBackgroundColor).opacity(0.72))
-                    .overlay {
-                        Image(shot.imageName)
-                            .resizable()
-                            .scaledToFit()
-                            .padding(6)
-                    }
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: previewHeight)
-
-                Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(.primary.opacity(0.8))
-                    .padding(5)
-                    .background(.ultraThinMaterial, in: Circle())
-                    .padding(7)
-            }
-            .contentShape(Rectangle())
+            Color.clear
+                .frame(maxWidth: .infinity)
+                .frame(height: previewHeight)
+                .overlay {
+                    Image(shot.imageName)
+                        .resizable()
+                        .scaledToFill()
+                        .scaleEffect(shot.focusScale, anchor: shot.focusAnchor)
+                        .brightness(shot.brightness)
+                        .contrast(shot.contrast)
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5)
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(.primary.opacity(0.85))
+                        .padding(5)
+                        .background(.ultraThinMaterial, in: Circle())
+                        .padding(8)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.plain)
         .help(L("mac.feature.preview.enlarge"))

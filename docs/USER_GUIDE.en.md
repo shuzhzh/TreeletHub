@@ -68,6 +68,12 @@ Compact toggles for Island / Keyboard Launcher also appear under the pairing cod
 
 On the **Apps** launcher while paired: **two-finger swipe down** hides all open Mac apps (including TreeletHub) and shows the desktop.
 
+### Keyboard and mouse (iPhone / Android)
+
+While paired with **TreeletHub Pro** from the website, add **Keyboard and mouse** from Add Shortcut on the Mac, then tap that honeycomb tile on the phone to use it as a trackpad and keyboard. One finger moves the pointer, a tap left-clicks, two fingers scroll, and you can type text plus common modifier keys.
+
+The Mac App Store build does not offer this shortcut, so the tile never appears on the phone. On Pro, allow TreeletHub Pro under **System Settings → Privacy & Security → Accessibility** the first time you use it.
+
 ---
 
 ## Codex control (Android)
@@ -84,6 +90,8 @@ With Pro unlocked, turn on Dynamic Island in the Mac main window or **Settings (
 
 - **System apps:** an icon wall of installed Mac apps, with search and icon-size controls.
 - **Workspace:** media playback, weather (WeatherKit; optional location), clipboard history, and file staging / pairing widgets.
+
+Drag the leading, trailing, or bottom edges while expanded or docked to resize; custom sizes are remembered, and type / cards scale up with a larger island.
 
 ---
 
@@ -103,7 +111,7 @@ Ideal for binding Chrome, WeChat, Terminal, and other daily apps to muscle-memor
 ## Pro unlock (one-time purchase)
 
 - Free: up to **10** apps/shortcuts on Mac.
-- **One-time $9.99** Pro unlock (not a subscription, no auto-renewal): unlimited apps, Mac **Dynamic Island**, Mac **Keyboard Launcher**, and other Pro features.
+- **One-time $9.99** Pro unlock (not a subscription, no auto-renewal): unlimited apps, Mac **Dynamic Island**, Mac **Keyboard Launcher**, and other Pro features. Website **TreeletHub Pro** also includes phone trackpad / keyboard remote.
 - iOS / Mac: **App Store** in-app purchase; Mac unlock status syncs to paired phones. Android unlock follows each client’s Settings page.
 
 ---
@@ -114,6 +122,7 @@ Ideal for binding Chrome, WeChat, Terminal, and other daily apps to muscle-memor
 |------------|---------|
 | Local Network | Discover Mac, sync layout, send launch commands |
 | Input Monitoring (Mac, Keyboard Launcher) | Listen for Control and shortcuts to show the overlay and launch mapped apps |
+| Accessibility (Mac, website Pro remote input) | Inject pointer and key events from the phone on this Mac |
 | Location (optional) | Weather in Dynamic Island |
 | Screen Recording (Mac, Dynamic Island) | As required by the system for island capabilities (see in-app permission guide) |
 

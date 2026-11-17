@@ -16,25 +16,76 @@ final class HubIslandScreenMetrics: ObservableObject {
     /// 当前屏幕逻辑高度（pt），用于按屏高缩放展开态内容区。
     @Published private(set) var screenHeight: CGFloat = 982
 
-    /// 展开态胶囊内容宽度：默认占当前屏宽约 60%，并夹在可用区间。
-    var expandedIslandWidth: CGFloat {
+    /// 用户自定义展开宽；`nil` 表示使用按屏宽推算的默认值。
+    @Published private(set) var customExpandedWidth: CGFloat?
+    /// 用户自定义展开内容区高度。
+    @Published private(set) var customExpandedBodyHeight: CGFloat?
+    /// 用户自定义收起宽。
+    @Published private(set) var customCollapsedWidth: CGFloat?
+    /// 用户自定义收起条高度（不含刘海 inset）。
+    @Published private(set) var customCollapsedBodyHeight: CGFloat?
+
+    /// 指针在尺寸拖拽热区 / 正在拖拽时，禁止顶部热区误展开。
+    @Published var suppressRevealFromHotzone = false
+
+    init() {
+        customExpandedWidth = HubIslandSizePreferences.expandedWidth
+        customExpandedBodyHeight = HubIslandSizePreferences.expandedBodyHeight
+        customCollapsedWidth = HubIslandSizePreferences.collapsedWidth
+        customCollapsedBodyHeight = HubIslandSizePreferences.collapsedBodyHeight
+    }
+
+    /// 当前屏下的展开宽默认值（未自定义时使用）。
+    var defaultExpandedIslandWidth: CGFloat {
         let target = (screenWidth * 0.60).rounded(.toNearestOrAwayFromZero)
         let maxWidth = max(560, screenWidth - 64)
         return Swift.min(maxWidth, Swift.max(560, target))
     }
 
-    /// 收起 / 贴边态胶囊内容宽度：约为展开宽的一半，便于一眼扫到摘要。
+    /// 展开态胶囊内容宽度：优先用户自定义，否则默认占屏宽约 60%。
+    var expandedIslandWidth: CGFloat {
+        clampExpandedWidth(customExpandedWidth ?? defaultExpandedIslandWidth)
+    }
+
+    /// 当前屏下的收起宽默认值。
+    var defaultCollapsedIslandWidth: CGFloat {
+        let target = (defaultExpandedIslandWidth * 0.48).rounded(.toNearestOrAwayFromZero)
+        return clampCollapsedWidth(
+            Swift.min(defaultExpandedIslandWidth * 0.62, Swift.max(360, target)),
+            expandedWidth: expandedIslandWidth
+        )
+    }
+
+    /// 收起 / 贴边态胶囊内容宽度。
     var collapsedIslandWidth: CGFloat {
-        let target = (expandedIslandWidth * 0.48).rounded(.toNearestOrAwayFromZero)
-        return Swift.min(expandedIslandWidth * 0.62, Swift.max(360, target))
+        clampCollapsedWidth(customCollapsedWidth ?? defaultCollapsedIslandWidth, expandedWidth: expandedIslandWidth)
+    }
+
+    /// 展开内容区默认高度。
+    var defaultExpandedBodyHeight: CGFloat {
+        let usable = max(640, screenHeight - 100)
+        let scaled = (usable * 0.52).rounded(.toNearestOrAwayFromZero)
+        return clampExpandedBodyHeight(Swift.min(580, Swift.max(420, scaled)))
     }
 
     /// 展开态各 Tab 共用的内容区高度（含 padding 内区域），切换 Tab 窗口不跳动。
-    /// 加高以容纳完整蜂巢启动台与更多面板内容。
     var expandedBodyHeight: CGFloat {
-        let usable = max(640, screenHeight - 100)
-        let scaled = (usable * 0.52).rounded(.toNearestOrAwayFromZero)
-        return Swift.min(580, Swift.max(420, scaled))
+        clampExpandedBodyHeight(customExpandedBodyHeight ?? defaultExpandedBodyHeight)
+    }
+
+    /// 贴边条默认高度（不含刘海 inset）。
+    var defaultCollapsedBodyHeight: CGFloat { 30 }
+
+    /// 贴边条本体高度。
+    var collapsedBodyHeight: CGFloat {
+        clampCollapsedBodyHeight(customCollapsedBodyHeight ?? defaultCollapsedBodyHeight)
+    }
+
+    var hasCustomSize: Bool {
+        customExpandedWidth != nil
+            || customExpandedBodyHeight != nil
+            || customCollapsedWidth != nil
+            || customCollapsedBodyHeight != nil
     }
 
     /// 与 SwiftUI 上报的展开态窗口对齐，避免首次用窄占位框把岛偏到一侧。
@@ -42,6 +93,14 @@ final class HubIslandScreenMetrics: ObservableObject {
         CGSize(
             width: expandedIslandWidth + 40,
             height: topInset + expandedBodyHeight + 96
+        )
+    }
+
+    /// 冷启动贴边态窗口，避免先按展开尺寸铺开再缩回去。
+    var estimatedCollapsedPanelSize: CGSize {
+        CGSize(
+            width: collapsedIslandWidth + 40,
+            height: topInset + collapsedBodyHeight + 26
         )
     }
 
@@ -64,6 +123,104 @@ final class HubIslandScreenMetrics: ObservableObject {
             hasPhysicalNotch = false
             topInset = NSStatusBar.system.thickness
         }
+    }
+
+    func setExpandedWidth(_ width: CGFloat, persist: Bool = true) {
+        let clamped = clampExpandedWidth(width, snap: persist)
+        customExpandedWidth = clamped
+        if persist {
+            HubIslandSizePreferences.expandedWidth = clamped
+        }
+        // 收起宽若大于新展开宽，同步夹紧。
+        if collapsedIslandWidth > clamped {
+            setCollapsedWidth(clamped, persist: persist)
+        }
+    }
+
+    func setExpandedBodyHeight(_ height: CGFloat, persist: Bool = true) {
+        let clamped = clampExpandedBodyHeight(height, snap: persist)
+        customExpandedBodyHeight = clamped
+        if persist {
+            HubIslandSizePreferences.expandedBodyHeight = clamped
+        }
+    }
+
+    func setCollapsedWidth(_ width: CGFloat, persist: Bool = true) {
+        let clamped = clampCollapsedWidth(width, expandedWidth: expandedIslandWidth, snap: persist)
+        customCollapsedWidth = clamped
+        if persist {
+            HubIslandSizePreferences.collapsedWidth = clamped
+        }
+    }
+
+    func setCollapsedBodyHeight(_ height: CGFloat, persist: Bool = true) {
+        let clamped = clampCollapsedBodyHeight(height, snap: persist)
+        customCollapsedBodyHeight = clamped
+        if persist {
+            HubIslandSizePreferences.collapsedBodyHeight = clamped
+        }
+    }
+
+    /// 将当前内存中的自定义尺寸写入 UserDefaults（拖拽结束时调用）。
+    func persistCustomSizes() {
+        if let customExpandedWidth {
+            setExpandedWidth(customExpandedWidth, persist: true)
+        }
+        if let customExpandedBodyHeight {
+            setExpandedBodyHeight(customExpandedBodyHeight, persist: true)
+        }
+        if let customCollapsedWidth {
+            setCollapsedWidth(customCollapsedWidth, persist: true)
+        }
+        if let customCollapsedBodyHeight {
+            setCollapsedBodyHeight(customCollapsedBodyHeight, persist: true)
+        }
+    }
+
+    func resetCustomSizes() {
+        HubIslandSizePreferences.resetAll()
+        customExpandedWidth = nil
+        customExpandedBodyHeight = nil
+        customCollapsedWidth = nil
+        customCollapsedBodyHeight = nil
+    }
+
+    func resetExpandedCustomSizes() {
+        HubIslandSizePreferences.expandedWidth = nil
+        HubIslandSizePreferences.expandedBodyHeight = nil
+        customExpandedWidth = nil
+        customExpandedBodyHeight = nil
+    }
+
+    func resetCollapsedCustomSizes() {
+        HubIslandSizePreferences.collapsedWidth = nil
+        HubIslandSizePreferences.collapsedBodyHeight = nil
+        customCollapsedWidth = nil
+        customCollapsedBodyHeight = nil
+    }
+
+    func clampExpandedWidth(_ width: CGFloat, snap: Bool = true) -> CGFloat {
+        let maxWidth = max(480, screenWidth - 64)
+        let clamped = Swift.min(maxWidth, Swift.max(480, width))
+        return snap ? clamped.rounded(.toNearestOrAwayFromZero) : clamped
+    }
+
+    func clampExpandedBodyHeight(_ height: CGFloat, snap: Bool = true) -> CGFloat {
+        let maxHeight = Swift.min(720, max(320, screenHeight - 140))
+        let clamped = Swift.min(maxHeight, Swift.max(280, height))
+        return snap ? clamped.rounded(.toNearestOrAwayFromZero) : clamped
+    }
+
+    func clampCollapsedWidth(_ width: CGFloat, expandedWidth: CGFloat, snap: Bool = true) -> CGFloat {
+        let maxWidth = Swift.min(expandedWidth, max(160, screenWidth - 80))
+        let clamped = Swift.min(maxWidth, Swift.max(140, width))
+        return snap ? clamped.rounded(.toNearestOrAwayFromZero) : clamped
+    }
+
+    func clampCollapsedBodyHeight(_ height: CGFloat, snap: Bool = true) -> CGFloat {
+        // 收起触发条允许拉高到约菜单栏+一截内容的高度，便于用户放大热区。
+        let clamped = Swift.min(120, Swift.max(16, height))
+        return snap ? clamped.rounded(.toNearestOrAwayFromZero) : clamped
     }
 
     /// 以常见 14″ 逻辑宽 1512pt 为基准缩放参考宽度，再夹到 `[min, max]`。
@@ -186,8 +343,8 @@ final class HubIslandWindowPresenter {
         hosting.layer?.backgroundColor = NSColor.clear.cgColor
         hosting.layer?.isOpaque = false
 
-        // 直接按展开态尺寸落位，避免先出 400pt 窄窗再撑开造成水平跳动。
-        let initial = metrics.estimatedExpandedPanelSize
+        // 冷启动按贴边尺寸落位，不先铺开展开页。
+        let initial = metrics.estimatedCollapsedPanelSize
         hosting.frame = NSRect(origin: .zero, size: initial)
 
         let panel = NSPanel(
@@ -240,16 +397,41 @@ final class HubIslandWindowPresenter {
     }
 
     private func handleLocalMouseMoved(_: NSEvent) {
-        guard panel != nil, let handler = revealCollapsedFromDockHandler else { return }
-        guard let screen = panel?.screen ?? NSScreen.main else { return }
+        guard let panel, let handler = revealCollapsedFromDockHandler else { return }
+        guard !metrics.suppressRevealFromHotzone else { return }
+        guard let screen = panel.screen ?? NSScreen.main else { return }
         metrics.update(for: screen)
         let loc = NSEvent.mouseLocation
-        let topBand: CGFloat = 28
+
+        // 指针已在贴边面板的左右/底边缘：留给尺寸拖拽，不要热区展开。
+        if panel.frame.contains(loc), isPointerInCollapsedResizeChrome(loc, panelFrame: panel.frame) {
+            return
+        }
+
+        // 热区高度随收起条本体增高，避免拉高后底部拖拽区仍被热区抢走。
+        let topBand = max(28, metrics.topInset + metrics.collapsedBodyHeight * 0.45)
         guard loc.y >= screen.frame.maxY - topBand else { return }
-        // 热区半宽与贴边条大致同宽；下限约 200pt，避免窄屏热区过小。
-        let halfW = max(200, metrics.collapsedIslandWidth / 2 + 40)
-        guard abs(loc.x - metrics.islandAnchorCenterX) <= halfW else { return }
+        // 左右各留出足够边距给改宽热区（含面板水平 padding）。
+        let edgeReserve: CGFloat = 28
+        let innerHalf = max(36, metrics.collapsedIslandWidth / 2 - edgeReserve)
+        guard abs(loc.x - metrics.islandAnchorCenterX) <= innerHalf else { return }
         handler()
+    }
+
+    /// 判断指针是否落在收起态可拖拽改尺寸的边缘带上。
+    private func isPointerInCollapsedResizeChrome(_ loc: NSPoint, panelFrame: NSRect) -> Bool {
+        let pillWidth = metrics.collapsedIslandWidth
+        let pillLeft = panelFrame.midX - pillWidth / 2
+        let pillRight = panelFrame.midX + pillWidth / 2
+        let edge: CGFloat = 18
+        // AppKit：y 向上；面板顶 = maxY。
+        let pillContentTop = panelFrame.maxY - metrics.topInset
+        let pillBottom = pillContentTop - metrics.collapsedBodyHeight
+        let nearLeading = loc.x >= pillLeft - 4 && loc.x <= pillLeft + edge
+        let nearTrailing = loc.x >= pillRight - edge && loc.x <= pillRight + 4
+        let inPillX = loc.x >= pillLeft && loc.x <= pillRight
+        let nearBottom = inPillX && loc.y >= pillBottom - 6 && loc.y <= pillBottom + edge
+        return nearLeading || nearTrailing || nearBottom
     }
 
     /// 监听屏幕参数变化（外接显示器、分辨率切换、合上盖子等），重新计算刘海安全区。

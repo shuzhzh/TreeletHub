@@ -23,6 +23,15 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
     public var subscriptionActive: Bool?
     /// Codex Micro 虚拟控制面：Agent 状态快照（也可编码在 `message` JSON 中）。
     public var agents: [HubCodexAgentSlot]?
+    /// `input`：相对指针位移或滚轮。
+    public var dx: Double?
+    public var dy: Double?
+    /// `input` 点击：`left` / `right`。
+    public var button: String?
+    /// `input` 按键名（见 `HubRemoteInputCommand`）。
+    public var key: String?
+    /// 随 `layout` 下发：当前 Mac 能否注入键鼠（官网 TreeletHub Pro 为 true）。
+    public var remoteInputAvailable: Bool?
 
     public init(
         op: String,
@@ -41,7 +50,12 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
         command: String? = nil,
         value: Double? = nil,
         subscriptionActive: Bool? = nil,
-        agents: [HubCodexAgentSlot]? = nil
+        agents: [HubCodexAgentSlot]? = nil,
+        dx: Double? = nil,
+        dy: Double? = nil,
+        button: String? = nil,
+        key: String? = nil,
+        remoteInputAvailable: Bool? = nil
     ) {
         self.op = op
         self.pin = pin
@@ -60,6 +74,11 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
         self.value = value
         self.subscriptionActive = subscriptionActive
         self.agents = agents
+        self.dx = dx
+        self.dy = dy
+        self.button = button
+        self.key = key
+        self.remoteInputAvailable = remoteInputAvailable
     }
 
     public static let opPair = "pair"
@@ -78,6 +97,30 @@ public struct HubWireEnvelope: Codable, Sendable, Equatable {
     public static let opCodexMicro = "codexMicro"
     /// Mac → iOS：Codex Micro 实时状态（`message` 为 `HubCodexMicroState` JSON，`agents` 可同步下发）。
     public static let opCodexMicroState = "codexMicroState"
+    /// 手机 → Mac：相对指针、点击、滚动与按键（仅 TreeletHub Pro 注入）。
+    public static let opInput = "input"
+}
+
+/// 手机遥控 Mac 键鼠（随 `opInput` 的 `command` 字段发送）。
+public enum HubRemoteInputCommand: String, Sendable {
+    case move
+    case click
+    case scroll
+    case keyDown
+    case keyUp
+    case text
+    /// 按住拖移。`button` 为 `down` / `move` / `up`。
+    case drag
+    /// 双指捏合。`value` 是缩放增量，`button` 为 `began` / `changed` / `ended`。
+    case magnify
+    /// 双指旋转。`value` 是角度增量（度），`button` 为阶段。
+    case rotate
+    /// 双指轻点两下，智能缩放。
+    case smartZoom
+    /// 三指滑动。`key` 为 `up` / `down` / `left` / `right`。
+    case swipe
+    /// 三指轻点，查词 / 快速查看。
+    case lookUp
 }
 
 /// iOS 遥控 Mac 的手势命令（随 `opGesture` 的 `command` 字段发送）。

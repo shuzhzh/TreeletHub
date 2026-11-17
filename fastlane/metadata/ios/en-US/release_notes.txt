@@ -1,2 +1,6 @@
-• Metadata and stability updates
-• Improved pairing and grid sync on local network
+• Honeycomb phone launcher with App Store artwork and one-tap open for apps with a public URL
+• Home Screen widget opens TreeletHub, then the target app
+• One-tap calling from selected contacts
+• System camera capture when Camera has no public URL
+• App Store search; only launchable apps can be added
+• Fixes for map / shopping / music icon lookups

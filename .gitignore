@@ -41,6 +41,7 @@ local.properties
 .idea/
 **/.idea/
 .cursor/
+.agents/
 
 # 官网站点在独立仓库维护，不要提交到本仓库
 treelet.us/

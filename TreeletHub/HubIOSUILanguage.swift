@@ -67,6 +67,7 @@ extension HubShortcutKind {
         case .copy: key = "ios.shortcut.copy"
         case .paste: key = "ios.shortcut.paste"
         case .openURL: key = "ios.shortcut.open_url"
+        case .remoteInput: key = "ios.shortcut.remote_input"
         }
         return HubBundleLocalizedString.localized(key, locale: locale, bundle: .main)
     }

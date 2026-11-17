@@ -4,14 +4,14 @@
 
 ## Mac 双分发（必读）
 
-| 通道 | Xcode Scheme | Configuration | 键盘启动器 | 产物 |
-|------|----------------|---------------|------------|------|
-| 官网 / GitHub DMG | `TreeletHub_Mac` | `Debug` / `Release` | 有（输入监控） | `./scripts/package-mac-dmg.sh` 或 `TreeletHub_Mac_release/build-dmg.sh` |
-| App Store Connect | `TreeletHub_Mac_AppStore` | `AppStore` | 无 | `fastlane mac beta` / `mac release` |
+| 通道 | Xcode Scheme | Configuration | 键盘启动器 | 手机键鼠 | 产物 |
+|------|----------------|---------------|------------|----------|------|
+| 官网 / GitHub DMG（TreeletHub Pro） | `TreeletHub_Mac` | `Debug` / `Release` | 有（输入监控） | 有（辅助功能） | `./scripts/package-mac-dmg.sh` 或 `TreeletHub_Mac_release/build-dmg.sh` |
+| App Store Connect | `TreeletHub_Mac_AppStore` | `AppStore` | 无 | 无 | `fastlane mac beta` / `mac release` |
 
 编译条件 `APP_STORE` 只加在 `AppStore` configuration。日常开发请继续用 `TreeletHub_Mac`，不要改 `HubMacFeatureFlags` 里的手写开关。
 
-审核包会：去掉键盘启动器入口与 Input Monitoring 用途说明；灵动岛不再申请屏幕录制（截图快捷方式用时再申请）。
+审核包会：去掉键盘启动器、手机键鼠注入，以及 Input Monitoring / Accessibility 用途说明；灵动岛不再申请屏幕录制（截图快捷方式用时再申请）。
 
 ## Mac DMG
 

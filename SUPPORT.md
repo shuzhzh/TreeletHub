@@ -10,10 +10,10 @@
 
 - iOS：[App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247)（二维码：`assets/ios-app-qr.png`）
 - Android：[CDN APK](https://models.appda.store/treelethub/TreeletHub.apk)（1.3.1） · [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub)（二维码：`assets/android-app-qr.png`）
-- Mac DMG（Cloudflare CDN）：[https://models.appda.store/treelethub/TreeletHub.dmg](https://models.appda.store/treelethub/TreeletHub.dmg) · [产品页](https://treelet.us/treelethub/)
+- Mac DMG（Cloudflare CDN，TreeletHub Pro 1.3.1）：[https://models.appda.store/treelethub/TreeletHub.dmg](https://models.appda.store/treelethub/TreeletHub.dmg) · [产品页](https://treelet.us/treelethub/)
 - Mac 全部 Releases（开发备用）：[GitHub Releases](https://github.com/shuzhzh/TreeletHub/releases)
 - Changelog：[CHANGELOG.md](CHANGELOG.md)
-- 发布说明：[macOS 1.3.0](docs/release-notes-v1.3.0.md)
+- 发布说明：[macOS 1.3.1](docs/release-notes-v1.3.1.md) · [macOS 1.3.0](docs/release-notes-v1.3.0.md)
 
 ## 演示视频
 

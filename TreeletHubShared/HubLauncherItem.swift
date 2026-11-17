@@ -53,6 +53,7 @@ public extension HubShortcutKind {
         case .copy: return "doc.on.doc.fill"
         case .paste: return "clipboard.fill"
         case .openURL: return "link"
+        case .remoteInput: return "keyboard"
         }
     }
 }

@@ -70,10 +70,10 @@ final class HubSubscriptionManager: ObservableObject {
             } else {
                 lifetimeProduct = nil
             }
-            await refreshEntitlement()
         } catch {
             lastError = error.localizedDescription
         }
+        await refreshEntitlement()
     }
 
     func refreshEntitlement() async {
@@ -153,12 +153,6 @@ final class HubSubscriptionManager: ObservableObject {
         }
         if let desc = defaults.string(forKey: Self.cachedDescriptionKey), !desc.isEmpty {
             cachedDescription = desc
-        }
-        // 兼容旧缓存键
-        if defaults.object(forKey: Self.cachedStatusKey) == nil {
-            isSubscribed = defaults.bool(forKey: "treelethub.sub.cached.active.v1")
-        } else {
-            isSubscribed = defaults.bool(forKey: Self.cachedStatusKey)
         }
     }
 

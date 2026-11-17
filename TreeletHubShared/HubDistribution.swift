@@ -22,4 +22,13 @@ public enum HubDistribution {
         true
         #endif
     }
+
+    /// 手机键鼠注入只出现在官网 Direct 包（TreeletHub Pro）。Mac App Store 构建为 false。
+    public static var includesRemoteInput: Bool {
+        #if os(macOS)
+        !isAppStoreMacBuild
+        #else
+        false
+        #endif
+    }
 }

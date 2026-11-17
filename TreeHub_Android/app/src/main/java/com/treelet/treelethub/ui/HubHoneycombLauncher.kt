@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Hexagon
+import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.SelectAll
@@ -622,6 +623,7 @@ private fun ShortcutGlyph(kind: String) {
             "copy" -> Icons.Default.ContentCopy
             "paste" -> Icons.Default.ContentPaste
             "openURL" -> Icons.Default.Link
+            "remoteInput" -> Icons.Default.Keyboard
             else -> Icons.Default.Apps
         }
     Icon(

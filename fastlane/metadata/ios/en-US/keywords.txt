@@ -1,1 +1,1 @@
-launcher,remote,grid,productivity,wifi,lan,hub,shortcuts,dock,controller
+launcher,remote,honeycomb,wifi,hub,shortcuts,widget,contacts,camera,grid

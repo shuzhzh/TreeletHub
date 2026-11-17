@@ -160,7 +160,7 @@ struct ContentView: View {
     }
 
     private var watchLauncherItems: [HubLauncherItem] {
-        HubLauncherItems.flattened(from: displayPages)
+        HubLauncherItems.flattened(from: displayPages).filter { $0.slot.shortcutKind != .remoteInput }
     }
 
     private var watchHoneycombLauncher: some View {
@@ -191,6 +191,8 @@ struct ContentView: View {
                 companion.control(page: pageId, slot: slot.id, command: "playPause")
             case .brightness:
                 companion.control(page: pageId, slot: slot.id, value: 0.5)
+            case .remoteInput:
+                return
             default:
                 companion.tap(page: pageId, slot: slot.id)
             }
@@ -304,6 +306,7 @@ private extension HubShortcutKind {
         case .copy: return "doc.on.doc.fill"
         case .paste: return "clipboard.fill"
         case .openURL: return "link"
+        case .remoteInput: return "keyboard"
         }
     }
 }

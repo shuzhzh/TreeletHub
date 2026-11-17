@@ -9,6 +9,7 @@ struct ContentView: View {
     @AppStorage("treelethub.island.enabled") private var islandModeEnabled = false
     @AppStorage("treelethub.keyboardhud.enabled") private var keyboardHUDEnabled = false
     @AppStorage("treelethub.onboarding.v1.seen") private var hasSeenOnboarding = false
+    @AppStorage("treelethub.mainWindow.defaultSize.v2") private var didApplyDefaultWindowSize = false
     @State private var showingRegenerateConfirm = false
     @State private var showingSubscriptionSheet = false
     @State private var showingFirstRunIntro = false
@@ -18,9 +19,16 @@ struct ContentView: View {
     @State private var pickAppAfterAddTypeSheetDismisses: PendingAddSlot?
     @State private var showingShortcutSheet = false
     @State private var showingKeyboardHUDPermissionAlert = false
+    @State private var launcherQuery = ""
+    @State private var islandPreviewID = HubFeatureLookCatalog.islandApps.id
 
     private func macL(_ key: String) -> String {
         HubMacL10n.string(key, locale: uiLanguage.locale)
+    }
+
+    /// 官网包在窗口里显示 TreeletHub Pro；App Store 包保持 TreeletHub。
+    private var macAppDisplayName: String {
+        HubDistribution.isAppStoreMacBuild ? macL("mac.app.name") : macL("mac.app.name.pro")
     }
 
     private let columns = [
@@ -30,41 +38,39 @@ struct ContentView: View {
     ]
 
     var body: some View {
-        VStack(spacing: 0) {
-            NavigationStack {
-                    ZStack {
-                        LinearGradient(
-                            colors: [
-                                Color(nsColor: .windowBackgroundColor),
-                                Color.accentColor.opacity(0.08)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .ignoresSafeArea()
+        ZStack {
+            Color(nsColor: .underPageBackgroundColor)
+                .ignoresSafeArea()
 
-                        VStack(spacing: 0) {
-                            ViewThatFits(in: .vertical) {
-                                macTopSettingsStack
-                                ScrollView {
-                                    macTopSettingsStack
-                                }
-                            }
-                            .frame(maxHeight: showsFeatureLookPreviews ? 780 : 320)
+            VStack(spacing: 14) {
+                pairingSection
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
 
-                            macAddAppRow
-                                .padding(.horizontal, 20)
-                                .padding(.bottom, 4)
+                featurePreviewBand
+                    .padding(.horizontal, 16)
 
-                            macHoneycombLauncher
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .padding(.horizontal, 12)
-                                .padding(.bottom, 12)
-                                .padding(.top, 4)
-                        }
-                    }
-                    .navigationTitle(macL("mac.app.name"))
-                    .onAppear {
+                if hub.server.lastError != nil || launchAtLogin.lastErrorMessage != nil {
+                    statusSection
+                        .padding(.horizontal, 16)
+                }
+
+                honeycombStage
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 14)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .frame(minWidth: 720, minHeight: 640)
+        .toolbar {
+            windowTitleItem
+            ToolbarItem(placement: .primaryAction) {
+                settingsToolbarMenu
+                    .labelStyle(.iconOnly)
+            }
+        }
+        .onAppear {
+                        enlargeDefaultWindowIfNeeded()
                         if !HubMacFeatureFlags.allowsGlobalInputMonitoring {
                             keyboardHUDEnabled = false
                         }
@@ -95,7 +101,6 @@ struct ContentView: View {
                     .onChange(of: keyboardHUDEnabled) { wasOn, isOn in
                         syncKeyboardHUD()
                         if isOn && !wasOn, subscription.isSubscribed {
-                            hub.keyboardHUDPresenter.presentIntroPreview()
                             Task { await runKeyboardHUDPermissionGateSequence() }
                         }
                     }
@@ -123,16 +128,6 @@ struct ContentView: View {
                         syncIslandPanel()
                         syncKeyboardHUD()
                     }
-                    .toolbar {
-                        ToolbarItem(placement: .primaryAction) {
-                            settingsToolbarMenu
-                        }
-                    }
-                }
-                .frame(minWidth: 720, minHeight: 0)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .frame(minWidth: 720, minHeight: showsFeatureLookPreviews ? 1240 : 640)
         .sheet(isPresented: $showingSubscriptionSheet) {
             SubscriptionManagementView(manager: subscription)
                 .environment(\.locale, uiLanguage.locale)
@@ -172,13 +167,27 @@ struct ContentView: View {
             } label: {
                 Text(macL("mac.permissions.open_settings"))
             }
-            Button(role: .cancel) {
-                keyboardHUDEnabled = false
-            } label: {
+            Button(role: .cancel) {} label: {
                 Text(macL("mac.island.permission.ok"))
             }
         } message: {
             Text(macL("mac.keyboardhud.permission.message"))
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var windowTitleItem: some ToolbarContent {
+        if #available(macOS 26.0, *) {
+            ToolbarItem(placement: .navigation) {
+                Text(macAppDisplayName)
+                    .font(.headline)
+            }
+            .sharedBackgroundVisibility(.hidden)
+        } else {
+            ToolbarItem(placement: .navigation) {
+                Text(macAppDisplayName)
+                    .font(.headline)
+            }
         }
     }
 
@@ -254,6 +263,32 @@ struct ContentView: View {
         islandModeEnabled && subscription.isSubscribed
     }
 
+    /// 系统会记住上次窗口大小。旧默认是 980×760，这里只放大一次仍偏小的主窗口，之后用户自己拉过的尺寸保留。
+    private func enlargeDefaultWindowIfNeeded() {
+        guard !didApplyDefaultWindowSize else { return }
+        DispatchQueue.main.async {
+            guard let window = NSApp.mainWindow ?? NSApp.windows.first(where: { candidate in
+                candidate.isVisible && !candidate.isSheet && !(candidate is NSPanel && candidate.styleMask.contains(.borderless))
+            }) else { return }
+            didApplyDefaultWindowSize = true
+            let target = HubMainWindowMetrics.defaultSize
+            let current = window.frame.size
+            guard current.width + 24 < target.width || current.height + 24 < target.height else { return }
+            let visible = (window.screen ?? NSScreen.main)?.visibleFrame ?? NSRect(origin: .zero, size: target)
+            let width = min(target.width, visible.width)
+            let height = min(target.height, visible.height)
+            var frame = window.frame
+            let top = min(frame.maxY, visible.maxY)
+            frame.size = NSSize(width: width, height: height)
+            frame.origin.x = visible.midX - width / 2
+            frame.origin.y = top - height
+            if frame.minY < visible.minY {
+                frame.origin.y = visible.minY
+            }
+            window.setFrame(frame, display: true)
+        }
+    }
+
     private func syncIslandPanel() {
         hub.islandPresenter.setEnabled(
             isIslandModeEffectivelyOn,
@@ -296,25 +331,28 @@ struct ContentView: View {
 
     @MainActor
     private func runKeyboardHUDPermissionGateSequence() async {
-        if HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring { return }
-        _ = HubMacPrivacyPermissions.requestKeyboardHUDMonitoringAccess()
-        for delayMs in [500, 1000, 1500] {
-            try? await Task.sleep(for: .milliseconds(delayMs))
-            if HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring {
-                syncKeyboardHUD()
-                return
-            }
-        }
         if HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring {
             syncKeyboardHUD()
             return
         }
-        showingKeyboardHUDPermissionAlert = true
+        _ = HubMacPrivacyPermissions.requestKeyboardHUDMonitoringAccess()
+        for delayMs in [400, 900, 1600] {
+            try? await Task.sleep(for: .milliseconds(delayMs))
+            if HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring {
+                syncKeyboardHUD()
+                showingKeyboardHUDPermissionAlert = false
+                return
+            }
+        }
+        syncKeyboardHUD()
+        if !HubMacPrivacyPermissions.canUseKeyboardHUDMonitoring {
+            showingKeyboardHUDPermissionAlert = true
+        }
     }
 
     private var keyboardHUDToggleBinding: Binding<Bool> {
         Binding(
-            get: { keyboardHUDEnabled },
+            get: { keyboardHUDEnabled && subscription.isSubscribed },
             set: { newValue in
                 if newValue {
                     guard subscription.isSubscribed else {
@@ -329,98 +367,87 @@ struct ContentView: View {
         )
     }
 
-    /// 未开启时展示效果图，方便用户在打开前建立直观印象。
-    private var showsFeatureLookPreviews: Bool {
-        !islandModeEnabled
-            || (HubMacFeatureFlags.allowsGlobalInputMonitoring && !keyboardHUDEnabled)
-    }
-
-    /// 配对与功能开关：内容不多时按高度贴合，超出时才滚动，避免把添加按钮顶开。
-    private var macTopSettingsStack: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            pairingSection
-            proFeaturesSection
-            statusSection
-        }
-        .padding(20)
-    }
-
-    /// 主窗口紧凑功能开关（详细说明见设置菜单中的功能简介）。
-    private var proFeaturesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            compactFeatureToggleRow(
+    /// 两张功能卡严格等高：预览框同高，分段控件放在标题行。
+    private var featurePreviewBand: some View {
+        HStack(alignment: .top, spacing: 12) {
+            featurePreviewCard(
                 systemName: "capsule.portrait.fill",
                 tint: Color(red: 0.18, green: 0.78, blue: 0.44),
                 title: macL("mac.island.title"),
-                subtitle: subscription.isSubscribed
-                    ? macL("mac.island.bullet1")
+                summary: subscription.isSubscribed
+                    ? macL("mac.home.island.summary")
                     : macL("mac.island.paywall"),
                 locked: !subscription.isSubscribed,
                 isOn: islandModeToggleBinding,
-                previewKind: .island
+                kind: .island
             )
-
             if HubMacFeatureFlags.allowsGlobalInputMonitoring {
-                Divider().opacity(0.45)
-                compactFeatureToggleRow(
+                featurePreviewCard(
                     systemName: "keyboard.fill",
                     tint: Color(red: 0.35, green: 0.55, blue: 0.95),
                     title: macL("mac.keyboardhud.title"),
-                    subtitle: subscription.isSubscribed
-                        ? macL("mac.keyboardhud.bullet1")
+                    summary: subscription.isSubscribed
+                        ? macL("mac.home.keyboard.summary")
                         : macL("mac.keyboardhud.paywall"),
                     locked: !subscription.isSubscribed,
                     isOn: keyboardHUDToggleBinding,
-                    previewKind: .keyboardHUD
+                    kind: .keyboardHUD
                 )
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background { hubSettingsCardBackground() }
-        .animation(.easeInOut(duration: 0.2), value: islandModeEnabled)
-        .animation(.easeInOut(duration: 0.2), value: keyboardHUDEnabled)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
-    private func compactFeatureToggleRow(
+    private func featurePreviewCard(
         systemName: String,
         tint: Color,
         title: String,
-        subtitle: String,
+        summary: String,
         locked: Bool,
         isOn: Binding<Bool>,
-        previewKind: HubFeatureLookKind
+        kind: HubFeatureLookKind
     ) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center, spacing: 14) {
+            HStack(alignment: .center, spacing: 10) {
                 HubSettingsFeatureIcon(systemName: systemName, tint: tint)
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        Text(title)
-                            .font(.subheadline.weight(.semibold))
-                        if locked {
-                            Image(systemName: "lock.fill")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(.yellow)
+                Text(title)
+                    .font(.title3.weight(.semibold))
+                    .lineLimit(1)
+                Spacer(minLength: 8)
+                if kind == .island {
+                    Picker("", selection: $islandPreviewID) {
+                        ForEach(HubFeatureLookCatalog.shots(for: .island)) { shot in
+                            Text(macL(shot.shortCaptionKey)).tag(shot.id)
                         }
                     }
-                    Text(subtitle)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .frame(width: 110)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                if locked {
+                    Image(systemName: "lock.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.yellow)
+                }
                 Toggle("", isOn: isOn)
                     .labelsHidden()
                     .toggleStyle(.switch)
             }
-
-            if !isOn.wrappedValue {
-                HubFeatureLookStrip(kind: previewKind, style: .compact)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-            }
+            Text(summary)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .frame(minHeight: 40, alignment: .topLeading)
+            HubFeatureLookStrip(
+                kind: kind,
+                style: .featured,
+                showsPicker: false,
+                externalSelection: kind == .island ? $islandPreviewID : nil
+            )
         }
+        .padding(14)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background { hubSettingsCardBackground() }
     }
 
     private func devicesCountText(_ count: Int) -> String {
@@ -429,7 +456,7 @@ struct ContentView: View {
 
     private var islandModeToggleBinding: Binding<Bool> {
         Binding(
-            get: { islandModeEnabled },
+            get: { islandModeEnabled && subscription.isSubscribed },
             set: { newValue in
                 if newValue {
                     guard subscription.isSubscribed else {
@@ -452,48 +479,86 @@ struct ContentView: View {
         HubService.configuredSlotCount(in: hub.grid.pages)
     }
 
-    private var macAddAppRow: some View {
-        HStack(alignment: .center, spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(macL("mac.launcher.hint"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text(
-                    String(
-                        format: macL("mac.launcher.count"),
-                        locale: uiLanguage.locale,
-                        macConfiguredCount,
-                        subscription.isSubscribed ? "∞" : "\(HubService.freeAppLimit)"
-                    )
-                )
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-            }
-            Spacer(minLength: 8)
-            Button {
-                beginAddAppFlow()
-            } label: {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 36))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(Color.accentColor)
-            }
-            .buttonStyle(.plain)
-            .help(macL("mac.slot.add"))
-            .accessibilityLabel(Text(macL("mac.slot.add")))
+    private var filteredLauncherItems: [HubLauncherItem] {
+        let query = launcherQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return macLauncherItems }
+        return macLauncherItems.filter { item in
+            guard !item.isAddAffordance else { return false }
+            let name = item.slot.displayName ?? ""
+            return name.localizedCaseInsensitiveContains(query)
         }
+    }
+
+    private var honeycombStage: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                Text(macL("mac.home.launcher.title"))
+                    .font(.title3.weight(.semibold))
+                Text("\(macConfiguredCount)")
+                    .font(.callout.weight(.semibold).monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 2)
+                    .background(.quaternary.opacity(0.8), in: Capsule())
+                Spacer(minLength: 8)
+                HStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                    TextField(macL("mac.home.launcher.search"), text: $launcherQuery)
+                        .textFieldStyle(.plain)
+                        .font(.callout)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .frame(maxWidth: 220)
+                .background(.quaternary.opacity(0.55), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                Button {
+                    beginAddAppFlow()
+                } label: {
+                    Label(macL("mac.slot.add"), systemImage: "plus")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+            .padding(.horizontal, 14)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+
+            Text(macL("mac.launcher.hint"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 14)
+                .padding(.bottom, 4)
+
+            macHoneycombLauncher
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(red: 0.925, green: 0.933, blue: 0.949))
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private var macHoneycombLauncher: some View {
         HubHoneycombLauncherCanvas(
-            items: macLauncherItems,
+            items: filteredLauncherItems,
             emptyHint: macL("mac.launcher.empty"),
-            persistenceKey: "treelethub.launcher.mac",
-            baseIconSide: 64,
-            allowsEditing: true,
+            persistenceKey: "treelethub.launcher.mac.v2",
+            baseIconSide: 84,
+            allowsEditing: launcherQuery.isEmpty,
             allowsDelete: true,
             isEditableItem: { !$0.isAddAffordance },
             editDoneLabel: macL("mac.launcher.edit_done"),
+            edgeBlurScale: 0,
+            iconSpacingFactor: 0.86,
+            verticalBias: -0.08,
             icon: { item, side in
                 HubHoneycombRoundIcon(item: item, side: side)
             },
@@ -528,15 +593,6 @@ struct ContentView: View {
                 return item.slot.displayName ?? macL("mac.slot.app")
             }
         )
-        .background {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(.ultraThinMaterial)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
-        }
         .overlay(alignment: .top) {
             if macConfiguredCount == 0 {
                 macEmptyHoneycombWelcome
@@ -594,48 +650,56 @@ struct ContentView: View {
 
     @ViewBuilder
     private func hubSettingsCardBackground() -> some View {
-        RoundedRectangle(cornerRadius: 14, style: .continuous)
-            .fill(.ultraThinMaterial)
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .fill(.regularMaterial)
             .overlay {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.10), lineWidth: 0.5)
             }
+            .shadow(color: .black.opacity(0.06), radius: 10, y: 4)
+    }
+
+    private var groupedPairingPIN: String {
+        let pin = hub.pairing.pin.filter(\.isNumber)
+        guard pin.count > 3 else { return hub.pairing.pin }
+        let split = pin.index(pin.startIndex, offsetBy: 3)
+        return "\(pin[..<split]) \(pin[split...])"
     }
 
     private var pairingSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(macL("mac.pairing.title"))
-                .font(.headline)
-            HStack(spacing: 12) {
-                Text(hub.pairing.pin)
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .tracking(2)
-                    .foregroundStyle(.primary)
-                    .fixedSize(horizontal: true, vertical: false)
-
-                Spacer(minLength: 12)
-
-                Button {
-                    showingRegenerateConfirm = true
-                } label: {
-                    Text(macL("mac.pairing.regenerate"))
+        HStack(alignment: .center, spacing: 18) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(macL("mac.pairing.title"))
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                HStack(alignment: .center, spacing: 10) {
+                    Text(groupedPairingPIN)
+                        .font(.system(size: 36, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                        .fixedSize(horizontal: true, vertical: false)
+                    Button {
+                        showingRegenerateConfirm = true
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 14, weight: .semibold))
+                            .frame(width: 28, height: 28)
+                            .background(.quaternary.opacity(0.7), in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .help(macL("mac.pairing.regenerate"))
                 }
-                .fixedSize(horizontal: true, vertical: false)
             }
-            connectedDevicesSection
-            if hub.server.connectedDevices.isEmpty {
-                Label(macL("mac.pairing.next_step"), systemImage: "arrow.right.circle")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(Color.accentColor)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Text(macL("mac.pairing.wifi_hint"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Divider()
+                .frame(height: 52)
+
+            pairingDevicesColumn
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background { hubSettingsCardBackground() }
         .alert(Text(macL("mac.pairing.regenerate_confirm_title")), isPresented: $showingRegenerateConfirm) {
             Button(role: .cancel) {} label: {
@@ -651,32 +715,45 @@ struct ContentView: View {
         }
     }
 
-    private var connectedDevicesSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(devicesCountText(hub.server.connectedDevices.count))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+    private var pairingDevicesColumn: some View {
+        VStack(alignment: .leading, spacing: 8) {
             if hub.server.connectedDevices.isEmpty {
-                Label(macL("mac.devices.none"), systemImage: "iphone.slash")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                HStack(alignment: .center, spacing: 12) {
+                    Image(systemName: "iphone")
+                        .font(.system(size: 28, weight: .light))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 36)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(macL("mac.pairing.next_step"))
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(macL("mac.pairing.wifi_hint"))
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
             } else {
+                Text(devicesCountText(hub.server.connectedDevices.count))
+                    .font(.callout.weight(.semibold))
                 ForEach(hub.server.connectedDevices) { device in
-                    HStack {
-                        Label(device.name, systemImage: "iphone")
-                            .font(.caption)
-                        Spacer()
+                    HStack(spacing: 8) {
+                        Image(systemName: "iphone")
+                            .foregroundStyle(.secondary)
+                        Text(device.name)
+                            .font(.callout)
+                            .lineLimit(1)
+                        Spacer(minLength: 8)
                         Button(role: .destructive) {
                             hub.server.disconnectDevice(device.id)
                         } label: {
                             Text(macL("mac.devices.disconnect"))
                         }
                         .controlSize(.small)
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.borderless)
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 8))
                 }
             }
         }
@@ -848,6 +925,12 @@ struct ContentView: View {
                 locale: uiLanguage.locale,
                 onPick: { shortcut, payload in
                     guard let pendingAddSlot else { return }
+                    if shortcut == .remoteInput, !subscription.isSubscribed {
+                        showingShortcutSheet = false
+                        self.pendingAddSlot = nil
+                        showingSubscriptionSheet = true
+                        return
+                    }
                     let displayName = shortcut.displayNameForPayload(payload, locale: uiLanguage.locale)
                     hub.grid.setShortcutSlot(
                         page: pendingAddSlot.pageId,
@@ -965,6 +1048,7 @@ private extension HubShortcutKind {
         case .copy: return HubMacL10n.string("mac.shortcut.copy", locale: locale)
         case .paste: return HubMacL10n.string("mac.shortcut.paste", locale: locale)
         case .openURL: return HubMacL10n.string("mac.shortcut.open_url", locale: locale)
+        case .remoteInput: return HubMacL10n.string("mac.shortcut.remote_input", locale: locale)
         }
     }
 
@@ -978,6 +1062,7 @@ private extension HubShortcutKind {
         case .copy: return "doc.on.doc.fill"
         case .paste: return "clipboard.fill"
         case .openURL: return "link"
+        case .remoteInput: return "keyboard"
         }
     }
 
@@ -1022,13 +1107,23 @@ private struct ShortcutPickerView: View {
     @State private var urlText = ""
     let onPick: (HubShortcutKind, String?) -> Void
 
-    private let shortcuts: [HubShortcutKind] = [.volume, .screenshotFull, .screenshotSelection, .openURL]
+    private var shortcuts: [HubShortcutKind] {
+        var items: [HubShortcutKind] = [.volume, .screenshotFull, .screenshotSelection]
+        if HubDistribution.includesRemoteInput {
+            items.append(.remoteInput)
+        }
+        items.append(.openURL)
+        return items
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(HubMacL10n.string("mac.shortcut.picker_title", locale: locale))
                 .font(.headline)
-            Text(HubMacL10n.string("mac.shortcut.picker_hint", locale: locale))
+            Text(HubMacL10n.string(
+                HubDistribution.includesRemoteInput ? "mac.shortcut.picker_hint_pro" : "mac.shortcut.picker_hint",
+                locale: locale
+            ))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

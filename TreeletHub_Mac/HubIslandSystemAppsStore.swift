@@ -22,7 +22,7 @@ final class HubIslandSystemAppsStore: ObservableObject {
     func icon(for app: HubIslandSystemApp) -> NSImage {
         if let cached = iconCache[app.id] { return cached }
         let image = NSWorkspace.shared.icon(forFile: app.url.path)
-        image.size = NSSize(width: 64, height: 64)
+        image.size = NSSize(width: 256, height: 256)
         iconCache[app.id] = image
         return image
     }
