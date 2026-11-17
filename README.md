@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  当前 <strong>Mac 1.3.1 · TreeletHub Pro</strong>
+  当前全端 <strong>1.3.1</strong>（Mac · TreeletHub Pro / iOS / Android / Watch）
   · <a href="https://models.appda.store/treelethub/TreeletHub.dmg">下载 DMG</a>
   · <a href="docs/release-notes-v1.3.1.md">本版说明</a>
 </p>
@@ -108,12 +108,12 @@ Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）
 
 ## 下载
 
-| 平台 | 链接 |
-|------|------|
-| **Mac 1.3.1 · TreeletHub Pro** | [CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg)（国内直装） |
-| **iPhone / iPad** | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
-| **Android 1.3.1** | [CDN APK](https://models.appda.store/treelethub/TreeletHub.apk)（国内直装） · [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
-| **产品页** | [treelet.us/treelethub](https://treelet.us/treelethub/) |
+| 平台 | 版本 | 链接 |
+|------|------|------|
+| **Mac · TreeletHub Pro** | 1.3.1 | [CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg)（国内直装） |
+| **iPhone / iPad / Watch** | 1.3.1 | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
+| **Android** | 1.3.1 | [CDN APK](https://models.appda.store/treelethub/TreeletHub.apk)（国内直装） · [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
+| **产品页** | — | [treelet.us/treelethub](https://treelet.us/treelethub/) |
 
 <p align="center">
   <a href="https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247">

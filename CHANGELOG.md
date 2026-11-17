@@ -2,9 +2,9 @@
 
 本文件记录 TreeletHub 面向用户的版本变化。GitHub 仓库首页可直接打开本页；安装包说明也在 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
 
-## [1.3.1] — 2026-11-17（macOS · TreeletHub Pro，当前）
+## [1.3.1] — 2026-11-17（全端统一，当前）
 
-官网直装包升至 **1.3.1**，显示名改为 **TreeletHub Pro**（与 Mac App Store 伴侣端区分）。
+**Mac / iOS / Watch / Widget / Android** 营销版本统一为 **1.3.1**；Apple 端 `CURRENT_PROJECT_VERSION` 统一为 **33**（Android `versionCode` 仍为 6）。官网直装包显示名改为 **TreeletHub Pro**（与 Mac App Store 伴侣端区分）。
 
 ### 手机键鼠遥控（仅官网 Pro）
 

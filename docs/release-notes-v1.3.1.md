@@ -1,8 +1,8 @@
 完整变更记录见仓库根目录 [CHANGELOG.md](../CHANGELOG.md)。
 
-## TreeletHub Pro 1.3.1 for macOS
+## TreeletHub 1.3.1（全端） / TreeletHub Pro for macOS
 
-官网直装包显示名为 **TreeletHub Pro**（Mac App Store 伴侣端仍为 TreeletHub）。国内下载仍走 Cloudflare CDN；GitHub Releases 作开发备用。
+营销版本全端统一为 **1.3.1**（Mac、iOS、Watch、桌面小组件、Android）。官网直装包显示名为 **TreeletHub Pro**（Mac App Store 伴侣端仍为 TreeletHub）。国内下载仍走 Cloudflare CDN；GitHub Releases 作开发备用。
 
 ### 手机键鼠遥控（仅官网 Pro）
 
