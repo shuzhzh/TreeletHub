@@ -153,6 +153,8 @@ Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）
 | 版本 | 日期 | 摘要 |
 |------|------|------|
 | **[全端 1.3.2](docs/release-notes-v1.3.2.md)** | 2026-11-17 | 手机键鼠、灵动岛可调尺寸、TreeletHub Pro 品牌 |
+| [iOS 1.3.2](docs/app-store-whats-new-ios-v1.3.2.md) | 2026-11-17 | 键鼠遥控格子、Duo/搜索配图 |
+| [Mac 1.3.2](docs/app-store-whats-new-mac-v1.3.2.md) | 2026-11-17 | 灵动岛可调尺寸（App Store 合规包） |
 | [Android 1.3.2](https://github.com/shuzhzh/TreeletHub/releases/tag/android-v1.3.2) | 2026-11-17 | 键鼠遥控、对齐全端 1.3.2 |
 | [iOS 1.3.1](docs/app-store-whats-new-ios-v1.3.1.md) | 2026-09-29 | App Store 安全蜂巢、搜索与呼叫修复 |
 | [Mac 1.3.0](https://github.com/shuzhzh/TreeletHub/releases/tag/v1.3.0) | 2026-09-18 | 灵动岛、键盘启动器、蜂巢启动墙、一次性 Pro |

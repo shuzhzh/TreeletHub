@@ -1,0 +1,3 @@
+• Floating island edges can be dragged to resize; sizes are remembered
+• Permission settings links and main window adapted for newer System Settings
+• Stability improvements

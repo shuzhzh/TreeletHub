@@ -1,0 +1,40 @@
+Launch desktop apps from your phone—without leaving the couch.
+
+TreeletHub is a computer companion that turns your favorite apps into a clean, customizable grid—and lets your phone act as a remote launcher on the same Wi‑Fi network.
+
+Build your hub on the computer
+• Arrange apps in a 3×3 grid—drag to reorder or move tiles between slots
+• Add system shortcuts: volume, brightness, media controls, screenshots, copy/paste, and custom URLs
+• Create multiple pages for more apps (subscription)
+• Pair phones with a simple six-digit code—no account required
+
+Control from your phone
+• Install the free TreeletHub companion app on your phone
+• Connect on the same Wi‑Fi and tap any tile to launch apps on the computer
+• Layout stays in sync between computer and phone
+• Perfect when the computer is at the desk and you’re across the room
+
+Floating island mode (subscription)
+Bring a floating strip to the top of your desktop:
+• Now playing media info, plus media shortcuts
+• Clock with optional hourly chime
+• Local weather and forecasts
+• Clipboard history, file staging, and nearby hand-off
+• Hub grid and shortcuts—same as on your phone
+• Collapse to a slim capsule when you want a quieter desktop
+
+Designed for your network
+TreeletHub works over your local Wi‑Fi. Pairing and sync stay on your LAN—your hub, your home network.
+
+Languages: English and Simplified Chinese.
+
+Requirements
+• A computer running TreeletHub
+• TreeletHub for phone (free) for remote launch and pairing
+• Phone and computer on the same Wi‑Fi; grant Local Network permission on the phone when prompted
+
+Subscription
+Subscribe to unlock multiple hub pages and floating island mode. Manage or cancel anytime in System Settings → Apple Account → Subscriptions. Subscriptions auto-renew until cancelled.
+
+Standard Apple Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://treelet.us/treelethub/treelet-hub-privacy.html

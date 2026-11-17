@@ -1,0 +1,1 @@
+launcher,remote,hub,apps,shortcuts,floating island,wifi,control,desktop,grid,pairing,phone,companion

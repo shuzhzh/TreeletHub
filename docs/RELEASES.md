@@ -76,6 +76,15 @@ DMG 放在 `releases/TreeletHub.dmg`，推送 **版本 tag**（如 `v1.2.7`）�
 5. 直链示例：
    - CDN：`https://models.appda.store/treelethub/TreeletHub.apk`
    - GitHub：`https://github.com/shuzhzh/TreeletHub/releases/download/android-v1.3.1/TreeletHub-Android-1.3.1.apk`
+6. **Google Play**（正式轨）：用签名环境变量打 AAB 后上传：
+   ```bash
+   export TREELET_KEYSTORE=/path/to/treelet.jks
+   export TREELET_KEYSTORE_PASSWORD=...
+   export TREELET_KEY_ALIAS=key0
+   cd TreeHub_Android && ./gradlew :app:bundleRelease
+   python3 scripts/play_release_1_3_2.py   # 或对应版本脚本
+   ```
+   OAuth 凭证：`~/.config/yun/play-oauth.json`（本机私有，勿提交）。
 
 ## iOS 二维码
 

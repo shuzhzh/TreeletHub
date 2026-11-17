@@ -22,6 +22,22 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    val releaseStoreFile = System.getenv("TREELET_KEYSTORE")
+    val releaseStorePassword = System.getenv("TREELET_KEYSTORE_PASSWORD")
+    val releaseKeyAlias = System.getenv("TREELET_KEY_ALIAS") ?: "key0"
+    val releaseKeyPassword = System.getenv("TREELET_KEY_PASSWORD") ?: releaseStorePassword
+
+    signingConfigs {
+        if (!releaseStoreFile.isNullOrBlank() && !releaseStorePassword.isNullOrBlank()) {
+            create("release") {
+                storeFile = file(releaseStoreFile)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -29,6 +45,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }
     compileOptions {

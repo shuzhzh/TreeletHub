@@ -1,17 +1,20 @@
-TreeletHub is your Wi‑Fi remote for the apps and shortcuts on your computer.
+TreeletHub is your phone productivity launcher: a honeycomb wall for the apps you open every day—and a Wi‑Fi remote for the apps and shortcuts on your computer companion.
 
-Arrange a honeycomb launcher on the desktop companion, then tap from your phone on the same trusted network—no cloud account needed for core pairing and sync.
-
-What’s new in this release:
-• Honeycomb phone launcher with App Store icons and one-tap open for apps that publish a public URL
-• Home Screen widget that hands off into TreeletHub, then opens the target app
+On your phone alone
+• Honeycomb launcher: search and add launchable apps with clear artwork
+• Home Screen widgets: hand off from the widget straight into the target app
 • One-tap calling: pick contacts, then dial from the honeycomb
-• System camera capture when the Camera app has no public launch URL
-• Search the App Store catalog; only launchable apps can be added
+• System camera: jump to the system camera capture flow when you need a photo
+• Open apps that provide a public launch link; only launchable apps can be added
 
-Also included:
-• Short pairing code on your local network
-• Synced layout with the desktop companion
-• Local-network discovery and control by default
+When paired with the computer companion
+• Tap to remote-launch desktop apps, web shortcuts, and system actions
+• Use Keyboard & Mouse remote when your computer companion supports it
+• Two-finger swipe down to show the desktop; inline volume, brightness, and media controls
+• Layouts sync with the companion; multiple phones can connect at once
 
-Install the desktop companion first, then use this iPhone app as the remote. Pairing and layout sync stay on your LAN unless you use other Treelet services separately.
+Privacy & connection
+• Short pairing code; discovery and sync stay on your local network by default
+• Core pairing and remote control need no cloud account
+
+Set up your phone honeycomb anytime. To remote-control a computer, install the companion and pair on the same network.
