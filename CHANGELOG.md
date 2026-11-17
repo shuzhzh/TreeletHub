@@ -2,9 +2,13 @@
 
 本文件记录 TreeletHub 面向用户的版本变化。GitHub 仓库首页可直接打开本页；安装包说明也在 [Releases](https://github.com/shuzhzh/TreeletHub/releases)。
 
-## [1.3.1] — 2026-11-17（全端统一，当前）
+## [1.3.2] — 2026-11-17（全端，当前）
 
-**Mac / iOS / Watch / Widget / Android** 营销版本统一为 **1.3.1**；Apple 端 `CURRENT_PROJECT_VERSION` 统一为 **33**（Android `versionCode` 仍为 6）。官网直装包显示名改为 **TreeletHub Pro**（与 Mac App Store 伴侣端区分）。
+经 App Store Connect API 核对后统一升版：**Mac / iOS / Watch / Widget / Android = 1.3.2**；Apple build **34**；Android `versionCode` **7**。
+
+- Mac 线上仍为 1.3.0；ASC 上曾有空的 1.3.1 草稿（未挂 build），本版改发 **1.3.2**。
+- iOS 线上已是 1.3.1（build 33），不能再占 1.3.1，故与 Mac 一并升到 **1.3.2**。
+- 官网直装包显示名 **TreeletHub Pro**（与 Mac App Store 伴侣端区分）。
 
 ### 手机键鼠遥控（仅官网 Pro）
 
@@ -19,7 +23,7 @@
 - 岛变大后界面元素随比例放大。
 - 输入监控权限探测更可靠；键盘启动器只依赖输入监控。
 
-详细说明：[docs/release-notes-v1.3.1.md](docs/release-notes-v1.3.1.md)
+详细说明：[docs/release-notes-v1.3.2.md](docs/release-notes-v1.3.2.md)
 
 ## [1.3.1] — 2026-09-29（iOS）
 

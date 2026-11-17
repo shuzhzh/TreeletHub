@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  当前全端 <strong>1.3.1</strong>（Mac · TreeletHub Pro / iOS / Android / Watch）
+  当前全端 <strong>1.3.2</strong>（Mac · TreeletHub Pro / iOS / Android / Watch）
   · <a href="https://models.appda.store/treelethub/TreeletHub.dmg">下载 DMG</a>
-  · <a href="docs/release-notes-v1.3.1.md">本版说明</a>
+  · <a href="docs/release-notes-v1.3.2.md">本版说明</a>
 </p>
 
 ---
@@ -110,9 +110,9 @@ Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）
 
 | 平台 | 版本 | 链接 |
 |------|------|------|
-| **Mac · TreeletHub Pro** | 1.3.1 | [CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg)（国内直装） |
-| **iPhone / iPad / Watch** | 1.3.1 | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
-| **Android** | 1.3.1 | [CDN APK](https://models.appda.store/treelethub/TreeletHub.apk)（国内直装） · [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
+| **Mac · TreeletHub Pro** | 1.3.2 | [CDN DMG](https://models.appda.store/treelethub/TreeletHub.dmg)（国内直装） |
+| **iPhone / iPad / Watch** | 1.3.2 | [App Store](https://apps.apple.com/app/treelethub-%E6%95%88%E7%8E%87-%E6%8E%A7%E5%88%B6%E5%8F%B0/id6762348247) |
+| **Android** | 1.3.2 | [CDN APK](https://models.appda.store/treelethub/TreeletHub.apk)（国内直装） · [Google Play](https://play.google.com/store/apps/details?id=com.treelet.treelethub) |
 | **产品页** | — | [treelet.us/treelethub](https://treelet.us/treelethub/) |
 
 <p align="center">
@@ -152,7 +152,7 @@ Android 上点按 **Codex** 仍可打开控制键盘（深链接 / 本机 CLI）
 
 | 版本 | 日期 | 摘要 |
 |------|------|------|
-| **[Mac 1.3.1](docs/release-notes-v1.3.1.md)** | 2026-11-17 | 手机键鼠、灵动岛可调尺寸、TreeletHub Pro 品牌 |
+| **[全端 1.3.2](docs/release-notes-v1.3.2.md)** | 2026-11-17 | 手机键鼠、灵动岛可调尺寸、TreeletHub Pro 品牌 |
 | [iOS 1.3.1](docs/app-store-whats-new-ios-v1.3.1.md) | 2026-09-29 | App Store 安全蜂巢、搜索与呼叫修复 |
 | [Mac 1.3.0](https://github.com/shuzhzh/TreeletHub/releases/tag/v1.3.0) | 2026-09-18 | 灵动岛、键盘启动器、蜂巢启动墙、一次性 Pro |
 | [Android 1.3.1](https://github.com/shuzhzh/TreeletHub/releases/tag/android-v1.3.1) | 2026-09-18 | 蜂巢启动墙、对齐 iOS |
